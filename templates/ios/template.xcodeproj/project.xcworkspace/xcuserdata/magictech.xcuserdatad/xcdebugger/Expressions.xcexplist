@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VariablesViewState
+   version = "1.0">
+   <ContextStates>
+      <ContextState
+         contextName = "-[EAGLView draw]:EAGLView.mm">
+      </ContextState>
+      <ContextState
+         contextName = "Magic3D::PVR::getTexture(Magic3D::File*, Magic3D::TEXTURE, std::string, bool):image_pvr.mm">
+         <PersistentStrings>
+            <PersistentString
+               value = "file">
+            </PersistentString>
+            <PersistentString
+               value = "textureFormat">
+            </PersistentString>
+            <PersistentString
+               value = "target">
+            </PersistentString>
+            <PersistentString
+               value = "pvrHeader">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "Magic3D::RendererOpenGL_Shaders::render(Magic3D::Scene*):renderer_shaders.cpp">
+      </ContextState>
+      <ContextState
+         contextName = "Magic3D::MeshData::getTrianglesCount():mesh.cpp">
+      </ContextState>
+      <ContextState
+         contextName = "Magic3D::RendererOpenGL_Shaders::renderLights(Magic3D::GLSLShader*, Magic3D::RenderObject const*):renderer_shaders.cpp">
+      </ContextState>
+      <ContextState
+         contextName = "Magic3D::RendererOpenGL_Shaders::renderMeshData(Magic3D::MeshData*, Magic3D::GLSLShader*, bool):renderer_shaders.cpp">
+         <PersistentStrings>
+            <PersistentString
+               value = "skin">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[ViewController orientationChanged:]:ViewController.mm">
+         <PersistentStrings>
+            <PersistentString
+               value = "glView.bounds">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "Magic3D::RendererOpenGL_Shaders::prepareMaterial(Magic3D::GLSLShader*, Magic3D::Material*, Magic3D::Object*):renderer_shaders.cpp">
+         <PersistentStrings>
+            <PersistentString
+               value = "object">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[AppDelegate application:didFinishLaunchingWithOptions:]:AppDelegate.mm">
+      </ContextState>
+      <ContextState
+         contextName = "-[EAGLView createFramebuffer]:EAGLView.mm">
+      </ContextState>
+      <ContextState
+         contextName = "Magic3D::RendererOpenGL_Shaders::renderMeshData(Magic3D::MeshData*, Magic3D::GLSLShader*, Magic3D::Object*):renderer_shaders.cpp">
+         <PersistentStrings>
+            <PersistentString
+               value = "data">
+            </PersistentString>
+            <PersistentString
+               value = "sizeof(Vertex3D)">
+            </PersistentString>
+            <PersistentString
+               value = "object-&gt;getName()">
+            </PersistentString>
+            <PersistentString
+               value = "sizeof(vindex)">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "Magic3D::Magic3D::getLoadAdditiveStart():magic3d.cpp">
+         <PersistentStrings>
+            <PersistentString
+               value = "this-&gt;loadAdditiveStart">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+   </ContextStates>
+</VariablesViewState>

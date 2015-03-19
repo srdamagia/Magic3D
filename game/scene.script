@@ -1,0 +1,116 @@
+-- "magic3d" is a singleton.
+
+function start()
+    --Code here
+end;
+
+function update()
+    --Code here
+end;
+
+function finish()
+    --Code here
+end;
+
+--[[********************************************************************************
+function on_keyboard_down(key)
+    --Code here
+end;
+--]]
+
+--[[
+function on_keyboard_pressed(key)
+    --Code here
+end;
+--]]
+
+--[[
+function on_keyboard_up(key)
+    --Code here
+end;
+--]]
+
+--[[********************************************************************************
+function on_mouse_down(x, y, button)
+    --Code here
+end;
+--]]
+
+--[[
+function on_mouse_pressed(x, y, button)
+    --Code here
+end;
+--]]
+
+--[[
+function on_mouse_up(x, y, button)
+    --Code here
+end;
+--]]
+
+--[[
+function on_mouse_move(deltaX, deltaY)
+    --Code here
+end;
+--]]
+
+--[[
+function on_mouse_wheel(x, y, delta)
+    --Code here
+end;
+--]]
+
+--[[********************************************************************************
+function on_joystick_down(button)
+    --Code here
+end;
+--]]
+
+--[[
+function on_joystick_pressed(button)
+    --Code here
+end;
+--]]
+
+--[[
+function on_joystick_up(button)
+    --Code here
+end;
+--]]
+
+--[[********************************************************************************
+function on_touch_down(x, y, finger)
+    --Code here
+end;
+--]]
+
+--[[
+function on_touch_pressed(x, y, finger)
+    --Code here
+end;
+--]]
+
+--[[
+function on_touch_up(x, y, finger)
+    --Code here
+end;
+--]]
+
+--[[
+function on_touch_move(deltaX, deltaY, finger);
+    --Code here
+end;
+--]]
+
+
+--[[********************************************************************************
+function on_accelerometer(x, y, z);
+    --Code here
+end;
+--]]
+
+--[[
+function on_gyroscope(x, y, z);
+    --Code here
+end;
+--]]

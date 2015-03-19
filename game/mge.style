@@ -1,0 +1,315 @@
+QWidget,
+QMenuBar,
+QMenuBar::item::!selected
+{
+    color: rgb(169, 169, 169);
+    background-color: rgb(68, 68, 68);
+}
+
+QMenu::item::selected,
+QMenuBar::item::selected
+{
+    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                      stop:0 #616161, stop: 0.5 #505050,
+                                      stop: 0.6 #434343, stop:1 #656565);
+}
+
+QToolTip
+{
+    color: white;
+    border: 2px solid rgb(68, 68, 68);
+    background-color: gray;
+    border-radius: 3px;
+    opacity: 200;
+}
+
+QToolBar
+{
+    border: 1px solid;
+    border-color: gray;
+}
+
+QToolButton:pressed,
+QToolButton:checked,
+QToolButton:hover,
+QMenu::item::checked,
+QMenuBar::item::checked
+{
+    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                      stop:0 #616161, stop: 0.5 #505050,
+                                      stop: 0.6 #434343, stop:1 #656565);
+}
+
+QDialog QPushButton
+{
+    min-width: 75px;
+    min-height: 23px;
+}
+
+QDoubleSpinBox,
+QSpinBox
+{
+    border: 1px solid;
+    border-color: gray;
+    color: rgb(0, 0, 0);
+    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                      stop:0 rgb(160, 160, 160),
+                                      stop:1 rgb(178, 178, 178));
+    selection-color: white;
+    selection-background-color: gray;
+    padding-bottom: 1px;
+}
+
+QSpinBox::up-button,
+QDoubleSpinBox::up-button
+{
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+
+    width: 16px;
+    height: 7px;
+}
+
+QSpinBox::down-button,
+QDoubleSpinBox::down-button
+{
+    subcontrol-origin: padding;
+    subcontrol-position: bottom right;
+
+    width: 16px;
+    height: 7px;
+}
+
+QPushButton
+{
+    border: 1px outset gray;
+    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                      stop:0 #616161, stop: 0.5 #505050,
+                                      stop: 0.6 #434343, stop:1 #656565);
+}
+
+QPushButton:pressed
+{
+    background-color: rgb(51, 51, 51);
+}
+QPushButton:!enabled
+{
+    background-color: rgb(68, 68, 68);
+}
+
+QCheckBox,
+QRadioButton
+{
+    color: rgb(169, 169, 169);
+}
+
+QComboBox,
+QLineEdit
+{
+        padding-bottom: 1px;
+}
+
+QComboBox,
+QLineEdit,
+QTableWidget
+{
+    border: 1px solid;
+    border-color: gray;
+    color: rgb(0, 0, 0);
+    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                      stop:0 rgb(160, 160, 160),
+                                      stop:1 rgb(178, 178, 178));
+    selection-color: white;
+    selection-background-color: gray;
+}
+
+QTextEdit,
+QPlainTextEdit
+{
+    border: none;
+    color: rgb(0, 0, 0);
+    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                      stop:0 rgb(160, 160, 160),
+                                      stop:1 rgb(178, 178, 178));
+    selection-color: white;
+    selection-background-color: gray;
+}
+
+QComboBox:!enabled,
+QSpinBox:!enabled,
+QDoubleSpinBox:!enabled,
+QTextEdit:!enabled,
+QLineEdit:!enabled,
+QTableWidget:!enabled,
+QPlainTextEdit:!enabled
+{
+    color: rgb(169, 169, 169);
+    background-color: rgb(68, 68, 68);
+}
+
+QTabWidget::pane
+{
+    border: 1px solid gray;
+}
+
+QGroupBox
+{
+    border: 1px solid;
+    border-color: gray;
+    border-radius: 5px;
+    margin-top: 2ex;
+}
+
+QGroupBox::title
+{
+    subcontrol-position: top left;
+    subcontrol-origin: margin;
+    position: absolute;
+    top: 0px; left: 2ex; bottom: 0px;
+}
+
+QComboBox QAbstractItemView
+{
+    border: 2px solid gray;
+    selection-color: rgb(169, 169, 169);
+    selection-background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                                stop:0 #616161, stop: 0.5 #505050,
+                                                stop: 0.6 #434343, stop:1 #656565);
+}
+
+QLabel
+{
+    color: rgb(169, 169, 169);
+}
+
+QTableView QTableCornerButton::section,
+QHeaderView::section
+{
+    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                      stop:0 #616161, stop: 0.5 #505050,
+                                      stop: 0.6 #434343, stop:1 #656565);
+    color: rgb(169, 169, 169);
+    padding-left: 4px;
+    border: 1px solid #6c6c6c;
+}
+
+QTabBar::tab,
+QToolBox::tab
+{
+    min-height: 18px;
+    min-width: 75px;
+    background-color: rgb(51, 51, 51);
+    color: rgb(169, 169, 169);
+    padding-left: 4px;
+        padding-right: 4px;
+    border: 1px solid gray;
+}
+
+QTabBar::tab:!selected
+{
+    margin-bottom: 3px;
+}
+
+QTabBar::tab:selected,
+QTabBar::tab:hover,
+QToolBox::tab:selected,
+QToolBox::tab:hover
+{
+    min-height: 21px;
+    min-width: 75px;
+    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                      stop:0 #616161, stop: 0.5 #505050,
+                                      stop: 0.6 #434343, stop:1 #656565);
+    border: 1px solid gray;
+}
+
+QListWidget,
+QListView
+{
+    border: 1px solid;
+    border-color: gray;
+    color: rgb(169, 169, 169);
+    background-color: rgb(68, 68, 68);
+    qproperty-selectionBehavior: SelectRows;
+}
+
+QTreeView
+{
+    border: 1px solid;
+    border-color: gray;
+    background-color: rgb(68, 68, 68);
+    qproperty-selectionBehavior: SelectRows;
+}
+
+QListWidget::item:selected,
+QListWidget::item:hover,
+QTreeView::item:selected,
+QTreeView::item:hover
+{
+    color: rgb(169, 169, 169);
+    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                      stop:0 #616161, stop: 0.5 #505050,
+                                      stop: 0.6 #434343, stop:1 #656565);
+}
+
+QTreeView::branch:has-children:!has-siblings:closed,
+QTreeView::branch:closed:has-children:has-siblings {
+     border-image: none;
+     image: url(:/MagicGameEditor/Images/branch-closed.png);
+ }
+
+ QTreeView::branch:open:has-children:!has-siblings,
+ QTreeView::branch:open:has-children:has-siblings  {
+     border-image: none;
+     image: url(:/MagicGameEditor/Images/branch-open.png);
+ }
+
+QDockWidget::title
+{
+    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                      stop:0 #616161, stop: 0.5 #505050,
+                                      stop: 0.6 #434343, stop:1 #656565);
+    color: rgb(169, 169, 169);
+    text-align: left;
+    border: 1px solid #6c6c6c;
+    padding-left: 40px;
+    padding-top: -2px;
+}
+
+QDockWidget::close-button {
+    subcontrol-position: top left;
+    subcontrol-origin: margin;
+    position: absolute;
+    top: 0px; left: 0px; bottom: 0px;
+    width: 16px;
+    border: none;
+ }
+
+QDockWidget::float-button {
+    subcontrol-position: top left;
+    subcontrol-origin: margin;
+    position: absolute;
+    top: 0px; left: 16px; bottom: 0px;
+    width: 16px;
+    border: none;
+}
+
+#dockVertex::title,
+#dockFragment::title
+{
+    padding-left: 6px;
+}
+
+QStatusBar::item
+{
+    border: none;
+}
+
+#lblTitle
+{
+    color: rgb(169, 169, 169);
+    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                      stop:0 #616161, stop: 0.5 #505050,
+                                      stop: 0.6 #434343, stop:1 #656565);
+    border: 1px solid #6c6c6c;
+}

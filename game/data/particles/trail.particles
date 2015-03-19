@@ -1,0 +1,58 @@
+<?0.9.0?>
+<MGE>
+    <!-- MGE Particles -->
+    <name>particles</name>
+    <type>0</type>
+    <visible>1</visible>
+    <double_side>0</double_side>
+    <illuminated>0</illuminated>
+    <fog>0</fog>
+	<reflective>0</reflective>
+    <glow>0</glow>
+    <cast_shadows>0</cast_shadows>
+    <receive_shadows>0</receive_shadows>
+    <material>particles</material>
+    <Particles>
+		<playing>1</playing>
+        <loop>1</loop>
+        <recreate_when_die>0</recreate_when_die>
+        <follow_emitter>0</follow_emitter>
+        <creation_direction>0</creation_direction>
+        <inverted_direction>0</inverted_direction>
+        <trail>1</trail>
+        <min_speed>0</min_speed>
+        <max_speed>0</max_speed>
+        <min_acceleration>0</min_acceleration>
+        <max_acceleration>0</max_acceleration>
+        <min_age>0.01</min_age>
+        <max_age>0.1</max_age>
+        <min_emit_size>1</min_emit_size>
+        <max_emit_size>1</max_emit_size>
+        <min_die_size>0.25</min_die_size>
+        <max_die_size>0.5</max_die_size>
+        <min_spin_speed>-180</min_spin_speed>
+        <max_spin_speed>180</max_spin_speed>
+        <min_spin_acceleration>-180</min_spin_acceleration>
+        <max_spin_acceleration>180</max_spin_acceleration>
+        <min_radius>0</min_radius>
+        <max_radius>0</max_radius>
+        <min_creation_distance x="0" y="0" z="0"/>
+        <max_creation_distance x="0" y="0" z="0"/>
+        <acceleration x="0" y="0" z="0"/>
+        <min_emit_color r="1" g="0" b="0" a="1"/>
+        <max_emit_color r="1" g="0" b="0" a="1"/>
+        <min_die_color r="1" g="0" b="0" a="0"/>
+        <max_die_color r="1" g="0" b="0" a="0"/>
+        <billboard_particle>0</billboard_particle>
+        <min_particles_count>50</min_particles_count>
+        <max_particles_count>50</max_particles_count>
+        <particles_second>50</particles_second>
+        <uv1_uv2 x="0.876" y="0.124" z="0.876" w="0.01"/>
+        <uv3_uv4 x="0.99" y="0.01" z="0.99" w="0.124"/>
+		<distortion>0</distortion>
+        <distortion_type>0</distortion_type>
+        <distortion_frequency>1</distortion_frequency>
+        <distortion_factor>0.05</distortion_factor>
+        <distortion_wave>1</distortion_wave>
+    </Particles>
+</MGE>

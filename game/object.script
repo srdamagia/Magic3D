@@ -1,0 +1,26 @@
+-- Use "this" to reference the object.
+-- "magic3d" is a singleton.
+
+---[[
+function start()
+    --Code here
+end;
+--]]
+
+---[[
+function AI()
+    --Code here
+end;
+--]]
+
+---[[
+function collide(object, selfPosition, objectPosition, objectNormal)
+    --Code here
+end;
+--]]
+
+---[[
+function finish()
+    --Code here
+end;
+--]]
