@@ -50,3 +50,16 @@ Entirely built using standard C and C++ portable game engine with focus on mobil
 * Audio: OGG
 * Video: OGV
 * Others: XML
+
+License
+-------
+
+Magic3D is released under the zlib license.
+
+Libraries
+------------
+http://www.opengl.org
+http://www.openal.org
+http://bulletphysics.org
+http://www.lua.org
+https://github.com/leethomason/tinyxml2
