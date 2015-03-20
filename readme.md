@@ -58,8 +58,14 @@ Magic3D is released under the zlib license.
 
 Libraries
 ------------
-http://www.opengl.org
-http://www.openal.org
-http://bulletphysics.org
-http://www.lua.org
-https://github.com/leethomason/tinyxml2
+* http://www.opengl.org
+* https://www.khronos.org/opengles/
+* http://www.openal.org
+* http://bulletphysics.org
+* http://www.lua.org
+* https://github.com/leethomason/tinyxml2
+* http://www.vorbis.com/
+* http://www.zlib.net/
+* http://www.libpng.org/
+* https://collada.org/
+* http://www.theora.org/
