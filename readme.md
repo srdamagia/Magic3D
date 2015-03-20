@@ -21,11 +21,11 @@ Entirely built using standard C and C++ portable game engine with focus on mobil
 
 ####Physics:
 
-* Integration and full access to the Bullet Physics API.
+* Integration and full access to the Bullet Physics API. http://bulletphysics.org
 
 ####Scripting:
 
-* Integration and full access to the Lua Programming Language.
+* Integration and full access to the Lua Programming Language. http://www.lua.org
 
 ####Shaders and Effects:
 
