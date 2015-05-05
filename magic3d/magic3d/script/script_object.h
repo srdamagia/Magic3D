@@ -58,6 +58,7 @@ public:
     int rotate(lua_State *lua);
     int size(lua_State *lua);
     int setSize(lua_State *lua);
+    int getSize(lua_State *lua);
 
     int setParent(lua_State *lua);
     int getParent(lua_State *lua);

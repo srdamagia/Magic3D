@@ -175,6 +175,8 @@ protected:
     bool extDepthTexture;
     bool showGizmos;
     bool showGizmosPhysics;
+    bool showOctree;
+    bool showOctreeObjects;
     bool screenEffects;
 
     Renderer();
@@ -287,6 +289,11 @@ public:
 
     bool isShowingGizmosPhysics();
     void setShowGizmosPhysics(bool show);
+
+    bool isShowingOctree();
+    void setShowOctree(bool show);
+    bool isShowingOctreeObjects();
+    void setShowOctreeObjects(bool show);
 
     bool isUsingScreenEffects();
     void setUsingScreenEffects(bool effects);

@@ -75,7 +75,18 @@ namespace Magic3D
 
 struct Particle
 {
-    Particle() {position = Vector3(0.0f, 0.0f, 0.0f), direction = Vector3(0.0f, 0.0f, 0.0f), dieAge = 0.0f; age = 0.0f; size = 0.0f; sizeFactor = 0.0f; angle = 0.0f; color = ColorRGBA(1.0f, 1.0f, 1.0f, 1.0f); alive = false;}
+    Particle() {position = Vector3(0.0f, 0.0f, 0.0f),
+                direction = Vector3(0.0f, 0.0f, 0.0f),
+                dieAge = 0.0f;
+                age = 0.0f;
+                dieSize = 0.0f;
+                size = 0.0f;
+                sizeFactor = 0.0f;
+                angle = 0.0f;
+                color = ColorRGBA(1.0f, 1.0f, 1.0f, 1.0f);
+                dieColor = ColorRGBA(1.0f, 1.0f, 1.0f, 1.0f);
+                colorFactor = ColorRGBA(1.0f, 1.0f, 1.0f, 1.0f);
+                alive = false;}
 
     ColorRGBA dieColor;
     ColorRGBA color;

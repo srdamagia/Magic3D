@@ -1,7 +1,7 @@
 #include <magic3d/magic3d.h>
 
 #define DEFAULT_SCENE "main"
-static int stopLoading = true;
+static int stopLoading = false;
 
 class Event : public Magic3D::EventListener_Keyboard
 {

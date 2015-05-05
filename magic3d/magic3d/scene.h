@@ -24,6 +24,7 @@ subject to the following restrictions:
 #ifndef MAGIC3D_SCENE_H
 #define MAGIC3D_SCENE_H
 
+#include <magic3d/octree.h>
 #include <magic3d/type.h>
 #include <magic3d/gui/guilabel.h>
 #include <magic3d/gui/joystick.h>
@@ -120,6 +121,7 @@ protected:
     std::vector<Layer*> layers;
 
 private:
+    Octree* octree;
     std::list<RenderObject> objects2D;
     std::list<RenderObject> objects3D;
     std::list<RenderObject> shadows;
@@ -188,6 +190,9 @@ private:
 
     void setCurrentLayerXML(bool next);
 
+    void prepareUpdate(Camera* camera, bool reflectives = true, bool reflections = false, bool anyType = false);
+    void updateVisibleObjectsFromOctreeNode(Octree* octree, Camera* camera, bool reflectives, bool reflections, bool anyType);
+
     Scene();
     virtual ~Scene();
 
@@ -200,8 +205,10 @@ public:
     virtual bool update();
     void addObject(Object* object);
     void addObject(std::string layer, Object* object);
+    void addObject(Layer* layer, Object* object);
     void removeObject(std::string name);
     void removeObject(std::string layer, std::string name);
+    void removeObject(Layer* layer, Object*);
     int getObjectCount();
 
     void addLayer(Layer* layer);
@@ -210,10 +217,13 @@ public:
     int getLayerIndex(std::string name);
     std::vector<Layer*>* getLayers();
 
-    void updateVisibleObjects2D(Camera* camera, bool profile = true);
+    void updateVisibleObjects2D(Camera* camera, bool profile = true);    
     void updateVisibleObjects3D(Camera* camera, bool reflectives = true, bool reflections = false, bool anyType = false);
+    void updateVisibleObjectsOctree(Camera* camera, bool reflectives = true, bool reflections = false, bool anyType = false);
     void updateFrustumCulling(Camera* camera2D, Camera* camera3D);
     float getFrustumMS();
+
+    Octree* getOctree();
 
     std::list<Object*>* getVisibleLights(Camera* camera);
 

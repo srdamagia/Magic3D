@@ -164,9 +164,7 @@ void Magic3D::Script::play(bool startScript)
     ScriptClass<ScriptColor>::Register(lua);
     ScriptClass<ScriptObject>::Register(lua);
 
-    int M3D = ScriptClass<ScriptMagic3D>::push(lua, m3d);
-    lua_pushvalue(lua, M3D);
-    lua_remove(lua, -1);
+    ScriptClass<ScriptMagic3D>::push(lua, m3d);
     lua_setglobal(lua, "magic3d");
 
     playing = reload();
@@ -206,7 +204,7 @@ void Magic3D::Script::stop(bool finishScript)
                 object->killChildren();
                 if (object->getLayer())
                 {
-                    object->getLayer()->removeObject(object);
+                    Scene::getInstance()->removeObject(object->getLayer(), object);
                 }
                 ResourceManager::getObjects()->remove(object->getName());
             }
@@ -554,7 +552,7 @@ bool Magic3D::Script::loadObject(std::string name)
     {
         hasErrors = true;
         result = false;
-        log(std::string("Load Object: ") + name);
+        log(std::string("Load Object error: ") + name);
     }
 
     lua_pcall(lua, 0, 0, 0);
@@ -880,24 +878,16 @@ void Magic3D::Script::call_collision(PhysicsObject* object, PhysicsObject* colli
     if (startCall(function_collide, object->getAsObject()->getName()))
     {
         ScriptObject* obj = new ScriptObject(collider->getAsObject());
-        int OBJ = ScriptClass<ScriptObject>::push(lua, obj, true);
-        lua_pushvalue(lua, OBJ);
-        lua_remove(lua, -1);
+        ScriptClass<ScriptObject>::push(lua, obj, true);
 
         ScriptVector3* vec = new ScriptVector3(selfPosition);
-        int VEC = ScriptClass<ScriptVector3>::push(lua, vec, true);
-        lua_pushvalue(lua, VEC);
-        lua_remove(lua, -1);
+        ScriptClass<ScriptVector3>::push(lua, vec, true);
 
         vec = new ScriptVector3(objectPosition);
-        VEC = ScriptClass<ScriptVector3>::push(lua, vec, true);
-        lua_pushvalue(lua, VEC);
-        lua_remove(lua, -1);
+        ScriptClass<ScriptVector3>::push(lua, vec, true);
 
         vec = new ScriptVector3(objectNormal);
-        VEC = ScriptClass<ScriptVector3>::push(lua, vec, true);
-        lua_pushvalue(lua, VEC);
-        lua_remove(lua, -1);
+        ScriptClass<ScriptVector3>::push(lua, vec, true);
 
         call(function_collide, 4, object->getAsObject()->getName());
     }

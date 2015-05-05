@@ -112,7 +112,7 @@ int Magic3D::ScriptColor::setValue(lua_State *lua)
     color.r = luaL_checknumber(lua, 1);
     color.g = luaL_checknumber(lua, 2);
     color.b = luaL_checknumber(lua, 3);
-    color.a = luaL_checknumber(lua, 3);
+    color.a = luaL_checknumber(lua, 4);
     return 0;
 }
 

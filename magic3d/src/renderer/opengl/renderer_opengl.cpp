@@ -880,8 +880,11 @@ void Magic3D::Renderer_OpenGL::resizeWindow(int width, int height)
 
         screenAspect = Vector4(aspectX, aspectY, getScreenAspectX(true), getScreenAspectY(true));
 
-        screenViewPort->setWidth(fbo_screen->getWidth() * aspectX + 1);
-        screenViewPort->setHeight(fbo_screen->getHeight() * aspectY + 1);
+        if (fbo_screen)
+        {
+            screenViewPort->setWidth(fbo_screen->getWidth() * aspectX + 1);
+            screenViewPort->setHeight(fbo_screen->getHeight() * aspectY + 1);
+        }
     }
 }
 

@@ -88,6 +88,7 @@ public:
 
     void addReference(Xml* reference);
     virtual void removeReference(Xml* reference);
+    bool hasReference(Xml* reference);
     void clearReferences();
 };
 

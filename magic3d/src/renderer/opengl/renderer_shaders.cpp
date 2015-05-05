@@ -506,7 +506,7 @@ bool Magic3D::RendererOpenGL_Shaders::renderFBO(OpenGL_FBO* fbo, ViewPort* view,
 
         if (fbo)
         {
-            scene->updateVisibleObjects3D(camera);
+            scene->updateVisibleObjectsOctree(camera);
         }
 
         renderObjects(camera, scene->getVisibleObjects3D(), scene, true, true, true);
@@ -790,7 +790,7 @@ bool Magic3D::RendererOpenGL_Shaders::renderShadows(Scene* scene)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
         check_gl_error();
 
-        scene->updateVisibleObjects3D(light);
+        scene->updateVisibleObjectsOctree(light);
         std::list<RenderObject>* shadowObjects = scene->getShadows();
 
         matrix_view = light->getView();
@@ -913,7 +913,7 @@ bool Magic3D::RendererOpenGL_Shaders::renderReflections(Scene* scene, Camera *ca
             camera->reflection(water, eye);
             matrix_view = camera->getView(eye);
             matrix_projection = camera->getProjection(eye);
-            scene->updateVisibleObjects3D(camera, false, true);
+            scene->updateVisibleObjectsOctree(camera, false, true);
 
             glFrontFace(GL_CW);
             check_gl_error();
@@ -2111,7 +2111,7 @@ bool Magic3D::RendererOpenGL_Shaders::renderGrid(Camera* camera, Object* object,
 
 bool Magic3D::RendererOpenGL_Shaders::renderAxis(Camera* camera, Object* object)
 {
-    if (!isShowingGizmos())
+    if (!isShowingGizmos() || !object->isInFrustum())
     {
         return false;
     }
@@ -2128,7 +2128,7 @@ bool Magic3D::RendererOpenGL_Shaders::renderAxis(Camera* camera, Object* object)
 
 bool Magic3D::RendererOpenGL_Shaders::renderGizmo(Camera* camera, ViewPort* view, Object* object, GIZMO_TYPE type, ColorRGBA color, Vector3 scale, bool physics, bool vertexColor, bool wire, bool depth)
 {
-    if (!isShowingGizmos())
+    if (!isShowingGizmos() || !object->isInFrustum())
     {
         return false;
     }
@@ -2515,7 +2515,7 @@ bool Magic3D::RendererOpenGL_Shaders::renderGizmo(Camera* camera, ViewPort* view
 
 bool Magic3D::RendererOpenGL_Shaders::renderBoundingBox(Camera* camera, Object* object)
 {
-    if (!isShowingGizmos())
+    if (!isShowingGizmos() || !object->isInFrustum())
     {
         return false;
     }
@@ -2564,7 +2564,7 @@ bool Magic3D::RendererOpenGL_Shaders::renderBoundingBox(Camera* camera, Object* 
 
 bool Magic3D::RendererOpenGL_Shaders::renderSkeleton(Camera* camera, Object* object)
 {
-    if (!isShowingGizmos())
+    if (!isShowingGizmos() || !object->isInFrustum())
     {
         return false;
     }

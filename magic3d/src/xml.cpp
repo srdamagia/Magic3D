@@ -460,6 +460,26 @@ void Magic3D::Xml::removeReference(Xml* reference)
     }
 }
 
+bool Magic3D::Xml::hasReference(Xml* reference)
+{
+    bool result = false;
+    std::vector<Xml*>::iterator it_x = references.begin();
+
+    while (it_x != references.end())
+    {
+        Xml* xml = *it_x;
+
+        if (xml == reference)
+        {
+            result = true;
+            break;
+        }
+
+        it_x++;
+    }
+    return result;
+}
+
 void Magic3D::Xml::clearReferences()
 {
     while (!references.empty())

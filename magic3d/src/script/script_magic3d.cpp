@@ -54,6 +54,7 @@ Magic3D::ScriptClass<Magic3D::ScriptMagic3D>::ScriptFunction Magic3D::ScriptMagi
     ScriptClassFunction(ScriptMagic3D, pick, "Object* pick(string camera, float x, float y, int viewport, bool all)", "Pick an object."),
     ScriptClassFunction(ScriptMagic3D, getPosition2D, "Vector3 getPosition2D(Vector3 position, int viewport)", "Get 2D position."),
     ScriptClassFunction(ScriptMagic3D, getPosition3D, "Vector3 getPosition3D(float x, float y, float depth, int viewport)", "Get 3D position."),
+    ScriptClassFunction(ScriptMagic3D, getPosition3DOnPlane, "Vector3 getPosition3DOnPlane(float x, float y, Vector3 planeNormal, Vector3 planePosition, int viewport)", "Get 3D position on a plane."),
 
     ScriptClassFunction(ScriptMagic3D, log, "void log(const char* text)", "Write a message in the log file."),
 
@@ -75,6 +76,8 @@ Magic3D::ScriptClass<Magic3D::ScriptMagic3D>::ScriptFunction Magic3D::ScriptMagi
     ScriptClassFunction(ScriptMagic3D, getConfigFloat, "float getConfigFloat(string key)", "Get a configuration value."),
     ScriptClassFunction(ScriptMagic3D, getConfigBoolean, "bool getConfigBoolean(string key)", "Get a configuration value."),
     ScriptClassFunction(ScriptMagic3D, getConfigString, "string getConfigString(string key)", "Get a configuration value."),
+
+    ScriptClassFunction(ScriptMagic3D, debugLine, "void debugLine(Vector3 pos1, Vector3 pos2, Color color)", "Render a debug line."),
 
     {NULL, NULL, NULL, NULL}
 };
@@ -100,9 +103,7 @@ int Magic3D::ScriptMagic3D::getObject(lua_State *lua)
     {
         ScriptObject* obj = new ScriptObject(object);
 
-        int OBJ = ScriptClass<ScriptObject>::push(lua, obj, true);
-        lua_pushvalue(lua, OBJ);
-        lua_remove(lua, -1);
+        ScriptClass<ScriptObject>::push(lua, obj, true);
     }
     else
     {
@@ -251,9 +252,7 @@ int Magic3D::ScriptMagic3D::pick(lua_State *lua)
         if (picked)
         {
             ScriptObject* obj = new ScriptObject(picked);
-            int OBJ = ScriptClass<ScriptObject>::push(lua, obj, true);
-            lua_pushvalue(lua, OBJ);
-            lua_remove(lua, -1);
+            ScriptClass<ScriptObject>::push(lua, obj, true);
         }
         else
         {
@@ -276,9 +275,7 @@ int Magic3D::ScriptMagic3D::getPosition2D(lua_State *lua)
         ScriptVector3* vector = ScriptClass<ScriptVector3>::check(lua, 1);
         ScriptVector3* vec = new ScriptVector3(camera->getPosition2D(vector->getValue(), view));
 
-        int VEC = ScriptClass<ScriptVector3>::push(lua, vec, true);
-        lua_pushvalue(lua, VEC);
-        lua_remove(lua, -1);
+        ScriptClass<ScriptVector3>::push(lua, vec, true);
     }
     else
     {
@@ -295,9 +292,27 @@ int Magic3D::ScriptMagic3D::getPosition3D(lua_State *lua)
         Camera* camera = view->getPerspective();
         ScriptVector3* vec = new ScriptVector3(camera->getPosition3D(luaL_checknumber(lua, 1), luaL_checknumber(lua, 2), luaL_checknumber(lua, 3), view));
 
-        int VEC = ScriptClass<ScriptVector3>::push(lua, vec, true);
-        lua_pushvalue(lua, VEC);
-        lua_remove(lua, -1);
+        ScriptClass<ScriptVector3>::push(lua, vec, true);
+    }
+    else
+    {
+        lua_pushnil(lua);
+    }
+    return 1;
+}
+
+int Magic3D::ScriptMagic3D::getPosition3DOnPlane(lua_State *lua)
+{
+    ViewPort* view = Renderer::getInstance()->getViewPort(luaL_checkinteger(lua, 5));
+    if (view && view->getPerspective())
+    {
+        Camera* camera = view->getPerspective();
+
+        ScriptVector3* pN = ScriptClass<ScriptVector3>::check(lua, 3);
+        ScriptVector3* pP = ScriptClass<ScriptVector3>::check(lua, 4);
+        ScriptVector3* vec = new ScriptVector3(camera->getPosition3DOnPlane(luaL_checknumber(lua, 1), luaL_checknumber(lua, 2), pN->getValue(), pP->getValue(), view));
+
+        ScriptClass<ScriptVector3>::push(lua, vec, true);
     }
     else
     {
@@ -408,4 +423,14 @@ int Magic3D::ScriptMagic3D::getConfigString(lua_State *lua)
 {
     lua_pushstring(lua, Config::getInstance()->getString(luaL_checkstring(lua, 1)).c_str());
     return 1;
+}
+
+int Magic3D::ScriptMagic3D::debugLine(lua_State *lua)
+{
+    ScriptVector3* l1 = ScriptClass<ScriptVector3>::check(lua, 1);
+    ScriptVector3* l2 = ScriptClass<ScriptVector3>::check(lua, 2);
+    ScriptColor*   color = ScriptClass<ScriptColor>::check(lua, 3);
+
+    Renderer::getInstance()->drawLine(l1->getValue(), l2->getValue(), color->getValue());
+    return 0;
 }

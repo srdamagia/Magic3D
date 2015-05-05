@@ -65,6 +65,7 @@ Magic3D::ScriptClass<Magic3D::ScriptObject>::ScriptFunction Magic3D::ScriptObjec
     ScriptClassFunction(Magic3D::ScriptObject, rotate,  "void rotate(Vector3 rotation)", ""),
     ScriptClassFunction(Magic3D::ScriptObject, size,    "void size(Vector3 scale)", ""),
     ScriptClassFunction(Magic3D::ScriptObject, setSize, "void setSize(float x, float y)", "Set the Sprite size."),
+    ScriptClassFunction(Magic3D::ScriptObject, getSize, "Vector3 getSize()", "Get the Sprite size."),
 
     ScriptClassFunction(Magic3D::ScriptObject, getParent,     "Object* getParent()", ""),
     ScriptClassFunction(Magic3D::ScriptObject, setParent,     "void setParent(Object* parent)", ""),
@@ -198,10 +199,10 @@ int Magic3D::ScriptObject::getScript(lua_State *lua)
     lua_getglobal(lua, name.c_str());
     if (lua_isnil(lua, -1))
     {
+        lua_remove(lua, -1);
+        lua_pushnil(lua);
         luaL_error(lua, "%s missing table", name.c_str());
     }
-    int mt = lua_gettop(lua);
-    lua_pushvalue(lua, mt);
     return 1;
 }
 
@@ -217,9 +218,7 @@ int Magic3D::ScriptObject::getPosition(lua_State *lua)
 {
     ScriptVector3* vec = new ScriptVector3(object->getPosition());
 
-    int VEC = ScriptClass<ScriptVector3>::push(lua, vec, true);
-    lua_pushvalue(lua, VEC);
-    lua_remove(lua, -1);
+    ScriptClass<ScriptVector3>::push(lua, vec, true);
     return 1;
 }
 
@@ -235,9 +234,7 @@ int Magic3D::ScriptObject::getRotation(lua_State *lua)
 {
     ScriptVector3* vec = new ScriptVector3(object->getRotationEuler());
 
-    int VEC = ScriptClass<ScriptVector3>::push(lua, vec, true);
-    lua_pushvalue(lua, VEC);
-    lua_remove(lua, -1);
+    ScriptClass<ScriptVector3>::push(lua, vec, true);
     return 1;
 }
 
@@ -253,9 +250,7 @@ int Magic3D::ScriptObject::getScale(lua_State *lua)
 {
     ScriptVector3* vec = new ScriptVector3(object->getScale());
 
-    int VEC = ScriptClass<ScriptVector3>::push(lua, vec, true);
-    lua_pushvalue(lua, VEC);
-    lua_remove(lua, -1);
+    ScriptClass<ScriptVector3>::push(lua, vec, true);
     return 1;
 }
 
@@ -294,12 +289,44 @@ int Magic3D::ScriptObject::size(lua_State *lua)
 
 int Magic3D::ScriptObject::setSize(lua_State *lua)
 {
-    if (object->getType() == eOBJECT_SPRITE)
+    switch (object->getType())
     {
-        Sprite* sprite = static_cast<Sprite*>(object);
-        sprite->setSize(luaL_checknumber(lua, 1), luaL_checknumber(lua, 2));
+        case eOBJECT_GUI_BUTTON:
+        case eOBJECT_GUI_LABEL:
+        case eOBJECT_GUI_SLIDER:
+        case eOBJECT_GUI_WINDOW:
+        case eOBJECT_SPRITE:
+        {
+            Sprite* sprite = static_cast<Sprite*>(object);
+            sprite->setSize(luaL_checknumber(lua, 1), luaL_checknumber(lua, 2));
+            break;
+        }
+        default: break;
     }
     return 0;
+}
+
+int Magic3D::ScriptObject::getSize(lua_State *lua)
+{
+    int result = 0;
+    switch (object->getType())
+    {
+        case eOBJECT_GUI_BUTTON:
+        case eOBJECT_GUI_LABEL:
+        case eOBJECT_GUI_SLIDER:
+        case eOBJECT_GUI_WINDOW:
+        case eOBJECT_SPRITE:
+        {
+            Sprite* sprite = static_cast<Sprite*>(object);
+            ScriptVector3* vec = new ScriptVector3(Vector3(sprite->getWidth(), sprite->getHeight(), 0.0f));
+
+            ScriptClass<ScriptVector3>::push(lua, vec, true);
+            result = 1;
+            break;
+        }
+        default: break;
+    }
+    return result;
 }
 
 int Magic3D::ScriptObject::setParent(lua_State *lua)
@@ -320,9 +347,7 @@ int Magic3D::ScriptObject::getParent(lua_State *lua)
     if (this->object->getParent())
     {
         object = new ScriptObject(this->object->getParent());
-        int OBJ = ScriptClass<ScriptObject>::push(lua, object, true);
-        lua_pushvalue(lua, OBJ);
-        lua_remove(lua, -1);
+        ScriptClass<ScriptObject>::push(lua, object, true);
     }
     else
     {
@@ -427,9 +452,7 @@ int Magic3D::ScriptObject::getDirectionFront(lua_State *lua)
 {
     ScriptVector3* vec = new ScriptVector3(object->getDirectionFront());
 
-    int VEC = ScriptClass<ScriptVector3>::push(lua, vec, true);
-    lua_pushvalue(lua, VEC);
-    lua_remove(lua, -1);
+    ScriptClass<ScriptVector3>::push(lua, vec, true);
     return 1;
 }
 
@@ -437,9 +460,7 @@ int Magic3D::ScriptObject::getDirectionBack(lua_State *lua)
 {
     ScriptVector3* vec = new ScriptVector3(object->getDirectionBack());
 
-    int VEC = ScriptClass<ScriptVector3>::push(lua, vec, true);
-    lua_pushvalue(lua, VEC);
-    lua_remove(lua, -1);
+    ScriptClass<ScriptVector3>::push(lua, vec, true);
     return 1;
 }
 
@@ -447,9 +468,7 @@ int Magic3D::ScriptObject::getDirectionUp(lua_State *lua)
 {
     ScriptVector3* vec = new ScriptVector3(object->getDirectionUp());
 
-    int VEC = ScriptClass<ScriptVector3>::push(lua, vec, true);
-    lua_pushvalue(lua, VEC);
-    lua_remove(lua, -1);
+    ScriptClass<ScriptVector3>::push(lua, vec, true);
     return 1;
 }
 
@@ -457,9 +476,7 @@ int Magic3D::ScriptObject::getDirectionDown(lua_State *lua)
 {
     ScriptVector3* vec = new ScriptVector3(object->getDirectionDown());
 
-    int VEC = ScriptClass<ScriptVector3>::push(lua, vec, true);
-    lua_pushvalue(lua, VEC);
-    lua_remove(lua, -1);
+    ScriptClass<ScriptVector3>::push(lua, vec, true);
     return 1;
 }
 
@@ -467,9 +484,7 @@ int Magic3D::ScriptObject::getDirectionLeft(lua_State *lua)
 {
     ScriptVector3* vec = new ScriptVector3(object->getDirectionLeft());
 
-    int VEC = ScriptClass<ScriptVector3>::push(lua, vec, true);
-    lua_pushvalue(lua, VEC);
-    lua_remove(lua, -1);
+    ScriptClass<ScriptVector3>::push(lua, vec, true);
     return 1;
 }
 
@@ -477,9 +492,7 @@ int Magic3D::ScriptObject::getDirectionRight(lua_State *lua)
 {
     ScriptVector3* vec = new ScriptVector3(object->getDirectionRight());
 
-    int VEC = ScriptClass<ScriptVector3>::push(lua, vec, true);
-    lua_pushvalue(lua, VEC);
-    lua_remove(lua, -1);
+    ScriptClass<ScriptVector3>::push(lua, vec, true);
     return 1;
 }
 
@@ -605,9 +618,7 @@ int Magic3D::ScriptObject::getGravity(lua_State *lua)
 {
     ScriptVector3* vec = new ScriptVector3(object->getPhysicsGravity());
 
-    int VEC = ScriptClass<ScriptVector3>::push(lua, vec, true);
-    lua_pushvalue(lua, VEC);
-    lua_remove(lua, -1);
+    ScriptClass<ScriptVector3>::push(lua, vec, true);
     return 1;
 }
 
@@ -641,9 +652,7 @@ int Magic3D::ScriptObject::getAngularFactor(lua_State *lua)
 {
     ScriptVector3* vec = new ScriptVector3(object->getPhysicsAngularFactor());
 
-    int VEC = ScriptClass<ScriptVector3>::push(lua, vec, true);
-    lua_pushvalue(lua, VEC);
-    lua_remove(lua, -1);
+    ScriptClass<ScriptVector3>::push(lua, vec, true);
     return 1;
 }
 
@@ -659,9 +668,7 @@ int Magic3D::ScriptObject::getCentreOfMass(lua_State *lua)
 {
     ScriptVector3* vec = new ScriptVector3(object->getPhysicsCentreOfMass());
 
-    int VEC = ScriptClass<ScriptVector3>::push(lua, vec, true);
-    lua_pushvalue(lua, VEC);
-    lua_remove(lua, -1);
+    ScriptClass<ScriptVector3>::push(lua, vec, true);
     return 1;
 }
 
@@ -677,9 +684,7 @@ int Magic3D::ScriptObject::getAngularVelocity(lua_State *lua)
 {
     ScriptVector3* vec = new ScriptVector3(object->getPhysicsAngularVelocity());
 
-    int VEC = ScriptClass<ScriptVector3>::push(lua, vec, true);
-    lua_pushvalue(lua, VEC);
-    lua_remove(lua, -1);
+    ScriptClass<ScriptVector3>::push(lua, vec, true);
     return 1;
 }
 
@@ -695,9 +700,7 @@ int Magic3D::ScriptObject::getLinearVelocity(lua_State *lua)
 {
     ScriptVector3* vec = new ScriptVector3(object->getPhysicsLinearVelocity());
 
-    int VEC = ScriptClass<ScriptVector3>::push(lua, vec, true);
-    lua_pushvalue(lua, VEC);
-    lua_remove(lua, -1);
+    ScriptClass<ScriptVector3>::push(lua, vec, true);
     return 1;
 }
 
@@ -713,9 +716,7 @@ int Magic3D::ScriptObject::getLinearFactor(lua_State *lua)
 {
     ScriptVector3* vec = new ScriptVector3(object->getPhysicsLinearFactor());
 
-    int VEC = ScriptClass<ScriptVector3>::push(lua, vec, true);
-    lua_pushvalue(lua, VEC);
-    lua_remove(lua, -1);
+    ScriptClass<ScriptVector3>::push(lua, vec, true);
     return 1;
 }
 
@@ -723,9 +724,7 @@ int Magic3D::ScriptObject::getTotalForce(lua_State *lua)
 {
     ScriptVector3* vec = new ScriptVector3(object->getPhysicsTotalForce());
 
-    int VEC = ScriptClass<ScriptVector3>::push(lua, vec, true);
-    lua_pushvalue(lua, VEC);
-    lua_remove(lua, -1);
+    ScriptClass<ScriptVector3>::push(lua, vec, true);
     return 1;
 }
 
@@ -733,9 +732,7 @@ int Magic3D::ScriptObject::getTotalTorque(lua_State *lua)
 {
     ScriptVector3* vec = new ScriptVector3(object->getPhysicsTotalTorque());
 
-    int VEC = ScriptClass<ScriptVector3>::push(lua, vec, true);
-    lua_pushvalue(lua, VEC);
-    lua_remove(lua, -1);
+    ScriptClass<ScriptVector3>::push(lua, vec, true);
     return 1;
 }
 
@@ -756,9 +753,7 @@ int Magic3D::ScriptObject::rayCast(lua_State *lua)
     {
         ScriptObject* obj = new ScriptObject(static_cast<Object*>(ray.physicsObject));
 
-        int OBJ = ScriptClass<ScriptObject>::push(lua, obj, true);
-        lua_pushvalue(lua, OBJ);
-        lua_remove(lua, -1);
+        ScriptClass<ScriptObject>::push(lua, obj, true);
     }
     else
     {
@@ -798,9 +793,7 @@ int Magic3D::ScriptObject::getMeshColor(lua_State *lua)
 {
     ScriptColor* color = new ScriptColor(object->getMeshColor(luaL_checkstring(lua, 1)));
 
-    int COLOR = ScriptClass<ScriptColor>::push(lua, color, true);
-    lua_pushvalue(lua, COLOR);
-    lua_remove(lua, -1);
+    ScriptClass<ScriptColor>::push(lua, color, true);
     return 1;
 }
 
@@ -926,9 +919,7 @@ int Magic3D::ScriptObject::getObject(lua_State *lua)
     {
         ScriptObject* obj = new ScriptObject(findObj);
 
-        int OBJ = ScriptClass<ScriptObject>::push(lua, obj, true);
-        lua_pushvalue(lua, OBJ);
-        lua_remove(lua, -1);
+        ScriptClass<ScriptObject>::push(lua, obj, true);
     }
     else
     {
@@ -945,9 +936,7 @@ int Magic3D::ScriptObject::getChild(lua_State *lua)
     {
         ScriptObject* obj = new ScriptObject(findObj);
 
-        int OBJ = ScriptClass<ScriptObject>::push(lua, obj, true);
-        lua_pushvalue(lua, OBJ);
-        lua_remove(lua, -1);
+        ScriptClass<ScriptObject>::push(lua, obj, true);
     }
     else
     {
@@ -965,9 +954,7 @@ int Magic3D::ScriptObject::spawn(lua_State *lua)
         Script::getInstance()->addToTemp(findObj);
         ScriptObject* obj = new ScriptObject(findObj);
 
-        int OBJ = ScriptClass<ScriptObject>::push(lua, obj, true);
-        lua_pushvalue(lua, OBJ);
-        lua_remove(lua, -1);
+        ScriptClass<ScriptObject>::push(lua, obj, true);
     }
     else
     {
@@ -983,17 +970,13 @@ int Magic3D::ScriptObject::getJoystickDirection(lua_State *lua)
         Joystick* joystick = static_cast<Joystick*>(object);
         ScriptVector3* vec = new ScriptVector3(joystick->getDirection());
 
-        int VEC = ScriptClass<ScriptVector3>::push(lua, vec, true);
-        lua_pushvalue(lua, VEC);
-        lua_remove(lua, -1);
+        ScriptClass<ScriptVector3>::push(lua, vec, true);
     }
     else
     {
         ScriptVector3* vec = new ScriptVector3(Vector3(0.0f, 0.0f, 0.0f));
 
-        int VEC = ScriptClass<ScriptVector3>::push(lua, vec, true);
-        lua_pushvalue(lua, VEC);
-        lua_remove(lua, -1);
+        ScriptClass<ScriptVector3>::push(lua, vec, true);
     }
     return 1;
 }

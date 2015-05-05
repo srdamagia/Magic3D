@@ -822,12 +822,47 @@ Magic3D::Vector3 Magic3D::Camera::getPosition3D(float x, float y, float depth, V
         float wx = (float)x / (float)window->getWidth();
         float wy = 1.0f - (float)y / (float)window->getHeight();
 
-        Vector3 n = unproject(Vector3(wx, wy, 0.0f), getView(stereoscopy), projection, viewport);
-        Vector3 f = unproject(Vector3(wx, wy, 1.0f), getView(stereoscopy), projection, viewport);
+        Matrix4 view = getView(stereoscopy);
+        Vector3 n = unproject(Vector3(wx, wy, 0.0f), view, projection, viewport);
+        Vector3 f = unproject(Vector3(wx, wy, 1.0f), view, projection, viewport);
 
         Vector3 dir = normalize(f - n);
 
-        result = unproject(Vector3(wx, wy, 0.0f), getView(stereoscopy), projection, viewport) + dir * depth;
+        result = n + dir * depth;
+    }
+
+    return result;
+}
+
+Magic3D::Vector3 Magic3D::Camera::getPosition3DOnPlane(float x, float y, Vector3 planeNormal, Vector3 planePosition, ViewPort* viewport, STEREOSCOPY stereoscopy)
+{
+    Vector3 result = Vector3(0.0f, 0.0f, 0.0f);
+
+    Window* window = Renderer::getInstance()->getWindow();
+
+    if (viewport && window)
+    {
+        view3D((float)window->getWidth() / (float)window->getHeight());
+
+        Matrix4 projection;
+
+        switch (stereoscopy)
+        {
+            case eSTEREOSCOPY_LEFT: projection = leftProjection; break;
+            case eSTEREOSCOPY_RIGHT: projection = rightProjection; break;
+            default: projection = this->projection; break;
+        }
+
+        float wx = (float)x / (float)window->getWidth();
+        float wy = 1.0f - (float)y / (float)window->getHeight();
+
+        Matrix4 view = getView(stereoscopy);
+        Vector3 n = unproject(Vector3(wx, wy, 0.0f), view, projection, viewport);
+        Vector3 f = unproject(Vector3(wx, wy, 1.0f), view, projection, viewport);
+
+        Vector3 dir = normalize(f - n);
+
+        result = Math::intersectLinePlane(n, dir, planeNormal, planePosition);
     }
 
     return result;
@@ -884,7 +919,7 @@ Magic3D::Object* Magic3D::Camera::pick(float x, float y, int viewport, bool all)
             }
 
             projection = view3D((float)w / (float)h);
-            Scene::getInstance()->updateVisibleObjects3D(this, true, false, true);
+            Scene::getInstance()->updateVisibleObjectsOctree(this, true, false, true);
             objs = Scene::getInstance()->getVisibleObjects3D();
         }
         else

@@ -191,6 +191,7 @@ bool Magic3D::Layer::isVisible()
 //************************************************************************************
 Magic3D::Scene::Scene()
 {
+    octree = new Octree();
     addLayer(new Layer(M3D_MAIN_LAYER_NAME));
 
     oldColorClear   = ColorRGBA(0.0f, 0.0f, 0.0f, 1.0f);
@@ -252,6 +253,12 @@ Magic3D::Scene::~Scene()
         {
             delete layer;
         }
+    }
+
+    if (octree)
+    {
+        delete octree;
+        octree = NULL;
     }
 }
 
@@ -371,6 +378,11 @@ int Magic3D::Scene::getLayerIndex(std::string name)
 std::vector<Magic3D::Layer*>* Magic3D::Scene::getLayers()
 {
     return &layers;
+}
+
+Magic3D::Octree* Magic3D::Scene::getOctree()
+{
+    return octree;
 }
 
 std::list<Magic3D::Object*>* Magic3D::Scene::getVisibleLights(Camera* camera)
@@ -602,7 +614,7 @@ void Magic3D::Scene::updateVisibleObjects2D(Camera* camera, bool profile)
     }
 }
 
-void Magic3D::Scene::updateVisibleObjects3D(Camera* camera, bool reflectives, bool reflections, bool anyType)
+void Magic3D::Scene::prepareUpdate(Camera* camera, bool reflectives, bool reflections, bool anyType)
 {
     if (reflections)
     {
@@ -621,6 +633,11 @@ void Magic3D::Scene::updateVisibleObjects3D(Camera* camera, bool reflectives, bo
         glow.clear();
         zorder.clear();
     }
+}
+
+void Magic3D::Scene::updateVisibleObjects3D(Camera* camera, bool reflectives, bool reflections, bool anyType)
+{
+    prepareUpdate(camera, reflectives, reflections, anyType);
 
     if (loading)
     {
@@ -775,11 +792,189 @@ void Magic3D::Scene::updateVisibleObjects3D(Camera* camera, bool reflectives, bo
     }
 }
 
+void Magic3D::Scene::updateVisibleObjectsOctree(Camera* camera, bool reflectives, bool reflections, bool anyType)
+{
+    prepareUpdate(camera, reflectives, reflections, anyType);
+
+    if (loading || !camera)
+    {
+        return;
+    }
+
+    updateVisibleObjectsFromOctreeNode(getOctree(), camera, reflectives, reflections, anyType);
+
+    if (anyType)
+    {
+        getVisibleLights(camera);
+        std::list<Object*>::const_iterator it_li = lights.begin();
+        while (it_li != lights.end())
+        {
+            Light* light = static_cast<Light*>(*it_li++);
+            if (light->isInFrustum())
+            {
+                Matrix4 viewMatrix = light->getMatrixFromParent();
+                objects3D.push_back(RenderObject(light, viewMatrix, viewMatrix));
+            }
+        }
+        objects3D.sort(SortZOrder);
+    }
+    else
+    {
+        if (reflections)
+        {
+            reflectionsZOrder.sort(SortZOrder);
+        }
+        else
+        {
+            zorder.sort(SortZOrder);
+        }
+    }
+}
+
+void Magic3D::Scene::updateVisibleObjectsFromOctreeNode(Octree* octree, Camera* camera, bool reflectives, bool reflections, bool anyType)
+{
+    Matrix4 model = Matrix4::identity();
+    Matrix4 modelView = Matrix4::identity();
+    camera->updateFrustum(model, modelView);
+
+    Box box = octree->getBoundingBox();
+    Vector3 pos = box.getCenter();
+    bool inFrustum = camera->frustumBox(pos, box.getWidth(), box.getHeight(), box.getDepth(), true);
+
+    if (inFrustum)
+    {
+        octree->setInFrustum(true);
+        const std::list<Object*>* objects = octree->getObjects();
+        std::list<Object*>::const_iterator it_o = objects->begin();
+        while (it_o != objects->end())
+        {
+            Object* object = *it_o++;
+            Layer* layer = object->getLayer();
+
+            if (layer && layer->isVisible())
+            {
+                if (object && !reflections)
+                {
+                    object->setInFrustum(false);
+                }
+
+                if (object && object->isVisible() && object->getType() != eOBJECT_CAMERA)
+                {
+                    model = object->getMatrixFromParent();
+
+                    bool add = false;
+                    if (camera)
+                    {
+                        modelView = camera->getView() * model;
+                        if (!reflections)
+                        {
+                            object->setInFrustum(true);
+                        }
+                        add = true;
+                    }
+                    else
+                    {
+                        add = true;
+                    }
+
+                    if (add)
+                    {
+                        if (anyType)
+                        {
+                            object->setZOrderFactor(camera->getBoxMinZ(model, object->getBoundingBox()));
+                            objects3D.push_back(RenderObject(object, modelView, model));
+                        }
+                        else
+                        {
+                            switch (object->getType())
+                            {
+                                case eOBJECT_LIGHT:
+                                {
+                                    break;
+                                }
+                                case eOBJECT_SOUND:
+                                {
+                                    if (!reflections)
+                                    {
+                                        sounds.push_back(object);
+                                    }
+                                    break;
+                                }
+                                default:
+                                {
+                                    if (!reflections)
+                                    {
+                                        if (object->isShadowed())
+                                        {
+                                            shadows.push_back(RenderObject(object, modelView, model));
+                                        }
+                                        if (object->isGlowed())
+                                        {
+                                            glow.push_back(RenderObject(object, modelView, model));
+                                        }
+                                    }
+                                    if (object->isReflective())
+                                    {
+                                        if (reflectives)
+                                        {
+                                            this->reflectives.push_back(RenderObject(object, modelView, model));
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (object->isZOrder())
+                                        {
+                                            if (reflections)
+                                            {
+                                                object->setZOrderFactor(camera->getBoxMinZ(model, object->getBoundingBox()));
+                                                reflectionsZOrder.push_back(RenderObject(object, modelView, model));
+                                            }
+                                            else
+                                            {
+                                                object->setZOrderFactor(camera->getBoxMinZ(model, object->getBoundingBox()));
+                                                zorder.push_back(RenderObject(object, modelView, model));
+                                            }
+                                        }
+                                        else
+                                        {
+                                            if (reflections)
+                                            {
+                                                this->reflections.push_back(RenderObject(object, modelView, model));
+                                            }
+                                            else
+                                            {
+                                                objects3D.push_back(RenderObject(object, modelView, model));
+                                            }
+                                        }
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        for (int flags = octree->getActiveNodes(), index = 0; flags > 0; flags >>= 1, index++)
+        {
+            if ((flags & 1) == 1)
+            {
+                updateVisibleObjectsFromOctreeNode(octree->getChild(index), camera, reflectives, reflections, anyType);
+            }
+        }
+    }
+    else
+    {
+        octree->resetChildFrustum();
+    }
+}
+
 void Magic3D::Scene::updateFrustumCulling(Camera* camera2D, Camera* camera3D)
 {
     Magic3D::getInstance()->setTimeReference();
     updateVisibleObjects2D(camera2D);
-    updateVisibleObjects3D(camera3D);
+    updateVisibleObjectsOctree(camera3D);
     frustumMS = Magic3D::getInstance()->getTimeSinceReference();
 }
 
@@ -934,7 +1129,7 @@ bool Magic3D::Scene::update()
                         getFrustumMS(),
                         magic3D->getRenderMS());
             }
-            else if (renderer->getWindow()->getHeight() > 320)
+            else if (renderer->getWindow()->getHeight() >= 480)
             {
                 renderer->lblINFO->setPosition(-246.0f, 24.0f);
                 sprintf(profileText,
@@ -953,6 +1148,8 @@ bool Magic3D::Scene::update()
                         "Script MS:       %11.6f\n"\
                         "Script Memory:   %8d Kb\n"\
                         "Frustum MS:      %11.6f\n"\
+                        "Octree Nodes:    %8d\n"\
+                        "Octree Rendered: %8d\n"\
                         "Render MS:       %11.6f\n"\
                         "    shadows      %11.6f\n"\
                         "    reflections  %11.6f\n"\
@@ -977,6 +1174,8 @@ bool Magic3D::Scene::update()
                         getScriptMS(),
                         Script::getInstance()->getMemoryUsed(),
                         getFrustumMS(),
+                        getOctree()->getNodesCount(),
+                        getOctree()->getRenderedNodes(),
                         magic3D->getRenderMS(),
                         renderer->getShadowsMS(),
                         renderer->getReflectionsMS(),
@@ -1004,7 +1203,9 @@ bool Magic3D::Scene::update()
                         "Update MS:       %11.6f\n"\
                         "Script MS:       %11.6f\n"\
                         "Script Memory:   %8d Kb\n"\
-                        "Frustum MS:      %11.6f",
+                        "Frustum MS:      %11.6f\n"\
+                        "Octree Nodes:    %8d\n"\
+                        "Octree Rendered: %8d\n",
                         
                         renderer->getObjectsCount(),                   magic3D->getRenderMS(),
                         getObjectCount(),                              renderer->getShadowsMS(),
@@ -1020,7 +1221,9 @@ bool Magic3D::Scene::update()
                         magic3D->getUpdateMS(),
                         getScriptMS(),
                         Script::getInstance()->getMemoryUsed(),
-                        getFrustumMS());
+                        getFrustumMS(),
+                        getOctree()->getNodesCount(),
+                        getOctree()->getRenderedNodes());
             }
             
             renderer->lblINFO->setText(profileText);
@@ -1118,6 +1321,8 @@ bool Magic3D::Scene::update()
     {
         scriptMS = 0.0f;
 
+        octree->update();
+
         if (isScripted())
         {
             std::string function_Update("update");
@@ -1170,10 +1375,19 @@ void Magic3D::Scene::addObject(Object* object)
 
 void Magic3D::Scene::addObject(std::string layer, Object* object)
 {
-    Layer* tmpLayer = getLayer(layer);
-    if (object && tmpLayer)
+    addObject(getLayer(layer), object);
+}
+
+void Magic3D::Scene::addObject(Layer* layer, Object* object)
+{
+    if (object && layer)
     {
-        tmpLayer->addObject(object);
+        layer->addObject(object);
+
+        if (object->getRender() == eRENDER_3D)
+        {
+            octree->add(object, true);
+        }
     }
 }
 
@@ -1184,10 +1398,18 @@ void Magic3D::Scene::removeObject(std::string name)
 
 void Magic3D::Scene::removeObject(std::string layer, std::string name)
 {
-    Layer* tmpLayer = getLayer(layer);
-    if (tmpLayer)
+    removeObject(getLayer(layer),  ResourceManager::getObjects()->get(name));
+}
+
+void Magic3D::Scene::removeObject(Layer* layer, Object* object)
+{
+    if (layer && object)
     {
-        tmpLayer->removeObject(name);
+        layer->removeObject(object);
+        if (object->getOctree())
+        {
+            object->getOctree()->remove(object);
+        }
     }
 }
 
@@ -1414,6 +1636,8 @@ void Magic3D::Scene::clear(bool clearResources, bool addMainLayer)
     fboCamera = NULL;
     shadowsLight = NULL;
 
+    octree->clear();
+
     objects2D.clear();
     objects3D.clear();
     shadows.clear();
@@ -1637,7 +1861,7 @@ void Magic3D::Scene::spawnInstances()
             if (layer)
             {
                 layer->removeObject(obj);
-                layer->addObject(spawn);
+                addObject(layer, spawn);
             }
 
             ResourceManager::getObjects()->replace(obj->getName(), spawn);
@@ -2004,6 +2228,11 @@ bool Magic3D::Scene::load()
                         if (created)
                         {
                             currentLayerXML->addObject(object);
+
+                            if (object->getRender() == eRENDER_3D)
+                            {
+                                octree->add(object);
+                            }
                         }
 
                         object->load(objectXML);

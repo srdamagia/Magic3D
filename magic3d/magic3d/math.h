@@ -153,6 +153,8 @@ public:
 
     static bool isInteger(std::string str);
     static bool isOnlyDigits(std::string str);
+
+    static Vector3 intersectLinePlane(Vector3 linePoint, Vector3 lineVec, Vector3 planeNormal, Vector3 planePoint);
 };
 
 #pragma pack(push,1)
@@ -319,6 +321,11 @@ struct Box
     inline float getDepth() {return fabs(corners[1].getZ() - corners[0].getZ());}
     inline float getMaxSize() {return Math::max(Math::max(getWidth(), getHeight()), getDepth());}
     inline Vector3 getCenter() {return Vector3(corners[0].getX() + getWidth() * 0.5f, corners[0].getY() + getHeight() * 0.5f, corners[0].getZ() + getDepth() * 0.5f);}
+    bool contains(const Box& box)
+    {
+        return corners[0].getX() < box.corners[0].getX() && corners[0].getY() < box.corners[0].getY() && corners[0].getZ() < box.corners[0].getZ() &&
+               corners[1].getX() > box.corners[1].getX() && corners[1].getY() > box.corners[1].getY() && corners[1].getZ() > box.corners[1].getZ();
+    }
 
     Vector3 corners[2];
 };

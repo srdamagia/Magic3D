@@ -280,7 +280,7 @@ vec4 calcLight(vec4 color, bool toon, bool bump, bool hemi, vec3 normal)
 #ifdef SHADOWS
         result = shadow(result);
 #endif
-        return calcFog(result);
+        return calcFog(clamp(result, 0.0, 1.0));
     }
 
     return color;

@@ -171,6 +171,7 @@ public:
 
     Vector3 getPosition2D(Vector3 pos, ViewPort* viewport, STEREOSCOPY stereoscopy = eSTEREOSCOPY_CENTER);
     Vector3 getPosition3D(float x, float y, float depth, ViewPort* viewport, STEREOSCOPY stereoscopy = eSTEREOSCOPY_CENTER);
+    Vector3 getPosition3DOnPlane(float x, float y, Vector3 planeNormal, Vector3 planePosition, ViewPort* viewport, STEREOSCOPY stereoscopy = eSTEREOSCOPY_CENTER);
     Object* pick(float x, float y, int viewport, bool all);
     Vector3 getOrientedPosition(Vector3 pos);
 

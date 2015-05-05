@@ -632,7 +632,7 @@ void Magic3D::LoaderDAE::addMesh(XMLElement* root, XMLElement* skin, XMLElement*
                                     vertices = atoi(value.c_str());
                                 }
 
-                                Vertex3D *vertex = new Vertex3D[vertices];
+                                Vertex3D* vertex = new Vertex3D[vertices];
                                 for (int i = 0; i < vertices; i++)
                                 {
                                     if (info.good())

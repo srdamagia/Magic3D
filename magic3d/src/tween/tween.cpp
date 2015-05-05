@@ -87,7 +87,11 @@ Magic3D::Tween::Tween(TWEEN tweenType)
 
 Magic3D::Tween::~Tween()
 {
-    nextTween = NULL;
+    if (nextTween)
+    {
+        nextTween->removeReference(this);
+        nextTween = NULL;
+    }
     physicsObject = NULL;
 }
 
@@ -736,10 +740,17 @@ Magic3D::XMLElement* Magic3D::Tween::load(XMLElement* root)
 
 void Magic3D::Tween::removeReference(Xml* reference)
 {
+    Xml::removeReference(reference);
     if (reference)
     {
         stop();
-        setNextTween(NULL);
-    }
-    Xml::removeReference(reference);
+        if (nextTween)
+        {
+            if (nextTween->hasReference(this))
+            {
+                nextTween->removeReference(this);
+            }
+            nextTween = NULL;
+        }
+    }        
 }

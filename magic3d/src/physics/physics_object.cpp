@@ -96,6 +96,7 @@ Magic3D::PhysicsObject::PhysicsObject(OBJECT type)
 
     needTransform    = true;
     needUpdateEuler  = true;
+    needUpdateOctree = false;
 }
 
 Magic3D::PhysicsObject::~PhysicsObject()
@@ -118,6 +119,16 @@ Magic3D::PhysicsObject::~PhysicsObject()
 Magic3D::PhysicsObject* Magic3D::PhysicsObject::spawn() const
 {
     return (new PhysicsObject(*this));
+}
+
+bool Magic3D::PhysicsObject::isNeedingUpdateOctree()
+{
+    return needUpdateOctree;
+}
+
+void Magic3D::PhysicsObject::updateOctree()
+{
+    needUpdateOctree = false;
 }
 
 bool Magic3D::PhysicsObject::updateTweens()

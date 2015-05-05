@@ -64,6 +64,7 @@ public:
     int pick(lua_State *lua);
     int getPosition2D(lua_State *lua);
     int getPosition3D(lua_State *lua);
+    int getPosition3DOnPlane(lua_State *lua);
 
     int log(lua_State *lua);
 
@@ -85,6 +86,8 @@ public:
     int getConfigFloat(lua_State *lua);
     int getConfigBoolean(lua_State *lua);
     int getConfigString(lua_State *lua);
+
+    int debugLine(lua_State *lua);
 };
 }
 #endif /* SCRIPT_MAGIC3D_H */

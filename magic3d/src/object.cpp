@@ -32,6 +32,7 @@ Magic3D::Object::Object(const Object& object, std::string name) : PhysicsObject(
     this->parentScale = object.parentScale;
 
     this->layer = NULL;
+    this->octree = NULL;
 
     this->name = name;
     this->script = object.script;
@@ -105,6 +106,7 @@ void Magic3D::Object::init(RENDER render, std::string name)
     this->script = name;
 
     this->layer = NULL;
+    this->octree = NULL;
 
     flag             = 0;
     billboard        = eBILLBOARD_NONE;
@@ -226,7 +228,7 @@ Magic3D::Object* Magic3D::Object::spawn(std::string name, std::string layerName,
         {
             result = spawn(name);
             ResourceManager::getObjects()->add(result);
-            layer->addObject(result);
+            Scene::getInstance()->addObject(layer, result);
 
             it_o = children.begin();
             while (it_o != children.end())
@@ -271,10 +273,7 @@ void Magic3D::Object::killChildren()
     {
         Object* child = *children.begin();
         child->killChildren();
-        if (child->getLayer())
-        {
-            child->getLayer()->removeObject(child);
-        }
+        Scene::getInstance()->removeObject(child->getLayer(), child);
         ResourceManager::getObjects()->remove(child->name);
     }
 }
@@ -303,7 +302,7 @@ bool Magic3D::Object::update()
             updateTweens();
         }
 
-        if (needTransform || (getRigidBody() && Physics::getInstance()->isPlaying()) || (getParent() && getParent()->isInFrustum()))
+        if (needTransform || (getRigidBody() && Physics::getInstance()->isPlaying() &&  getRigidBody()->getActivationState() != ISLAND_SLEEPING) || (getParent() && getParent()->isInFrustum()))
         {
             if (needTransform && !needTransformOld)
             {
@@ -593,6 +592,16 @@ Magic3D::Layer* Magic3D::Object::getLayer()
     return layer;
 }
 
+void Magic3D::Object::setOctree(Octree* octree)
+{
+    this->octree = octree;
+}
+
+Magic3D::Octree* Magic3D::Object::getOctree()
+{
+    return octree;
+}
+
 void Magic3D::Object::setPosition(Vector3 position)
 {
     this->position = position;
@@ -852,6 +861,44 @@ const Magic3D::Box& Magic3D::Object::getBoundingBox()
     return box;
 }
 
+Magic3D::Box Magic3D::Object::getBoundingBoxAlignedAxis()
+{
+    Box b = box;
+    Vector3 min = b.corners[0];
+    Vector3 max = b.corners[1];
+    Matrix4 matrix = getMatrixFromParent();
+
+    Vector3 corners[8];
+    corners[0] = (matrix * Vector4(min.getX(), max.getY(), max.getZ(), 1.0f)).getXYZ();
+    corners[1] = (matrix * Vector4(max.getX(), max.getY(), max.getZ(), 1.0f)).getXYZ();
+    corners[2] = (matrix * Vector4(min.getX(), max.getY(), min.getZ(), 1.0f)).getXYZ();
+    corners[3] = (matrix * Vector4(max.getX(), max.getY(), min.getZ(), 1.0f)).getXYZ();
+
+    corners[4] = (matrix * Vector4(min.getX(), min.getY(), max.getZ(), 1.0f)).getXYZ();
+    corners[5] = (matrix * Vector4(max.getX(), min.getY(), max.getZ(), 1.0f)).getXYZ();
+    corners[6] = (matrix * Vector4(min.getX(), min.getY(), min.getZ(), 1.0f)).getXYZ();
+    corners[7] = (matrix * Vector4(max.getX(), min.getY(), min.getZ(), 1.0f)).getXYZ();
+
+    min = corners[0];
+    max = corners[0];
+
+    for (int i = 1; i < 8; i++)
+    {
+        min.setX(Math::min(min.getX(), corners[i].getX()));
+        min.setY(Math::min(min.getY(), corners[i].getY()));
+        min.setZ(Math::min(min.getZ(), corners[i].getZ()));
+
+        max.setX(Math::max(max.getX(), corners[i].getX()));
+        max.setY(Math::max(max.getY(), corners[i].getY()));
+        max.setZ(Math::max(max.getZ(), corners[i].getZ()));
+    }
+
+    b.corners[0] = min;
+    b.corners[1] = max;
+
+    return b;
+}
+
 void Magic3D::Object::updateBoundingBox()
 {
     updateBoundingBox(true);
@@ -946,6 +993,8 @@ void Magic3D::Object::updateMatrix()
     {
         (*it_o++)->needTransform = true;
     }
+
+    needUpdateOctree = true;
 }
 
 void Magic3D::Object::setMatrix(Matrix4 matrix)

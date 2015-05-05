@@ -256,6 +256,7 @@ INPUT(
 ./build/math.o
 ./build/mesh.o
 ./build/object.o
+./build/octree.o
 ./build/particles.o
 ./build/scene.o
 ./build/sprite.o

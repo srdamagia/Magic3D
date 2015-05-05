@@ -116,9 +116,7 @@ int Magic3D::ScriptVector3::sum(lua_State *lua)
     ScriptVector3* vector = ScriptClass<ScriptVector3>::check(lua, 1);
     ScriptVector3* vec = new ScriptVector3(getValue() + vector->getValue());
 
-    int VEC = ScriptClass<ScriptVector3>::push(lua, vec, true);
-    lua_pushvalue(lua, VEC);
-    lua_remove(lua, -1);
+    ScriptClass<ScriptVector3>::push(lua, vec, true);
     return 1;
 }
 
@@ -127,9 +125,7 @@ int Magic3D::ScriptVector3::subtract(lua_State *lua)
     ScriptVector3* vector = ScriptClass<ScriptVector3>::check(lua, 1);
     ScriptVector3* vec = new ScriptVector3(getValue() - vector->getValue());
 
-    int VEC = ScriptClass<ScriptVector3>::push(lua, vec, true);
-    lua_pushvalue(lua, VEC);
-    lua_remove(lua, -1);
+    ScriptClass<ScriptVector3>::push(lua, vec, true);
     return 1;
 }
 
@@ -137,9 +133,7 @@ int Magic3D::ScriptVector3::multiply(lua_State *lua)
 {
     ScriptVector3* vec = new ScriptVector3(getValue() * luaL_checknumber(lua, 1));
 
-    int VEC = ScriptClass<ScriptVector3>::push(lua, vec, true);
-    lua_pushvalue(lua, VEC);
-    lua_remove(lua, -1);
+    ScriptClass<ScriptVector3>::push(lua, vec, true);
     return 1;
 }
 
@@ -148,9 +142,7 @@ int Magic3D::ScriptVector3::scale(lua_State *lua)
     ScriptVector3* vector = ScriptClass<ScriptVector3>::check(lua, 1);
     ScriptVector3* vec = new ScriptVector3(mulPerElem(getValue(), vector->getValue()));
 
-    int VEC = ScriptClass<ScriptVector3>::push(lua, vec, true);
-    lua_pushvalue(lua, VEC);
-    lua_remove(lua, -1);
+    ScriptClass<ScriptVector3>::push(lua, vec, true);
     return 1;
 }
 
@@ -174,9 +166,7 @@ int Magic3D::ScriptVector3::cross(lua_State *lua)
     ScriptVector3* vector = ScriptClass<ScriptVector3>::check(lua, 1);
     ScriptVector3* vec = new ScriptVector3(Vectormath::Aos::cross(getValue(), vector->getValue()));
 
-    int VEC = ScriptClass<ScriptVector3>::push(lua, vec, true);
-    lua_pushvalue(lua, VEC);
-    lua_remove(lua, -1);
+    ScriptClass<ScriptVector3>::push(lua, vec, true);
     return 1;
 }
 
@@ -193,9 +183,7 @@ int Magic3D::ScriptVector3::normalized(lua_State *lua)
 {
     ScriptVector3* vec = new ScriptVector3(normalize(getValue()));
 
-    int VEC = ScriptClass<ScriptVector3>::push(lua, vec, true);
-    lua_pushvalue(lua, VEC);
-    lua_remove(lua, -1);
+    ScriptClass<ScriptVector3>::push(lua, vec, true);
     return 1;
 }
 

@@ -214,6 +214,8 @@ Magic3D::Renderer::Renderer()
     extDepthTexture    = false;
     showGizmos         = false;
     showGizmosPhysics  = false;
+    showOctree         = false;
+    showOctreeObjects  = false;
     screenEffects      = false;
 
     mode = eRENDER_MODE_SOLID;
@@ -541,6 +543,26 @@ bool Magic3D::Renderer::isShowingGizmosPhysics()
 void Magic3D::Renderer::setShowGizmosPhysics(bool show)
 {
     showGizmosPhysics = show;
+}
+
+bool Magic3D::Renderer::isShowingOctree()
+{
+    return showOctree;
+}
+
+void Magic3D::Renderer::setShowOctree(bool show)
+{
+    showOctree = show;
+}
+
+bool Magic3D::Renderer::isShowingOctreeObjects()
+{
+    return showOctreeObjects;
+}
+
+void Magic3D::Renderer::setShowOctreeObjects(bool show)
+{
+    showOctreeObjects = show;
 }
 
 bool Magic3D::Renderer::isRenderingScreenEffects()

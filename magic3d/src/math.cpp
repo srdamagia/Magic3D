@@ -196,3 +196,28 @@ bool Magic3D::Math::isOnlyDigits(std::string str)
 {
     return str.find_first_not_of( "0123456789" ) == str.npos;
 }
+
+Magic3D::Vector3 Magic3D::Math::intersectLinePlane(Vector3 linePoint, Vector3 lineVec, Vector3 planeNormal, Vector3 planePoint)
+{
+    float length;
+    float dotNumerator;
+    float dotDenominator;
+
+    //calculate the distance between the linePoint and the line-plane intersection point
+    dotNumerator = dot((planePoint - linePoint), planeNormal);
+    dotDenominator = dot(lineVec, planeNormal);
+
+    //line and plane are not parallel
+    if(dotDenominator != 0.0f)
+    {
+        length =  dotNumerator / dotDenominator;
+
+        //create a vector from the linePoint to the intersection point
+        return linePoint + lineVec * length;
+    }
+    //output not valid
+    else
+    {
+        return linePoint;
+    }
+}

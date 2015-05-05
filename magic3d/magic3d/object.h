@@ -80,6 +80,7 @@ public:
 };
 
 class Layer;
+class Octree;
 class ObjectInstance;
 class Object : public PhysicsObject
 {
@@ -92,6 +93,7 @@ private:
     Bone* parentBone;
 
     Layer* layer;
+    Octree* octree;
 
     ObjectAI* AI;
 
@@ -223,6 +225,9 @@ public:
     void setLayer(Layer* layer);
     Layer* getLayer();
 
+    void setOctree(Octree* octree);
+    Octree* getOctree();
+
     virtual void setPosition(Vector3 position);
     virtual Vector3 getPosition();
     Vector3 getPositionFromParent();
@@ -257,6 +262,7 @@ public:
     virtual std::vector<Mesh*>* getMeshes();
 
     virtual const Box& getBoundingBox();
+    virtual Box getBoundingBoxAlignedAxis();
     virtual void updateBoundingBox();
     virtual void updateBoundingBox(bool updateMesh);
     virtual float getMaxSizeFromParent();

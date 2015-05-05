@@ -110,6 +110,7 @@ protected:
     OBJECT type;
     bool needTransform;
     bool needUpdateEuler;
+    bool needUpdateOctree;
 
     PhysicsObject(const PhysicsObject& physicsObject);
 
@@ -117,6 +118,9 @@ public:
     PhysicsObject(OBJECT type);
     virtual ~PhysicsObject();
     virtual PhysicsObject* spawn() const;
+
+    bool isNeedingUpdateOctree();
+    void updateOctree();
 
     virtual bool updateTweens();
 

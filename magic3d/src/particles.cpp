@@ -301,7 +301,7 @@ bool Magic3D::Particles::updateMeshes()
         Vector3 n3 = Vector3(0.0f, 0.0f, 0.0f);
 
         bool moved = false;
-        Vector3 lastPos = Vector3(0.0, 0.0, 0.0);
+        Vector3 lastPos = Vector3(0.0f, 0.0f, 0.0f);
 
         bool hasAlive = false;
         for (int i = 0; i < getMaxParticlesCount(); i++)
@@ -389,7 +389,7 @@ bool Magic3D::Particles::updateMeshes()
                                     particle->position = prior->position;
                                     particle->age = 0.0f;
                                     moved = true;
-                                }
+                                }                                
                             }
                             else
                             {
@@ -430,7 +430,7 @@ bool Magic3D::Particles::updateMeshes()
                                 vDir = normalize(vDir);
                             }
 
-                            if (distance > 0.0f)
+                            if (distance > 0.0f && distance <= size)
                             {
                                 vDir = cross(vDir, camera->getDirectionFront());
 
