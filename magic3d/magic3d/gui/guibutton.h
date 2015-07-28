@@ -33,6 +33,7 @@ class GUIButton : public GUI
 {
 private:
     float sizeBorder;
+    void init();
 
 protected:
     GUIButton(const GUIButton& guiButton, std::string name);

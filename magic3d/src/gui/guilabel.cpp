@@ -32,6 +32,8 @@ Magic3D::GUILabel::GUILabel(const GUILabel& guiLabel, std::string name) : GUI(gu
     this->textSize = guiLabel.textSize;
     this->textAlignment = guiLabel.textAlignment;
     this->textColor = guiLabel.textColor;
+
+    needUpdate = true;
 }
 
 Magic3D::GUILabel::GUILabel(std::string name, float size) : GUI(eOBJECT_GUI_LABEL, name)
@@ -124,14 +126,14 @@ bool Magic3D::GUILabel::updateMeshes()
     Renderer* renderer = Renderer::getInstance();
     MeshData* data = spriteMesh->getData();
     Font* font = getFont();
-    std::vector<int> lines;
+    std::vector<float> lines;
 
     if (!font)
     {
         return false;
     }
 
-    float fsize = textSize / font->getLineHeightInPixels();
+    float fsize = (textSize / 512.0f) / font->getLineHeightInPixels();
     float lineHeight = fsize * (font->getLineHeightInPixels() + 2.0f);
 
     int quad = -1;
@@ -261,9 +263,6 @@ bool Magic3D::GUILabel::updateMeshes()
 
         data->unmapBuffer();
     }
-
-    setPosition(x + width * 0.5f * scaleX, y + height * 0.5f * scaleY, 0.0f);
-    setScale(scaleX, scaleY, 1.0f);
 
     return true;
 }

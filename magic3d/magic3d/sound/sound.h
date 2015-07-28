@@ -57,6 +57,8 @@ private:
     bool needPlay;
     static bool enabled;
 
+    void updateChild();
+
 protected:
     virtual void load();
 

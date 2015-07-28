@@ -69,7 +69,7 @@ private:
     bool prepareLights(Camera* camera);
     bool renderLights(GLSLShader* shader, const RenderObject* object);
 
-    bool prepareMatrix(Camera* camera, const RenderObject *object, float z);
+    bool prepareMatrix(Camera* camera, const RenderObject *object);
     bool renderObject(Camera* camera, const RenderObject *object, bool textures, bool lights, bool gizmos);
     bool prepareMaterial(GLSLShader *shader, Material* material, Object* object);
     bool prepareTextures(MeshData* data, GLSLShader* shader);
@@ -122,11 +122,7 @@ public:
     virtual bool validateProgram(unsigned int prog);
     virtual bool updateShaderUserVariables(Shader* shader);
 
-    virtual void blurTexture(FBO* fbo, int amount, float strength, bool gaussian);
-
-    virtual void drawLine(const btVector3& from, const btVector3& to, const btVector3& color);
-    virtual void drawTransform(const btTransform& transform, btScalar orthoLen);
-    virtual void drawContactPoint(const btVector3& PointOnB, const btVector3& normalOnB, btScalar distance, int lifeTime, const btVector3& color);
+    virtual void blurTexture(FBO* fbo, int amount, float strength, bool gaussian);    
 
     void setUniform1i(GLint location, GLint v0);
     void setUniform1f(GLint location, GLfloat v0);

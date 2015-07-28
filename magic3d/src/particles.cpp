@@ -361,25 +361,20 @@ bool Magic3D::Particles::updateMeshes()
 
                     if (particle->age > particle->dieAge)
                     {
+                        if (!isLooping())
+                        {
+                            if (particlesCount >= getMinParticlesCount())
+                            {
+                                stopCreating = true;
+                            }
+                        }
+
                         if (isRecreatedWhenDie())
                         {
                             createParticle(particle, false);
                         }
                         else
                         {
-                            if (!isLooping())
-                            {
-                                if (particlesCount >= getMinParticlesCount())
-                                {
-                                    stopCreating = true;
-                                }
-
-                                if (stopCreating && particlesCount <= 0)
-                                {
-                                    stop();
-                                }
-                            }
-
                             if (isTrail())
                             {
                                 if (prior)
@@ -530,6 +525,11 @@ bool Magic3D::Particles::updateMeshes()
             }
         }
 
+        if (stopCreating && particlesCount <= 0)
+        {
+            stop();
+        }
+
         if (!hasAlive && needStop)
         {
             needStop = false;
@@ -610,10 +610,14 @@ void Magic3D::Particles::createParticle(Particle* particle, bool reset)
         if (creationDirection)
         {
             particle->direction = particle->position - (isFollowingEmitter() ? Vector3(0.0f, 0.0f, 0.0f) : pos);
+            if (!isFollowingEmitter())
+            {
+                particle->direction =  Matrix3(getRotationFromParent()) * particle->direction;
+            }
         }
         else
         {
-            particle->direction = Matrix3(Quaternion(Object::getMatrixFromParent().getUpper3x3()) * getRotation()).getCol2();
+            particle->direction = Matrix3(getRotationFromParent()).getCol2();
         }
 
         if (length(particle->direction) != 0)
@@ -669,6 +673,47 @@ const Magic3D::Box& Magic3D::Particles::getBoundingBox()
     return box;
 }
 
+Magic3D::Box Magic3D::Particles::getBoundingBoxAlignedAxis()
+{
+    Box b = getBoundingBox();
+    Vector3 min = b.corners[0];
+    Vector3 max = b.corners[1];
+
+    Matrix4 matrix = getMatrixFromParent();
+    Matrix3 dir = matrix.getUpper3x3();
+    Vector3 position = isFollowingEmitter() ?  matrix.getTranslation() : b.getCenter();
+
+    Vector3 dimensions = Vector3(b.getWidth(), b.getHeight(), b.getDepth()) * 0.5f;
+
+    Vector3 corners[6];
+    corners[0] = position + dir.getCol0() * dimensions.getX();
+    corners[1] = position + dir.getCol1() * dimensions.getY();
+    corners[2] = position + dir.getCol2() * dimensions.getZ();
+
+    corners[3] = position + dir.getCol0() * -dimensions.getX();
+    corners[4] = position + dir.getCol1() * -dimensions.getY();
+    corners[5] = position + dir.getCol2() * -dimensions.getZ();
+
+    min = corners[0];
+    max = corners[0];
+
+    for (int i = 1; i < 6; i++)
+    {
+        min.setX(Math::min(min.getX(), corners[i].getX()));
+        min.setY(Math::min(min.getY(), corners[i].getY()));
+        min.setZ(Math::min(min.getZ(), corners[i].getZ()));
+
+        max.setX(Math::max(max.getX(), corners[i].getX()));
+        max.setY(Math::max(max.getY(), corners[i].getY()));
+        max.setZ(Math::max(max.getZ(), corners[i].getZ()));
+    }
+
+    b.corners[0] = min;
+    b.corners[1] = max;
+
+    return b;
+}
+
 void Magic3D::Particles::play()
 {
     particles.clear();
@@ -693,6 +738,11 @@ void Magic3D::Particles::play()
 
     playing = true;
     needStop = false;
+
+    needTransform = true;
+
+    box.corners[0] = Vector3(0.0f, 0.0f, 0.0f);
+    box.corners[1] = box.corners[0];
 }
 
 void Magic3D::Particles::stop()

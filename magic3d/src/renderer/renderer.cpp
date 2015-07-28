@@ -222,8 +222,10 @@ Magic3D::Renderer::Renderer()
 
     debugMode = DBG_DrawWireframe | /*DBG_DrawAabb |*/ DBG_DrawContactPoints | DBG_NoHelpText | DBG_DrawConstraints | DBG_DrawConstraintLimits;
 
-    debugLines         = new MeshData(eMESH_TRIANGLES, "debugLines");
-    debugPoints        = new MeshData(eMESH_TRIANGLES, "debugPoints");
+    debugLines[0]  = new MeshData(eMESH_TRIANGLES, "debugLines3D");
+    debugPoints[0] = new MeshData(eMESH_TRIANGLES, "debugPoints3D");
+    debugLines[1]  = new MeshData(eMESH_TRIANGLES, "debugLines2D");
+    debugPoints[1] = new MeshData(eMESH_TRIANGLES, "debugPoints2D");
 
     int vcount = Magic3D::getInstance()->getConfiguration().SCREEN_VERTICES;
     float size = 1.0f / (float)(vcount - 1);
@@ -293,16 +295,28 @@ bool Magic3D::Renderer::start()
 
 void Magic3D::Renderer::finishDebug()
 {
-    if (debugLines)
+    if (debugLines[0])
     {
-        delete debugLines;
-        debugLines = NULL;
+        delete debugLines[0];
+        debugLines[0] = NULL;
     }
 
-    if (debugPoints)
+    if (debugPoints[0])
     {
-        delete debugPoints;
-        debugPoints = NULL;
+        delete debugPoints[0];
+        debugPoints[0] = NULL;
+    }
+
+    if (debugLines[1])
+    {
+        delete debugLines[1];
+        debugLines[1] = NULL;
+    }
+
+    if (debugPoints[1])
+    {
+        delete debugPoints[1];
+        debugPoints[1] = NULL;
     }
 }
 bool Magic3D::Renderer::finish()
@@ -674,14 +688,28 @@ void Magic3D::Renderer::addDistortion(Vector3 position, DISTORTION type, float r
     }
 }
 
-void Magic3D::Renderer::drawLine(Vector3 start, Vector3 finish, ColorRGBA color)
+void Magic3D::Renderer::drawLine(Vector3 start, Vector3 finish, bool orthographic, ColorRGBA color)
 {
-    debugLines->addLine(start, finish, color);
+    if (orthographic)
+    {
+        debugLines[1]->addLine(start, finish, color);
+    }
+    else
+    {
+        debugLines[0]->addLine(start, finish, color);
+    }
 }
 
-void Magic3D::Renderer::drawPoint(Vector3 position, float size, ColorRGBA color)
+void Magic3D::Renderer::drawPoint(Vector3 position, float size, bool orthographic, ColorRGBA color)
 {
-    debugPoints->addPoint(position, size, color);
+    if (orthographic)
+    {
+        debugPoints[1]->addPoint(position, size, color);
+    }
+    else
+    {
+        debugPoints[0]->addPoint(position, size, color);
+    }
 }
 
 bool Magic3D::Renderer::isProfileObject(Object* object)

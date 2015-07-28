@@ -27,14 +27,20 @@ subject to the following restrictions:
 Magic3D::GUIButton::GUIButton(const GUIButton& guiButton, std::string name) : GUI(guiButton, name)
 {
     this->sizeBorder = guiButton.sizeBorder;
+    init();
 }
 
 Magic3D::GUIButton::GUIButton(std::string name) : GUI(eOBJECT_GUI_BUTTON, name)
 {
-    sizeBorder = 4.0f;
-    width = 32.0f;
-    height = 32.0f;
+    sizeBorder = 0.01f;
+    width = 0.25f;
+    height = 0.25f;
 
+    init();
+}
+
+void Magic3D::GUIButton::init()
+{
     for (int i = 0; i < 9; i++)
     {
         spriteMesh->getData()->addQuad(0.0f, 0.0f, 1.0f, 1.0f, eAXIS_Z);
@@ -145,9 +151,6 @@ bool Magic3D::GUIButton::updateMeshes()
     data->setQuad(buffer, index++, startX, startY, sizeBorder, size, color);
 
     data->unmapBuffer();
-
-    setPosition(x + width * 0.5f * scaleX, y + height * 0.5f * scaleY, 0.0f);
-    setScale(scaleX, scaleY, 1.0f);
 
     return true;
 }

@@ -289,7 +289,7 @@ Magic3D::Bone::Bone(const Bone& bone, Skeleton* skeleton) : PhysicsObject(bone)
     this->needReset = true;
 }
 
-Magic3D::Bone::Bone(std::string name, Skeleton* skeleton, int index) : PhysicsObject(eOBJECT_BONE)
+Magic3D::Bone::Bone(std::string name, Skeleton* skeleton, int index) : PhysicsObject(eOBJECT_BONE, eRENDER_3D)
 {
     this->name = name;
     this->skeleton = skeleton;

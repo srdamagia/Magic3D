@@ -33,7 +33,8 @@ namespace Magic3D
 class TweenLookAt : public Tween
 {
 private:
-    Vector3 position;
+    Vector3 euler;
+    Quaternion rotation;
     Quaternion startRotation;
 
 protected:
@@ -45,8 +46,8 @@ public:
     virtual TweenLookAt* spawn();
     virtual void reset();
 
-    void setPosition(Vector3 position);
-    const Vector3& getPosition();
+    void setRotation(Vector3 rotation);
+    const Vector3& getRotation();
 
     virtual XMLElement* save(XMLElement* root);
     virtual XMLElement* load(XMLElement* root);

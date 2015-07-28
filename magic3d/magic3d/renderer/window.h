@@ -52,6 +52,7 @@ protected:
     WINDOW_ORIENTATION orientation;
 
     bool fullscreen;
+    bool cursor;
     bool active;
     bool needUpdateView;
 
@@ -184,6 +185,21 @@ public:
     WINDOW_ORIENTATION getOrientation()
     {
         return orientation;
+    }
+
+    Vector3 getWindowScreenAspect()
+    {
+        float w = (float)getWidth();
+        float h = (float)getHeight();
+        float sx = w > h ? w / h : 1.0f;
+        float sy = w > h ? 1.0f : h / w;
+        return Vector3(sx, sy, 0.0f);
+    }
+
+    Vector3 getWindowScreenXY(float x, float y)
+    {
+        Vector3 aspect = getWindowScreenAspect();
+        return Vector3(x / (float)getWidth() * aspect.getX(), y / (float)getHeight() * aspect.getY(), 0.0f);
     }
 };
 

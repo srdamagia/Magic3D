@@ -125,8 +125,8 @@ protected:
 
     std::vector<Object*> selectedObjects;
     std::vector<Vector4> distortions;
-    MeshData* debugLines;
-    MeshData* debugPoints;
+    MeshData* debugLines[2];
+    MeshData* debugPoints[2];
     std::vector<PlaneVertex> posteffectsVertices;
     std::vector<vindex> posteffectsTriangles;
     std::vector<vindex> posteffectsLines;
@@ -325,17 +325,103 @@ public:
     virtual bool updateShaderUserVariables(Shader* shader) = 0;
 
     virtual void addDistortion(Vector3 position, DISTORTION type, float radius, float frequency, float factor, float wave);
-    virtual void drawLine(Vector3 start, Vector3 finish, ColorRGBA color = ColorRGBA(1.0f, 1.0f, 1.0f, 1.0f));
-    virtual void drawPoint(Vector3 position, float size, ColorRGBA color = ColorRGBA(1.0f, 1.0f, 1.0f, 1.0f));
+    virtual void drawLine(Vector3 start, Vector3 finish, bool orthographic, ColorRGBA color = ColorRGBA(1.0f, 1.0f, 1.0f, 1.0f));
+    virtual void drawPoint(Vector3 position, float size, bool orthographic, ColorRGBA color = ColorRGBA(1.0f, 1.0f, 1.0f, 1.0f));
 
     virtual bool isProfileObject(Object* object);
 
     virtual void matrixToArray(float array[16], const Matrix4& matrix) = 0;
     virtual void arrayToMatrix(const float array[16], Matrix4& matrix) = 0;
 
-    virtual void drawLine(const btVector3& from, const btVector3& to, const btVector3& color) = 0;
-    virtual void drawContactPoint(const btVector3& PointOnB, const btVector3& normalOnB, btScalar distance, int lifeTime, const btVector3& color) = 0;
+    virtual void drawLine(const btVector3& from, const btVector3& to, const btVector3& color)
+    {
+        drawLine(Vector3(from.getX(), from.getY(), from.getZ()), Vector3(to.getX(), to.getY(), to.getZ()), false, ColorRGBA(color.getX(), color.getY(), color.getZ(), 1.0f));
+    }
 
+    virtual void drawTransform(const btTransform& transform, btScalar orthoLen)
+    {
+        btIDebugDraw::drawTransform(transform, orthoLen);
+        btVector3 start = transform.getOrigin();
+        if (orthoLen < 1.0f)
+        {
+            drawPoint(Vector3(start.x(), start.y(), start.z()), 5.0f, false, ColorRGBA(0.0f, 0.5f, 0.0f, 1.0f));
+        }
+    }
+
+    virtual void drawContactPoint(const btVector3& PointOnB, const btVector3& normalOnB, btScalar distance, int lifeTime, const btVector3& color)
+    {
+        if (lifeTime > 0)
+        {
+            drawPoint(Vector3(PointOnB.x(), PointOnB.y(), PointOnB.z()), 5.0f, false, ColorRGBA(color.x(), color.y(), color.z(), 1.0f));
+            drawLine(Vector3(PointOnB.x(), PointOnB.y(), PointOnB.z()), Vector3(PointOnB.x(), PointOnB.y(), PointOnB.z()) + Vector3(normalOnB.x(), normalOnB.y(), normalOnB.z()) * distance, false, ColorRGBA(color.x(), color.y(), color.z(), 1.0f));
+        }
+    }
+
+
+    virtual void reportErrorWarning(const char* warningString)
+    {
+        Log::log(eLOG_FAILURE, warningString);
+    }
+
+    virtual void draw3dText(const btVector3& location,const char* textString)
+    {
+        if (textString && location.getX())
+        {
+        }
+    }
+
+    virtual void setDebugMode(int debugMode)
+    {
+        this->debugMode = debugMode;
+    }
+
+    virtual int getDebugMode() const
+    {
+        return debugMode;
+    }
+};
+
+class PhysicsRenderer2D : public btIDebugDraw
+{
+private:
+    int debugMode;
+public:
+    PhysicsRenderer2D()
+    {
+        debugMode = DBG_DrawWireframe | /*DBG_DrawAabb |*/ DBG_DrawContactPoints | DBG_NoHelpText | DBG_DrawConstraints | DBG_DrawConstraintLimits;
+    }
+
+    virtual ~PhysicsRenderer2D()
+    {
+
+    }
+
+    virtual void drawLine(const btVector3& from, const btVector3& to, const btVector3& color)
+    {
+        Renderer::getInstance()->drawLine(Vector3(from.getX(), -from.getY(), from.getZ()), Vector3(to.getX(), -to.getY(), to.getZ()), true, ColorRGBA(color.getX(), color.getY(), color.getZ(), 1.0f));
+    }
+
+    virtual void drawTransform(const btTransform& transform, btScalar orthoLen)
+    {        
+        btVector3 start = transform.getOrigin();
+        btScalar l = orthoLen * 0.1f;
+        drawLine(start, start + transform.getBasis() * btVector3(l, 0, 0), btVector3(0.7f,0,0));
+        drawLine(start, start + transform.getBasis() * btVector3(0, -l, 0), btVector3(0,0.7f,0));
+        drawLine(start, start + transform.getBasis() * btVector3(0, 0, l), btVector3(0,0,0.7f));
+        if (orthoLen < 1.0f)
+        {
+            Renderer::getInstance()->drawPoint(Vector3(start.x(), -start.y(), start.z()), 5.0f, true, ColorRGBA(0.0f, 0.5f, 0.0f, 1.0f));
+        }
+    }
+
+    virtual void drawContactPoint(const btVector3& PointOnB, const btVector3& normalOnB, btScalar distance, int lifeTime, const btVector3& color)
+    {
+        if (lifeTime > 0)
+        {
+            Renderer::getInstance()->drawPoint(Vector3(PointOnB.x(), -PointOnB.y(), PointOnB.z()), 5.0f, true, ColorRGBA(color.x(), color.y(), color.z(), 1.0f));
+            Renderer::getInstance()->drawLine(Vector3(PointOnB.x(), -PointOnB.y(), PointOnB.z()), Vector3(PointOnB.x(), -PointOnB.y(), PointOnB.z()) + Vector3(normalOnB.x(), -normalOnB.y(), normalOnB.z()) * distance, true, ColorRGBA(color.x(), color.y(), color.z(), 1.0f));
+        }
+    }
     virtual void reportErrorWarning(const char* warningString)
     {
         Log::log(eLOG_FAILURE, warningString);

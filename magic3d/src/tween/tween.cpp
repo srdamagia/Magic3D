@@ -42,6 +42,7 @@ Magic3D::Tween::Tween(const Tween &tween)
 
     this->allwaysUpdate = tween.allwaysUpdate;
     this->playAtStart = tween.playAtStart;
+    this->ignoreTimeScale = tween.ignoreTimeScale;
 
     this->playing = tween.playing;
 
@@ -73,6 +74,7 @@ Magic3D::Tween::Tween(TWEEN tweenType)
 
     allwaysUpdate = false;
     playAtStart = false;
+    ignoreTimeScale = false;
 
     playing = -1;
 
@@ -112,7 +114,14 @@ bool Magic3D::Tween::update()
         return false;
     }
 
-    timeCount += Magic3D::getInstance()->getElapsedTime();
+    if (ignoreTimeScale)
+    {
+        timeCount += Magic3D::getInstance()->getElapsedTimeReal();
+    }
+    else
+    {
+        timeCount += Magic3D::getInstance()->getElapsedTime();
+    }
     float factor = 0.0f;
 
     if (timeCount > duration)
@@ -250,6 +259,16 @@ void Magic3D::Tween::setPlayingAtStart(bool playing)
 bool Magic3D::Tween::isPlayingAtStart()
 {
     return playAtStart;
+}
+
+void Magic3D::Tween::setIgnoreTimeScale(bool ignore)
+{
+    ignoreTimeScale = ignore;
+}
+
+bool Magic3D::Tween::isIgnoringTimeScale()
+{
+    return ignoreTimeScale;
 }
 
 void Magic3D::Tween::setPhysicsObject(PhysicsObject* physicsObject)
@@ -696,17 +715,18 @@ Magic3D::XMLElement* Magic3D::Tween::save(XMLElement* root)
         result = root->GetDocument()->NewElement(M3D_TWEEN_XML);
         root->LinkEndChild(result);
 
-        saveInt(result,    M3D_TWEEN_XML_TYPE,           tweenType);
-        saveBool(result,   M3D_TWEEN_XML_ALLWAYS_UPDATE, allwaysUpdate);
-        saveBool(result,   M3D_TWEEN_XML_PLAYING,        playAtStart);
-        saveFloat(result,  M3D_TWEEN_XML_START_VALUE,    startValue);
-        saveFloat(result,  M3D_TWEEN_XML_SPEED,          speed);
-        saveFloat(result,  M3D_TWEEN_XML_DURATION,       duration);
-        saveInt(result,    M3D_TWEEN_XML_REPEAT,         repeat);
-        saveInt(result,    M3D_TWEEN_XML_UPDATE_TYPE,    tweenUpdateType);
-        saveString(result, M3D_TWEEN_XML_NEXT_OBJECT,    nextTweenObject);
-        saveString(result, M3D_TWEEN_XML_NEXT_BONE,      nextTweenBone);
-        saveInt(result,    M3D_TWEEN_XML_NEXT_INDEX,     nextTweenIndex);
+        saveInt(result,    M3D_TWEEN_XML_TYPE,             tweenType);
+        saveBool(result,   M3D_TWEEN_XML_ALLWAYS_UPDATE,   allwaysUpdate);
+        saveBool(result,   M3D_TWEEN_XML_PLAYING,          playAtStart);
+        saveBool(result,   M3D_TWEEN_XML_IGNORE_TIMESCALE, ignoreTimeScale);
+        saveFloat(result,  M3D_TWEEN_XML_START_VALUE,      startValue);
+        saveFloat(result,  M3D_TWEEN_XML_SPEED,            speed);
+        saveFloat(result,  M3D_TWEEN_XML_DURATION,         duration);
+        saveInt(result,    M3D_TWEEN_XML_REPEAT,           repeat);
+        saveInt(result,    M3D_TWEEN_XML_UPDATE_TYPE,      tweenUpdateType);
+        saveString(result, M3D_TWEEN_XML_NEXT_OBJECT,      nextTweenObject);
+        saveString(result, M3D_TWEEN_XML_NEXT_BONE,        nextTweenBone);
+        saveInt(result,    M3D_TWEEN_XML_NEXT_INDEX,       nextTweenIndex);
     }
     return result;
 }
@@ -718,6 +738,7 @@ Magic3D::XMLElement* Magic3D::Tween::load(XMLElement* root)
         tweenType       = (TWEEN)loadInt(root,           M3D_TWEEN_XML_TYPE);
         allwaysUpdate   = loadBool(root,                 M3D_TWEEN_XML_ALLWAYS_UPDATE);
         playAtStart     = loadBool(root,                 M3D_TWEEN_XML_PLAYING);
+        ignoreTimeScale = loadBool(root,                 M3D_TWEEN_XML_IGNORE_TIMESCALE);
         startValue      = loadFloat(root,                M3D_TWEEN_XML_START_VALUE);
         speed           = loadFloat(root,                M3D_TWEEN_XML_SPEED);
         duration        = loadFloat(root,                M3D_TWEEN_XML_DURATION);

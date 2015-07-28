@@ -25,8 +25,9 @@ subject to the following restrictions:
 
 Magic3D::TweenLookAt::TweenLookAt() : Tween(eTWEEN_LOOKAT)
 {
-    position = Vector3(0.0f, 0.0f, 0.0f);
+    euler = Vector3(0.0f, 0.0f, 0.0f);
 
+    rotation = Quaternion::identity();
     startRotation = Quaternion::identity();
 }
 
@@ -43,22 +44,23 @@ void Magic3D::TweenLookAt::reset()
 {
     Tween::reset();
 
+    rotation = Math::quaternion(euler);
     startRotation = getPhysicsObject()->getRotation();
 }
 
-void Magic3D::TweenLookAt::setPosition(Vector3 position)
+void Magic3D::TweenLookAt::setRotation(Vector3 rotation)
 {
-    this->position = position;
+    euler = rotation;
 }
 
-const Magic3D::Vector3& Magic3D::TweenLookAt::getPosition()
+const Magic3D::Vector3& Magic3D::TweenLookAt::getRotation()
 {
-    return position;
+    return euler;
 }
 
 void Magic3D::TweenLookAt::tween(float factor)
 {
-    getPhysicsObject()->setRotation(Math::quaternion(position * factor) * startRotation);
+    getPhysicsObject()->setRotation(slerp(factor, startRotation, rotation));
 }
 
 Magic3D::XMLElement* Magic3D::TweenLookAt::save(XMLElement* root)
@@ -66,7 +68,7 @@ Magic3D::XMLElement* Magic3D::TweenLookAt::save(XMLElement* root)
     XMLElement* tween = Tween::save(root);
     if (tween)
     {
-        saveVector3(tween, M3D_TWEEN_XML_LOOKAT, position);
+        saveVector3(tween, M3D_TWEEN_XML_LOOKAT, euler);
     }
     return tween;
 }
@@ -76,7 +78,7 @@ Magic3D::XMLElement* Magic3D::TweenLookAt::load(XMLElement* root)
     Tween::load(root);
     if (root)
     {
-        position = loadVector3(root, M3D_TWEEN_XML_LOOKAT);
+        euler = loadVector3(root, M3D_TWEEN_XML_LOOKAT);
     }
     return root;
 }

@@ -105,14 +105,8 @@ protected:
 
     Box box;
 
-    float x;
-    float y;
     float width;
     float height;
-
-    float scaleX;
-    float scaleY;
-
 private:
     float elapsed;
     float fps;
@@ -133,8 +127,6 @@ protected:
 
     void init();
     void updateFrame();
-    void setPosition(float x, float y, float z);
-    void setScale(float x, float y, float z);
 
     Texture* getSpriteTexture();
 
@@ -150,16 +142,10 @@ public:
     virtual bool updateMeshes();
     void addMaterial(Material* material);
 
-    void setPosition(float x, float y);
     void setSize(float width, float height);
-    void setScale(float x, float y);
 
-    float getX();
-    float getY();
     float getWidth();
     float getHeight();
-    float getScaleX();
-    float getScaleY();
 
     void setHorizontalAnchor(float anchor);
     float getHorizontalAnchor();
@@ -172,7 +158,6 @@ public:
     VERTICAL_ALIGN getVerticalAlign();
 
     virtual const Box& getBoundingBox();
-    virtual Matrix4 getMatrixFromParent();
 
     std::vector<SpriteSequence*>* getSequences();
     void addSequence(SpriteSequence* sequence);
@@ -194,6 +179,8 @@ public:
     void setFrame(int index);
     int getFrame();
     int getFrameCount();
+
+    void saveSpriteTexture();
 
     virtual XMLElement* save(XMLElement* root);
     virtual XMLElement* load(XMLElement* root);

@@ -45,8 +45,12 @@ Magic3D::ScriptClass<Magic3D::ScriptMagic3D>::ScriptFunction Magic3D::ScriptMagi
     ScriptClassFunction(ScriptMagic3D, setWindowHeight, "void setWindowHeight(int height)", "Set the window height."),
     ScriptClassFunction(ScriptMagic3D, getWindowHeight, "int getWindowHeight()", "Get the window height."),
 
+    ScriptClassFunction(ScriptMagic3D, getWindowAspectX, "void getWindowAspectX()", "Get the window horizontal aspect."),
+    ScriptClassFunction(ScriptMagic3D, getWindowAspectY, "void getWindowAspectY()", "Get the window vertical aspect."),
+
     ScriptClassFunction(ScriptMagic3D, getTicks, "float getTicks()", "Get the current time in miliseconds."),
     ScriptClassFunction(ScriptMagic3D, getElapsedTime, "float getElapsedTime()", "Get the elapsed time since last update."),
+    ScriptClassFunction(ScriptMagic3D, getElapsedTimeReal, "float getElapsedTimeReal()", "Get the elapsed time since last update without scale."),
     ScriptClassFunction(ScriptMagic3D, getTimeSinceStart, "float getTimeSinceStart()", "Get the elapsed time since the start."),
     ScriptClassFunction(ScriptMagic3D, getTimeScale, "float getTimeScale()", "Get the time scale."),
     ScriptClassFunction(ScriptMagic3D, setTimeScale, "float setTimeScale(float scale)", "Set the time scale."),
@@ -76,8 +80,11 @@ Magic3D::ScriptClass<Magic3D::ScriptMagic3D>::ScriptFunction Magic3D::ScriptMagi
     ScriptClassFunction(ScriptMagic3D, getConfigFloat, "float getConfigFloat(string key)", "Get a configuration value."),
     ScriptClassFunction(ScriptMagic3D, getConfigBoolean, "bool getConfigBoolean(string key)", "Get a configuration value."),
     ScriptClassFunction(ScriptMagic3D, getConfigString, "string getConfigString(string key)", "Get a configuration value."),
+    ScriptClassFunction(ScriptMagic3D, isConfigured, "bool isConfigured(string key)", "Return true if configuration key is found."),
 
-    ScriptClassFunction(ScriptMagic3D, debugLine, "void debugLine(Vector3 pos1, Vector3 pos2, Color color)", "Render a debug line."),
+    ScriptClassFunction(ScriptMagic3D, debugLine, "void debugLine(Vector3 pos1, Vector3 pos2, bool orthographic, Color color)", "Render a debug line."),
+
+    ScriptClassFunction(ScriptMagic3D, rayCast, "Object* rayCast(Vector3 start, Vector3 end, orthographic)", ""),
 
     {NULL, NULL, NULL, NULL}
 };
@@ -209,6 +216,18 @@ int Magic3D::ScriptMagic3D::getWindowHeight(lua_State *lua)
     return 1;
 }
 
+int Magic3D::ScriptMagic3D::getWindowAspectX(lua_State *lua)
+{
+    lua_pushnumber(lua, Renderer::getInstance()->getWindow()->getWindowScreenAspect().getX());
+    return 1;
+}
+
+int Magic3D::ScriptMagic3D::getWindowAspectY(lua_State *lua)
+{
+    lua_pushnumber(lua, Renderer::getInstance()->getWindow()->getWindowScreenAspect().getY());
+    return 1;
+}
+
 int Magic3D::ScriptMagic3D::getTicks(lua_State *lua)
 {
     lua_pushnumber(lua, Magic3D::getInstance()->getTicks());
@@ -218,6 +237,12 @@ int Magic3D::ScriptMagic3D::getTicks(lua_State *lua)
 int Magic3D::ScriptMagic3D::getElapsedTime(lua_State *lua)
 {
     lua_pushnumber(lua, Magic3D::getInstance()->getElapsedTime());
+    return 1;
+}
+
+int Magic3D::ScriptMagic3D::getElapsedTimeReal(lua_State *lua)
+{
+    lua_pushnumber(lua, Magic3D::getInstance()->getElapsedTimeReal());
     return 1;
 }
 
@@ -425,12 +450,42 @@ int Magic3D::ScriptMagic3D::getConfigString(lua_State *lua)
     return 1;
 }
 
+int Magic3D::ScriptMagic3D::isConfigured(lua_State *lua)
+{
+    lua_pushboolean(lua, Config::getInstance()->isConfigured(luaL_checkstring(lua, 1)));
+    return 1;
+}
+
 int Magic3D::ScriptMagic3D::debugLine(lua_State *lua)
 {
     ScriptVector3* l1 = ScriptClass<ScriptVector3>::check(lua, 1);
     ScriptVector3* l2 = ScriptClass<ScriptVector3>::check(lua, 2);
-    ScriptColor*   color = ScriptClass<ScriptColor>::check(lua, 3);
+    bool   ortho = lua_toboolean(lua, 3);
+    ScriptColor*   color = ScriptClass<ScriptColor>::check(lua, 4);
 
-    Renderer::getInstance()->drawLine(l1->getValue(), l2->getValue(), color->getValue());
+
+    Renderer::getInstance()->drawLine(l1->getValue(), l2->getValue(), ortho, color->getValue());
     return 0;
 }
+
+int Magic3D::ScriptMagic3D::rayCast(lua_State *lua)
+{
+    ScriptVector3* start = ScriptClass<ScriptVector3>::check(lua, 1);
+    ScriptVector3* end = ScriptClass<ScriptVector3>::check(lua, 2);
+
+    RayCastReturn ray = Physics::getInstance()->rayCast(start->getValue(), end->getValue(), lua_toboolean(lua, 3));
+
+    if (ray.physicsObject)
+    {
+        ScriptObject* obj = new ScriptObject(static_cast<Object*>(ray.physicsObject));
+
+        ScriptClass<ScriptObject>::push(lua, obj, true);
+    }
+    else
+    {
+        lua_pushnil(lua);
+    }
+
+    return 1;
+}
+

@@ -101,6 +101,7 @@ void Magic3D::Sound::load()
         if (!child)
         {
             child = new SoundOGG(getName());
+            updateChild();
             child->setFileName(getFileName());
         }
     }
@@ -166,11 +167,25 @@ bool Magic3D::Sound::isEnabled()
     return enabled;
 }
 
+void Magic3D::Sound::updateChild()
+{
+    if (child)
+    {
+        child->setParent(getParent());
+        child->setMatrix(getMatrix());
+
+        child->setGain(getGain());
+        child->setPitch(getPitch());
+        child->setDistance(getDistance());
+        child->setLooping(isLooping());
+    }
+}
+
 bool Magic3D::Sound::update()
 {
     bool result = false;
     Object::update();
-    if (isEnabled() && isVisible())
+    if (isEnabled() && isVisible() && getLayer() && getLayer()->isVisible())
     {
         if (needPlay)
         {
@@ -184,20 +199,15 @@ bool Magic3D::Sound::update()
         {
             updateListener(camera->getPositionFromParent(), camera->getDirectionFront(), camera->getDirectionUp());
         }
-        if (child)
-        {
-            child->setParent(getParent());
-            child->setMatrix(getMatrix());
-
-            child->setGain(getGain());
-            child->setPitch(getPitch());
-            child->setDistance(getDistance());
-            child->setLooping(isLooping());
-        }
+        updateChild();
 
         render();
 
         result = true;
+    }
+    if (isPlaying() && getLayer() && !getLayer()->isVisible())
+    {
+        stop();
     }
     return result;
 }
@@ -233,7 +243,7 @@ void Magic3D::Sound::render()
 
 void Magic3D::Sound::play()
 {
-    if (child)
+    if (child && getLayer() && getLayer()->isVisible())
     {
         child->play();
     }

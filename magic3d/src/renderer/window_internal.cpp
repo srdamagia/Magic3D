@@ -37,6 +37,7 @@ Magic3D::WindowInternal::WindowInternal()
     bits   = 32;
 
     fullscreen = Magic3D::getInstance()->getConfiguration().FULLSCREEN;
+    cursor     = Magic3D::getInstance()->getConfiguration().CURSOR;
     active     = false;
     needUpdateView = false;
 }

@@ -28,6 +28,7 @@ subject to the following restrictions:
 Magic3D::PhysicsObject::PhysicsObject(const PhysicsObject& physicsObject)
 {
     this->type          = physicsObject.type;
+    this->render        = physicsObject.render;
     this->shapePosition = physicsObject.shapePosition;
     this->shapeSize = physicsObject.shapeSize;
     this->shapeRotation = physicsObject.shapeRotation;
@@ -49,6 +50,10 @@ Magic3D::PhysicsObject::PhysicsObject(const PhysicsObject& physicsObject)
     this->body = NULL;
     this->collision = physicsObject.collision ? physicsObject.collision->spawn() : NULL;
 
+    this->groupFilter = physicsObject.groupFilter;
+    this->group = physicsObject.group;
+    this->groupCollision = physicsObject.groupCollision;
+
     this->needTransform = true;
     this->needUpdateEuler = true;
 
@@ -57,7 +62,9 @@ Magic3D::PhysicsObject::PhysicsObject(const PhysicsObject& physicsObject)
     while (it_t != physicsObject.tweens.end())
     {
         Tween* tween = *it_t++;
-        this->tweens.push_back(tween->spawn());
+        Tween* spawned = tween->spawn();
+        spawned->setPhysicsObject(this);
+        this->tweens.push_back(spawned);
     }
 
     if (physicsObject.body)
@@ -74,9 +81,10 @@ Magic3D::PhysicsObject::PhysicsObject(const PhysicsObject& physicsObject)
     }
 }
 
-Magic3D::PhysicsObject::PhysicsObject(OBJECT type)
+Magic3D::PhysicsObject::PhysicsObject(OBJECT type, RENDER render)
 {
     this->type       = type;
+    this->render     = render;
     body             = NULL;
     collision        = NULL;
     shape            = ePHYSICS_SHAPE_BOX;
@@ -92,6 +100,11 @@ Magic3D::PhysicsObject::PhysicsObject(OBJECT type)
     restitution      = 0.0f;
     dampingLinear    = 0.0f;
     dampingAngular   = 0.0f;
+
+    groupFilter      = false;
+    group            = 0;
+    groupCollision   = 0;
+
     ghost            = false;
 
     needTransform    = true;
@@ -350,12 +363,12 @@ Magic3D::Vector3 Magic3D::PhysicsObject::getScale()
 
 Magic3D::RENDER Magic3D::PhysicsObject::getRender()
 {
-    return eRENDER_3D;
+    return render;
 }
 
-void Magic3D::PhysicsObject::lookAt(Vector3 position, Vector3 up)
+void Magic3D::PhysicsObject::lookAt(Vector3 position, Vector3 up, float factor)
 {
-    if (position.getX() && up.getX())
+    if (position.getX() && up.getX() && factor)
     {
 
     }
@@ -369,6 +382,36 @@ void Magic3D::PhysicsObject::setRigidBody(btRigidBody* body)
 btRigidBody* Magic3D::PhysicsObject::getRigidBody()
 {
     return body;
+}
+
+void Magic3D::PhysicsObject::setIsGroupCollision(bool groupCollision)
+{
+    groupFilter = groupCollision;
+}
+
+bool Magic3D::PhysicsObject::isGroupCollision()
+{
+    return groupFilter;
+}
+
+void Magic3D::PhysicsObject::setGroup(int group)
+{
+    this->group = group;
+}
+
+int Magic3D::PhysicsObject::getGroup()
+{
+    return group;
+}
+
+void Magic3D::PhysicsObject::setGroupCollision(int collision)
+{
+    groupCollision = collision;
+}
+
+int Magic3D::PhysicsObject::getGroupCollision()
+{
+    return groupCollision;
 }
 
 void Magic3D::PhysicsObject::setShape(PHYSICS_SHAPE shape)
@@ -827,6 +870,9 @@ Magic3D::XMLElement* Magic3D::PhysicsObject::save(XMLElement* root)
         saveFloat(physics,   M3D_PHYSICS_OBJECT_XML_RESTITUTION,      getRestitution());
         saveFloat(physics,   M3D_PHYSICS_OBJECT_XML_DAMPINGLINEAR,    getDampingLinear());
         saveFloat(physics,   M3D_PHYSICS_OBJECT_XML_DAMPINGANGULAR,   getDampingAngular());
+        saveBool(physics,    M3D_PHYSICS_OBJECT_XML_ISGROUPCOLLISION, isGroupCollision());
+        saveInt(physics,     M3D_PHYSICS_OBJECT_XML_GROUP,            getGroup());
+        saveInt(physics,     M3D_PHYSICS_OBJECT_XML_GROUPCOLLISION,   getGroupCollision());
         saveBool(physics,    M3D_PHYSICS_OBJECT_XML_GHOST,            isGhost());
 
         if (getType() != eOBJECT_BONE)
@@ -884,6 +930,9 @@ Magic3D::XMLElement* Magic3D::PhysicsObject::load(XMLElement* root)
         restitution      = loadFloat(physics, M3D_PHYSICS_OBJECT_XML_RESTITUTION);
         dampingLinear    = loadFloat(physics, M3D_PHYSICS_OBJECT_XML_DAMPINGLINEAR);
         dampingAngular   = loadFloat(physics, M3D_PHYSICS_OBJECT_XML_DAMPINGANGULAR);
+        groupFilter      = loadBool(physics, M3D_PHYSICS_OBJECT_XML_ISGROUPCOLLISION);
+        group            = loadInt(physics, M3D_PHYSICS_OBJECT_XML_GROUP);
+        groupCollision   = loadInt(physics, M3D_PHYSICS_OBJECT_XML_GROUPCOLLISION);
         ghost            = loadBool(physics, M3D_PHYSICS_OBJECT_XML_GHOST);
 
         XMLElement* xml = root->FirstChildElement(M3D_PHYSICS_CONSTRAINTS_XML);

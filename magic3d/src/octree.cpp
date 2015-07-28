@@ -26,6 +26,21 @@ subject to the following restrictions:
 
 int Magic3D::Octree::nodesCount = 0;
 int Magic3D::Octree::nodesRenderCount = 0;
+std::list<Magic3D::Object*> Magic3D::Octree::log;
+
+bool SortName(Magic3D::Object* lo, Magic3D::Object* ro)
+{
+  unsigned int i=0;
+  std::string first = lo->getName();
+  std::string second = ro->getName();
+  while ( (i<first.length()) && (i<second.length()) )
+  {
+    if (tolower(first[i])<tolower(second[i])) return true;
+    else if (tolower(first[i])>tolower(second[i])) return false;
+    ++i;
+  }
+  return ( first.length() < second.length() );
+}
 
 Magic3D::Octree::Octree()
 {
@@ -94,6 +109,11 @@ void Magic3D::Octree::render()
     {
         Vector3 verts[8];
         ColorRGBA lime = ColorRGBA(0.0f, 1.0f, 0.0f, 1.0f);
+        /*if (!isInFrustum())
+        {
+            lime = ColorRGBA(1.0f, 0.0f, 1.0f, 1.0f);
+        }*/
+        ColorRGBA red = ColorRGBA(1.0f, 0.0f, 0.0f, 1.0f);
 
         if (Renderer::getInstance()->isShowingOctree())
         {
@@ -107,19 +127,19 @@ void Magic3D::Octree::render()
             verts[5] = Vector3(region.corners[1].getX(), region.corners[0].getY(), region.corners[1].getZ()); //Y
             verts[6] = Vector3(region.corners[0].getX(), region.corners[1].getY(), region.corners[1].getZ()); //X
 
-            Renderer::getInstance()->drawLine(verts[0], verts[1], lime);
-            Renderer::getInstance()->drawLine(verts[0], verts[2], lime);
-            Renderer::getInstance()->drawLine(verts[0], verts[3], lime);
-            Renderer::getInstance()->drawLine(verts[7], verts[4], lime);
-            Renderer::getInstance()->drawLine(verts[7], verts[5], lime);
-            Renderer::getInstance()->drawLine(verts[7], verts[6], lime);
+            Renderer::getInstance()->drawLine(verts[0], verts[1], false, lime);
+            Renderer::getInstance()->drawLine(verts[0], verts[2], false, lime);
+            Renderer::getInstance()->drawLine(verts[0], verts[3], false, lime);
+            Renderer::getInstance()->drawLine(verts[7], verts[4], false, lime);
+            Renderer::getInstance()->drawLine(verts[7], verts[5], false, lime);
+            Renderer::getInstance()->drawLine(verts[7], verts[6], false, lime);
 
-            Renderer::getInstance()->drawLine(verts[1], verts[6], lime);
-            Renderer::getInstance()->drawLine(verts[1], verts[5], lime);
-            Renderer::getInstance()->drawLine(verts[4], verts[2], lime);
-            Renderer::getInstance()->drawLine(verts[4], verts[3], lime);
-            Renderer::getInstance()->drawLine(verts[2], verts[6], lime);
-            Renderer::getInstance()->drawLine(verts[3], verts[5], lime);
+            Renderer::getInstance()->drawLine(verts[1], verts[6], false, lime);
+            Renderer::getInstance()->drawLine(verts[1], verts[5], false, lime);
+            Renderer::getInstance()->drawLine(verts[4], verts[2], false, lime);
+            Renderer::getInstance()->drawLine(verts[4], verts[3], false, lime);
+            Renderer::getInstance()->drawLine(verts[2], verts[6], false, lime);
+            Renderer::getInstance()->drawLine(verts[3], verts[5], false, lime);
         }
 
         for (int flags = activeNodes, index = 0; flags > 0; flags >>= 1, index++)
@@ -128,7 +148,7 @@ void Magic3D::Octree::render()
         }
 
         if (Renderer::getInstance()->isShowingOctreeObjects())
-        {
+        {            
             std::list<Object*>::const_iterator it_o = objects.begin();
             while (it_o != objects.end())
             {
@@ -145,20 +165,19 @@ void Magic3D::Octree::render()
                 verts[5] = Vector3(b.corners[1].getX(), b.corners[0].getY(), b.corners[1].getZ()); //Y
                 verts[6] = Vector3(b.corners[0].getX(), b.corners[1].getY(), b.corners[1].getZ()); //X
 
-                lime = ColorRGBA(1.0f, 0.0f, 0.0f, 1.0f);
-                Renderer::getInstance()->drawLine(verts[0], verts[1], lime);
-                Renderer::getInstance()->drawLine(verts[0], verts[2], lime);
-                Renderer::getInstance()->drawLine(verts[0], verts[3], lime);
-                Renderer::getInstance()->drawLine(verts[7], verts[4], lime);
-                Renderer::getInstance()->drawLine(verts[7], verts[5], lime);
-                Renderer::getInstance()->drawLine(verts[7], verts[6], lime);
+                Renderer::getInstance()->drawLine(verts[0], verts[1], false, red);
+                Renderer::getInstance()->drawLine(verts[0], verts[2], false, red);
+                Renderer::getInstance()->drawLine(verts[0], verts[3], false, red);
+                Renderer::getInstance()->drawLine(verts[7], verts[4], false, red);
+                Renderer::getInstance()->drawLine(verts[7], verts[5], false, red);
+                Renderer::getInstance()->drawLine(verts[7], verts[6], false, red);
 
-                Renderer::getInstance()->drawLine(verts[1], verts[6], lime);
-                Renderer::getInstance()->drawLine(verts[1], verts[5], lime);
-                Renderer::getInstance()->drawLine(verts[4], verts[2], lime);
-                Renderer::getInstance()->drawLine(verts[4], verts[3], lime);
-                Renderer::getInstance()->drawLine(verts[2], verts[6], lime);
-                Renderer::getInstance()->drawLine(verts[3], verts[5], lime);
+                Renderer::getInstance()->drawLine(verts[1], verts[6], false, red);
+                Renderer::getInstance()->drawLine(verts[1], verts[5], false, red);
+                Renderer::getInstance()->drawLine(verts[4], verts[2], false, red);
+                Renderer::getInstance()->drawLine(verts[4], verts[3], false, red);
+                Renderer::getInstance()->drawLine(verts[2], verts[6], false, red);
+                Renderer::getInstance()->drawLine(verts[3], verts[5], false, red);
             }
         }
     }
@@ -203,7 +222,6 @@ void Magic3D::Octree::update()
             if (object->isNeedingUpdateOctree())
             {                
                 movedObjects.push_back(object);
-                object->updateOctree();
             }
         }
 
@@ -218,16 +236,21 @@ void Magic3D::Octree::update()
             Object* movedObj = *it_m++;
             Octree* current = this;
 
+            if (movedObj->getOctree())
+            {
+                movedObj->getOctree()->remove(movedObj);
+            }
+            movedObj->updateOctree();
+
             Box b = movedObj->getBoundingBoxAlignedAxis();
             if (!current->region.contains(b))
             {
                 if (current->parent != NULL)
                 {
                     current = current->parent;
-                }                
+                }
             }
 
-            remove(movedObj);
             current->insert(movedObj);
         }
 
@@ -279,8 +302,12 @@ void Magic3D::Octree::add(Object* item, bool update)
 
 void Magic3D::Octree::addToList(Object* object)
 {
-    if (object)
+    if (object && object->getOctree() != this)
     {
+        if (object->getOctree())
+        {            
+            object->getOctree()->remove(object);
+        }
         objects.push_back(object);
         object->setOctree(this);
     }
@@ -331,6 +358,42 @@ void Magic3D::Octree::clear()
     }
 }
 
+void Magic3D::Octree::teste(bool main)
+{
+    std::list<Object*>::const_iterator it_o = objects.begin();
+    while (it_o != objects.end())
+    {
+        Object* obj = *it_o++;
+        log.push_back(obj);
+    }
+
+    it_o = pendingInsertion.begin();
+    while (it_o != pendingInsertion.end())
+    {
+        Object* obj = *it_o++;
+        log.push_back(obj);
+    }
+
+    for (int i = 0; i < 8; i++)
+    {
+        if (childs[i])
+        {
+            childs[i]->teste(false);
+        }
+    }
+
+    if (main)
+    {
+        log.sort(SortName);
+        std::list<Object*>::const_iterator it_o = log.begin();
+        while (it_o != log.end())
+        {
+            Object* obj = *it_o++;
+            Log::logFormat(eLOG_RENDERER, "%d - %s", obj->getOctree(), obj->getName().c_str());
+        }
+    }
+}
+
 void Magic3D::Octree::insert(Object* object)
 {
     /*if (objects.size() <= 1 && activeNodes == 0)
@@ -369,6 +432,7 @@ void Magic3D::Octree::insert(Object* object)
                     childs[a]->buildTree();
                 }
                 found = true;
+                break;
             }
         }
 
@@ -472,8 +536,15 @@ void Magic3D::Octree::buildTree()
 
         if (childs[a] && childs[a]->region.getMaxSize() != octant[a].getMaxSize())
         {
-            childs[a]->region = octant[a];
-            childs[a]->buildTree();
+            for (int o = 0; o < 8; o++)
+            {
+                if (octant[o].contains(childs[a]->region))
+                {
+                    childs[a]->region = octant[o];
+                    childs[a]->buildTree();
+                    break;
+                }
+            }
         }
     }
 

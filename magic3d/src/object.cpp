@@ -57,8 +57,6 @@ Magic3D::Object::Object(const Object& object, std::string name) : PhysicsObject(
 
     this->zOrderFactor = object.zOrderFactor;
 
-    this->render = object.render;
-
     this->collisionMesh = object.collisionMesh;
 
     this->flag = object.flag;
@@ -95,12 +93,12 @@ Magic3D::Object::Object(const Object& object, std::string name) : PhysicsObject(
 
 }
 
-Magic3D::Object::Object(OBJECT type, RENDER render, std::string name) : PhysicsObject(type)
+Magic3D::Object::Object(OBJECT type, RENDER render, std::string name) : PhysicsObject(type, render)
 {
-    init(render, name);
+    init(name);
 }
 
-void Magic3D::Object::init(RENDER render, std::string name)
+void Magic3D::Object::init(std::string name)
 {
     this->name = name;
     this->script = name;
@@ -116,7 +114,6 @@ void Magic3D::Object::init(RENDER render, std::string name)
     parentRotation   = true;
     parentScale      = true;
     collisionMesh    = -1;
-    this->render     = render;
 
     enabled          = true;
     visible          = true;
@@ -331,11 +328,6 @@ bool Magic3D::Object::updateMeshes()
     }
 
     return result;
-}
-
-Magic3D::RENDER Magic3D::Object::getRender()
-{
-    return render;
 }
 
 const std::string& Magic3D::Object::getName()
@@ -719,7 +711,7 @@ Magic3D::Vector3 Magic3D::Object::getRotationEuler(float& angle)
     return axis;
 }
 
-void Magic3D::Object::lookAt(Vector3 position, Vector3 up)
+void Magic3D::Object::lookAt(Vector3 position, Vector3 up, float factor)
 {
     Matrix4 m4EyeFrame;
     Vector3 v3X, v3Y, v3Z;
@@ -730,7 +722,10 @@ void Magic3D::Object::lookAt(Vector3 position, Vector3 up)
     v3Y = cross( v3Z, v3X );
     m4EyeFrame = Matrix4( Vector4( v3X ), Vector4( v3Y ), Vector4( v3Z ), Vector4( eyePos ) );
 
-    setRotation(Quaternion(m4EyeFrame.getUpper3x3()));
+    Quaternion parent = getParent() ? Math::inverse(getParent()->getRotationFromParent()) : Quaternion::identity();
+    Quaternion m = slerp(factor, getRotationFromParent(), Quaternion(m4EyeFrame.getUpper3x3()));
+
+    setRotation(parent * m);
 }
 
 void Magic3D::Object::rotate(Vector3 rotation)
@@ -863,26 +858,29 @@ const Magic3D::Box& Magic3D::Object::getBoundingBox()
 
 Magic3D::Box Magic3D::Object::getBoundingBoxAlignedAxis()
 {
-    Box b = box;
+    Box b = getBoundingBox();
     Vector3 min = b.corners[0];
     Vector3 max = b.corners[1];
+
     Matrix4 matrix = getMatrixFromParent();
+    Matrix3 dir = matrix.getUpper3x3();
+    Vector3 position = matrix.getTranslation();
 
-    Vector3 corners[8];
-    corners[0] = (matrix * Vector4(min.getX(), max.getY(), max.getZ(), 1.0f)).getXYZ();
-    corners[1] = (matrix * Vector4(max.getX(), max.getY(), max.getZ(), 1.0f)).getXYZ();
-    corners[2] = (matrix * Vector4(min.getX(), max.getY(), min.getZ(), 1.0f)).getXYZ();
-    corners[3] = (matrix * Vector4(max.getX(), max.getY(), min.getZ(), 1.0f)).getXYZ();
+    Vector3 dimensions = Vector3(b.getWidth(), b.getHeight(), b.getDepth()) * 0.5f;
 
-    corners[4] = (matrix * Vector4(min.getX(), min.getY(), max.getZ(), 1.0f)).getXYZ();
-    corners[5] = (matrix * Vector4(max.getX(), min.getY(), max.getZ(), 1.0f)).getXYZ();
-    corners[6] = (matrix * Vector4(min.getX(), min.getY(), min.getZ(), 1.0f)).getXYZ();
-    corners[7] = (matrix * Vector4(max.getX(), min.getY(), min.getZ(), 1.0f)).getXYZ();
+    Vector3 corners[6];
+    corners[0] = position + dir.getCol0() * dimensions.getX();
+    corners[1] = position + dir.getCol1() * dimensions.getY();
+    corners[2] = position + dir.getCol2() * dimensions.getZ();
+
+    corners[3] = position + dir.getCol0() * -dimensions.getX();
+    corners[4] = position + dir.getCol1() * -dimensions.getY();
+    corners[5] = position + dir.getCol2() * -dimensions.getZ();
 
     min = corners[0];
     max = corners[0];
 
-    for (int i = 1; i < 8; i++)
+    for (int i = 1; i < 6; i++)
     {
         min.setX(Math::min(min.getX(), corners[i].getX()));
         min.setY(Math::min(min.getY(), corners[i].getY()));
@@ -971,9 +969,16 @@ void Magic3D::Object::updateMatrix()
 
         if (getShapeRotation().getX() != 0.0f || getShapeRotation().getY() != 0.0f || getShapeRotation().getZ() != 0.0f)
         {
-            rotation = Quaternion(q.getX(), q.getY(), render == eRENDER_2D ? -q.getZ() : q.getZ(), q.getW());
+            rotation = Quaternion(q.getX(), q.getY(), getRender() == eRENDER_2D ? -q.getZ() : q.getZ(), q.getW());
         }
-        position = Vector3(v.getX(), render == eRENDER_2D ? -v.getY() : v.getY(), v.getZ());
+        if (getRender() == eRENDER_2D)
+        {
+            position = Vector3((v.getX() + 1.0f - 1.0f), -(v.getY() + 1.0f - 1.0f), 0.0f);
+        }
+        else
+        {
+            position = Vector3(v.getX(), v.getY(), v.getZ());
+        }
 
         matrix = Matrix4(rotation, position) * Matrix4(Matrix3::identity(), -getShapePosition());
     }
@@ -1072,18 +1077,18 @@ Magic3D::Matrix4 Magic3D::Object::getMatrixFromParent()
 
     if (billboard != eBILLBOARD_NONE)
     {
-        Matrix4 camera = Renderer::getInstance()->getCurrentViewPort()->getPerspective()->getMatrixFromParent();
-        Matrix3 look = Matrix4::lookAt(Point3(m.getTranslation()), Point3(camera.getTranslation() + normalize(camera.getCol2().getXYZ())), normalize(camera.getCol1().getXYZ())).getUpper3x3();
+        Camera* camera = Renderer::getInstance()->getCurrentViewPort()->getPerspective();
+        Matrix3 view = camera->getView().getUpper3x3();
         Matrix3 bb = Matrix3::identity();
 
         switch (billboard)
         {
             case eBILLBOARD_HORIZONTAL:
             {
-                Vector3 v1 = Vector3(-1.0f, 0.0f, 0.0f);
-                Vector3 v2 = look.getCol0();
+                Vector3 v1 = Vector3(1.0f, 0.0f, 0.0f);
+                Vector3 v2 = view.getCol0();
 
-                float angle = -Math::angleY(v1, v2);
+                float angle = Math::angle(v1, v2, Vector3(0.0f, 1.0f, 0.0f));
 
                 bb = Matrix3::rotationY(angle);
                 break;
@@ -1091,21 +1096,21 @@ Magic3D::Matrix4 Magic3D::Object::getMatrixFromParent()
             case eBILLBOARD_VERTICAL:
             {
                 Vector3 v1 = Vector3(0.0f, 1.0f, 0.0f);
-                Vector3 v2 = look.getCol1();
+                Vector3 v2 = view.getCol1();
 
-                float angle = Math::angleX(v1, v2);
+                float angle = Math::angle(v1, v2, Vector3(1.0f, 0.0f, 0.0f));
 
                 bb = Matrix3::rotationX(angle);
                 break;
             }
             default:
             {
-                bb = Matrix3::rotationY(Math::radians(180.0f)) * look;
+                bb = view;
                 break;
             }
         }
 
-        m = Matrix4(inverse(bb), Vector3(0.0f, 0.0f, 0.0)) * m;
+        m = m * Matrix4(inverse(bb), Vector3(0.0f, 0.0f, 0.0f));
     }
 
     return m;

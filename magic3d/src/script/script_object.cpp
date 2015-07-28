@@ -23,6 +23,7 @@ subject to the following restrictions:
 
 #include <magic3d/script/script_object.h>
 #include <magic3d/scene.h>
+#include <magic3d/tween/tween.h>
 
 const char Magic3D::ScriptObject::className[] = "Object";
 
@@ -59,7 +60,7 @@ Magic3D::ScriptClass<Magic3D::ScriptObject>::ScriptFunction Magic3D::ScriptObjec
     ScriptClassFunction(Magic3D::ScriptObject, getRotation, "Vector3 getRotation()", ""),
     ScriptClassFunction(Magic3D::ScriptObject, setScale,    "void setScale(Vector3 scale)", ""),
     ScriptClassFunction(Magic3D::ScriptObject, getScale,    "Vector3 getScale()", ""),
-    ScriptClassFunction(Magic3D::ScriptObject, lookAt,      "void lookAt(Vector3 position, Vector3 up)", "Rotate to look at a position."),
+    ScriptClassFunction(Magic3D::ScriptObject, lookAt,      "void lookAt(Vector3 position, Vector3 up, )", "Rotate to look at a position."),
 
     ScriptClassFunction(Magic3D::ScriptObject, move,    "void move(Vector3 factor)", ""),
     ScriptClassFunction(Magic3D::ScriptObject, rotate,  "void rotate(Vector3 rotation)", ""),
@@ -133,8 +134,7 @@ Magic3D::ScriptClass<Magic3D::ScriptObject>::ScriptFunction Magic3D::ScriptObjec
     ScriptClassFunction(Magic3D::ScriptObject, getLinearFactor, "Vector3 getLinearFactor()", ""),
     ScriptClassFunction(Magic3D::ScriptObject, getTotalForce, "Vector3 getTotalForce()", ""),
     ScriptClassFunction(Magic3D::ScriptObject, getTotalTorque, "Vector3 getTotalTorque()", ""),
-    ScriptClassFunction(Magic3D::ScriptObject, isPhysicsSleeping, "void isPhysicsSleeping()", ""),
-    ScriptClassFunction(Magic3D::ScriptObject, rayCast, "Object* rayCast(Vector3 start, Vector3 end)", ""),
+    ScriptClassFunction(Magic3D::ScriptObject, isPhysicsSleeping, "void isPhysicsSleeping()", ""),    
     ScriptClassFunction(Magic3D::ScriptObject, resetPhysics, "void resetPhysics()", ""),
 
     ScriptClassFunction(Magic3D::ScriptObject, setMeshTexture, "void setMeshTexture(string mesh, string texture)", ""),
@@ -148,6 +148,9 @@ Magic3D::ScriptClass<Magic3D::ScriptObject>::ScriptFunction Magic3D::ScriptObjec
     ScriptClassFunction(Magic3D::ScriptObject, playAnimation, "void playAnimation(string animation, float interpolation, bool reverse)", ""),
     ScriptClassFunction(Magic3D::ScriptObject, stop, "void stop()", ""),
     ScriptClassFunction(Magic3D::ScriptObject, isPlaying, "bool isPlaying()", ""),
+
+    ScriptClassFunction(Magic3D::ScriptObject, playTween, "void playTween(int index)", ""),
+    ScriptClassFunction(Magic3D::ScriptObject, stopTween, "void stopTween(int index)", ""),
 
     ScriptClassFunction(Magic3D::ScriptObject, setCurrentAnimation, "void setCurrentAnimation(string animation)", ""),
     ScriptClassFunction(Magic3D::ScriptObject, getCurrentAnimation, "string getCurrentAnimation()", ""),
@@ -259,7 +262,7 @@ int Magic3D::ScriptObject::lookAt(lua_State *lua)
     ScriptVector3* position = ScriptClass<ScriptVector3>::check(lua, 1);
     ScriptVector3* up = ScriptClass<ScriptVector3>::check(lua, 2);
 
-    object->lookAt(position->getValue(), up->getValue());
+    object->lookAt(position->getValue(), up->getValue(), luaL_checknumber(lua, 3));
     return 0;
 }
 
@@ -742,29 +745,12 @@ int Magic3D::ScriptObject::isPhysicsSleeping(lua_State *lua)
     return 1;
 }
 
-int Magic3D::ScriptObject::rayCast(lua_State *lua)
-{
-    ScriptVector3* start = ScriptClass<ScriptVector3>::check(lua, 1);
-    ScriptVector3* end = ScriptClass<ScriptVector3>::check(lua, 2);
-
-    RayCastReturn ray = Physics::getInstance()->rayCast(start->getValue(), end->getValue());
-
-    if (ray.physicsObject)
-    {
-        ScriptObject* obj = new ScriptObject(static_cast<Object*>(ray.physicsObject));
-
-        ScriptClass<ScriptObject>::push(lua, obj, true);
-    }
-    else
-    {
-        lua_pushnil(lua);
-    }
-
-    return 1;
-}
-
 int Magic3D::ScriptObject::resetPhysics(lua_State *lua)
 {
+    if (lua)
+    {
+
+    }
     object->resetPhysics();
     return 0;
 }
@@ -823,6 +809,10 @@ int Magic3D::ScriptObject::playAnimation(lua_State *lua)
 
 int Magic3D::ScriptObject::stop(lua_State *lua)
 {
+    if (lua)
+    {
+
+    }
     object->stop();
     return 0;
 }
@@ -831,6 +821,24 @@ int Magic3D::ScriptObject::isPlaying(lua_State *lua)
 {
     lua_pushboolean(lua, object->isPlaying());
     return 1;
+}
+
+int Magic3D::ScriptObject::playTween(lua_State *lua)
+{
+    Tween* tween = object->getTween(luaL_checkinteger(lua, 1));
+    if (tween)
+    {
+        tween->play();
+    }
+}
+
+int Magic3D::ScriptObject::stopTween(lua_State *lua)
+{
+    Tween* tween = object->getTween(luaL_checkinteger(lua, 1));
+    if (tween)
+    {
+        tween->stop();
+    }
 }
 
 int Magic3D::ScriptObject::setCurrentAnimation(lua_State *lua)
@@ -1010,87 +1018,90 @@ int Magic3D::ScriptObject::setShaderVarValue(lua_State *lua)
     if (index >= 0 && index < (int)object->getMeshes()->size())
     {
         MaterialVar* v = object->getMeshes()->at(index)->getMaterials()->at(0)->getVar(variable);
-        switch (v->getType())
+        if (v)
         {
-            case eSHADER_VAR_BOOL:      static_cast<MaterialVar_Boolean*>(v)->setValue(0, lua_toboolean(lua, 3)); break;
-            case eSHADER_VAR_BOOL_VEC2:
+            switch (v->getType())
             {
-                MaterialVar_Boolean* mv = static_cast<MaterialVar_Boolean*>(v);
-                mv->setValue(0, lua_toboolean(lua, 3));
-                mv->setValue(1, lua_toboolean(lua, 4));
-                break;
-            }
-            case eSHADER_VAR_BOOL_VEC3:
-            {
-                MaterialVar_Boolean* mv = static_cast<MaterialVar_Boolean*>(v);
-                mv->setValue(0, lua_toboolean(lua, 3));
-                mv->setValue(1, lua_toboolean(lua, 4));
-                mv->setValue(2, lua_toboolean(lua, 5));
-                break;
-            }
-            case eSHADER_VAR_BOOL_VEC4:
-            {
-                MaterialVar_Boolean* mv = static_cast<MaterialVar_Boolean*>(v);
-                mv->setValue(0, lua_toboolean(lua, 3));
-                mv->setValue(1, lua_toboolean(lua, 4));
-                mv->setValue(2, lua_toboolean(lua, 5));
-                mv->setValue(3, lua_toboolean(lua, 6));
-                break;
-            }
+                case eSHADER_VAR_BOOL:      static_cast<MaterialVar_Boolean*>(v)->setValue(0, lua_toboolean(lua, 3)); break;
+                case eSHADER_VAR_BOOL_VEC2:
+                {
+                    MaterialVar_Boolean* mv = static_cast<MaterialVar_Boolean*>(v);
+                    mv->setValue(0, lua_toboolean(lua, 3));
+                    mv->setValue(1, lua_toboolean(lua, 4));
+                    break;
+                }
+                case eSHADER_VAR_BOOL_VEC3:
+                {
+                    MaterialVar_Boolean* mv = static_cast<MaterialVar_Boolean*>(v);
+                    mv->setValue(0, lua_toboolean(lua, 3));
+                    mv->setValue(1, lua_toboolean(lua, 4));
+                    mv->setValue(2, lua_toboolean(lua, 5));
+                    break;
+                }
+                case eSHADER_VAR_BOOL_VEC4:
+                {
+                    MaterialVar_Boolean* mv = static_cast<MaterialVar_Boolean*>(v);
+                    mv->setValue(0, lua_toboolean(lua, 3));
+                    mv->setValue(1, lua_toboolean(lua, 4));
+                    mv->setValue(2, lua_toboolean(lua, 5));
+                    mv->setValue(3, lua_toboolean(lua, 6));
+                    break;
+                }
 
-            case eSHADER_VAR_INT:      static_cast<MaterialVar_Integer*>(v)->setValue(0, luaL_checkinteger(lua, 3)); break;
-            case eSHADER_VAR_INT_VEC2:
-            {
-                MaterialVar_Integer* mv = static_cast<MaterialVar_Integer*>(v);
-                mv->setValue(0, luaL_checkinteger(lua, 3));
-                mv->setValue(1, luaL_checkinteger(lua, 4));
-                break;
-            }
-            case eSHADER_VAR_INT_VEC3:
-            {
-                MaterialVar_Integer* mv = static_cast<MaterialVar_Integer*>(v);
-                mv->setValue(0, luaL_checkinteger(lua, 3));
-                mv->setValue(1, luaL_checkinteger(lua, 4));
-                mv->setValue(2, luaL_checkinteger(lua, 5));
-                break;
-            }
-            case eSHADER_VAR_INT_VEC4:
-            {
-                MaterialVar_Integer* mv = static_cast<MaterialVar_Integer*>(v);
-                mv->setValue(0, luaL_checkinteger(lua, 3));
-                mv->setValue(1, luaL_checkinteger(lua, 4));
-                mv->setValue(2, luaL_checkinteger(lua, 5));
-                mv->setValue(3, luaL_checkinteger(lua, 6));
-                break;
-            }
+                case eSHADER_VAR_INT:      static_cast<MaterialVar_Integer*>(v)->setValue(0, luaL_checkinteger(lua, 3)); break;
+                case eSHADER_VAR_INT_VEC2:
+                {
+                    MaterialVar_Integer* mv = static_cast<MaterialVar_Integer*>(v);
+                    mv->setValue(0, luaL_checkinteger(lua, 3));
+                    mv->setValue(1, luaL_checkinteger(lua, 4));
+                    break;
+                }
+                case eSHADER_VAR_INT_VEC3:
+                {
+                    MaterialVar_Integer* mv = static_cast<MaterialVar_Integer*>(v);
+                    mv->setValue(0, luaL_checkinteger(lua, 3));
+                    mv->setValue(1, luaL_checkinteger(lua, 4));
+                    mv->setValue(2, luaL_checkinteger(lua, 5));
+                    break;
+                }
+                case eSHADER_VAR_INT_VEC4:
+                {
+                    MaterialVar_Integer* mv = static_cast<MaterialVar_Integer*>(v);
+                    mv->setValue(0, luaL_checkinteger(lua, 3));
+                    mv->setValue(1, luaL_checkinteger(lua, 4));
+                    mv->setValue(2, luaL_checkinteger(lua, 5));
+                    mv->setValue(3, luaL_checkinteger(lua, 6));
+                    break;
+                }
 
-            case eSHADER_VAR_FLOAT:      static_cast<MaterialVar_Float*>(v)->setValue(0, luaL_checknumber(lua, 3)); break;
-            case eSHADER_VAR_FLOAT_VEC2:
-            {
-                MaterialVar_Float* mv = static_cast<MaterialVar_Float*>(v);
-                mv->setValue(0, luaL_checknumber(lua, 3));
-                mv->setValue(1, luaL_checknumber(lua, 4));
-                break;
-            }
-            case eSHADER_VAR_FLOAT_VEC3:
-            {
-                MaterialVar_Float* mv = static_cast<MaterialVar_Float*>(v);
-                mv->setValue(0, luaL_checknumber(lua, 3));
-                mv->setValue(1, luaL_checknumber(lua, 4));
-                mv->setValue(2, luaL_checknumber(lua, 5));
-                break;
-            }
-            case eSHADER_VAR_FLOAT_VEC4:
-            {
-                MaterialVar_Float* mv = static_cast<MaterialVar_Float*>(v);
-                mv->setValue(0, luaL_checknumber(lua, 3));
-                mv->setValue(1, luaL_checknumber(lua, 4));
-                mv->setValue(2, luaL_checknumber(lua, 5));
-                mv->setValue(3, luaL_checknumber(lua, 6));
-                break;
-            }
+                case eSHADER_VAR_FLOAT:      static_cast<MaterialVar_Float*>(v)->setValue(0, luaL_checknumber(lua, 3)); break;
+                case eSHADER_VAR_FLOAT_VEC2:
+                {
+                    MaterialVar_Float* mv = static_cast<MaterialVar_Float*>(v);
+                    mv->setValue(0, luaL_checknumber(lua, 3));
+                    mv->setValue(1, luaL_checknumber(lua, 4));
+                    break;
+                }
+                case eSHADER_VAR_FLOAT_VEC3:
+                {
+                    MaterialVar_Float* mv = static_cast<MaterialVar_Float*>(v);
+                    mv->setValue(0, luaL_checknumber(lua, 3));
+                    mv->setValue(1, luaL_checknumber(lua, 4));
+                    mv->setValue(2, luaL_checknumber(lua, 5));
+                    break;
+                }
+                case eSHADER_VAR_FLOAT_VEC4:
+                {
+                    MaterialVar_Float* mv = static_cast<MaterialVar_Float*>(v);
+                    mv->setValue(0, luaL_checknumber(lua, 3));
+                    mv->setValue(1, luaL_checknumber(lua, 4));
+                    mv->setValue(2, luaL_checknumber(lua, 5));
+                    mv->setValue(3, luaL_checknumber(lua, 6));
+                    break;
+                }
 
-            default: break;
+                default: break;
+            }
         }
     }
 

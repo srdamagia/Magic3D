@@ -35,6 +35,7 @@ class TweenTranslate : public Tween
 private:
     Vector3 position;
     Vector3 startPosition;
+    Vector3 startAnchor;
 
 protected:
     virtual void tween(float factor);

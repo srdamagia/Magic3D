@@ -168,13 +168,8 @@ Magic3D::Sprite::Sprite(const Sprite& sprite, std::string name) : Object(sprite,
 
     this->box = sprite.box;
 
-    this->x = sprite.x;
-    this->y = sprite.y;
     this->width = sprite.width;
     this->height = sprite.height;
-
-    this->scaleX = sprite.scaleX;
-    this->scaleY = sprite.scaleY;
 
     this->elapsed = sprite.elapsed;
     this->fps = sprite.fps;
@@ -190,9 +185,15 @@ Magic3D::Sprite::Sprite(const Sprite& sprite, std::string name) : Object(sprite,
     this->playing = sprite.playing;
     this->loop = sprite.loop;
 
-    this->needUpdate = sprite.needUpdate;
+    spriteMesh = getMeshes()->at(0);
 
-    this->spriteMesh = getMeshes()->at(0);
+    if (getType() == eOBJECT_SPRITE)
+    {
+        spriteMesh->getData()->addQuad(0.0f, 0.0f, 1.0f, 1.0f, eAXIS_Z, ColorRGBA(1.0f, 1.0f, 1.0f, 1.0f));
+
+        spriteMesh->getData()->createVbo();
+    }
+    needUpdate = true;
 }
 
 Magic3D::Sprite::Sprite(std::string name) : Object(eOBJECT_SPRITE, eRENDER_2D, name)
@@ -215,20 +216,15 @@ void Magic3D::Sprite::init()
 
     elapsed  = 0.0f;
 
-    x      = 0.0f;
-    y      = 0.0f;
-    width  = 0.0f;
-    height = 0.0f;
+    width  = 0.25f;
+    height = 0.25f;
 
     anchorHorizontal = 0.0f;
     anchorVertical   = 0.0f;
     alignHorizontal  = eHORIZONTAL_ALIGN_LEFT;
     alignVertical    = eVERTICAL_ALIGN_TOP;
 
-    scaleX = 1.0f;
-    scaleY = 1.0f;
-
-    box = Box(Vector3(-0.5f, -0.5f, -0.5f), Vector3(0.5f, 0.5f, 0.5f));
+    box = Box(Vector3(-0.5f, -0.5f, -0.005f), Vector3(0.5f, 0.5f, 0.005f));
 
     setShapeRotation(Vector3(0.0f, 0.0f, 1.0f));
     setShapeTranslation(Vector3(1.0f, 1.0f, 0.0f));
@@ -271,27 +267,28 @@ bool Magic3D::Sprite::update()
     float py = getParent() ? getParent()->getMatrixFromParent().getTranslation().getY() -  sp->getHeight() * 0.5f: 0.0f;
     float y = getMatrixFromParent().getTranslation().getY();
 
-    float currentWidth = getWidth();
-    float currentHeight = getHeight();
+    float windowX = Renderer::getInstance()->getWindow()->getWidth();
+    float windowY = Renderer::getInstance()->getWindow()->getHeight();
+    float wx = windowX > windowY ? windowX / windowY : 1.0f;
+    float wy = windowX > windowY ? 1.0f : windowY / windowX;
 
     switch (getHorizontalAlign())
     {
         case eHORIZONTAL_ALIGN_RIGHT:
         {
-            float w = Renderer::getInstance()->getWindow()->getWidth() - getHorizontalAnchor();
-            if (x + currentWidth != w)
+            float w = wx - getHorizontalAnchor() - px;
+            if (x != w)
             {
-                setPosition(w - currentWidth - px, getY());
+                setPosition(Vector3(w, getPosition().getY(), 0.0f));
             }
             break;
         }
         case eHORIZONTAL_ALIGN_CENTER:
         {
-            float halfWidth = currentWidth * 0.5f;
-            float w = (float)Renderer::getInstance()->getWindow()->getWidth() * 0.5f + getHorizontalAnchor();
-            if (x + halfWidth != w)
+            float w = wx * 0.5f + getHorizontalAnchor() - px;
+            if (x != w)
             {
-                setPosition(w - halfWidth - px, getY());
+                setPosition(Vector3(w, getPosition().getY(), 0.0f));
             }
             break;
         }
@@ -302,20 +299,19 @@ bool Magic3D::Sprite::update()
     {
         case eVERTICAL_ALIGN_BOTTOM:
         {
-            float h = Renderer::getInstance()->getWindow()->getHeight() - getVerticalAnchor();
-            if (y + currentHeight != h)
+            float h = wy - getVerticalAnchor() - py;
+            if (y != h)
             {
-                setPosition(getX(), h - currentHeight - py);
+                setPosition(Vector3(getPosition().getX(), h, 0.0f));
             }
             break;
         }
         case eVERTICAL_ALIGN_CENTER:
         {
-            float halfHeight = currentHeight * 0.5f;
-            float h = (float)Renderer::getInstance()->getWindow()->getHeight() * 0.5f + getVerticalAnchor();
-            if (y + halfHeight != h)
+            float h = wy * 0.5f + getVerticalAnchor() - py;
+            if (y != h)
             {
-                setPosition(getX(), h - halfHeight - py);
+                setPosition(Vector3(getPosition().getX(), h, 0.0f));
             }
             break;
         }
@@ -367,14 +363,16 @@ bool Magic3D::Sprite::updateMeshes()
 
         float* buffer = data->mapBuffer();
 
+        float x = width * 0.5f;
+        float y = height * 0.5f;
+
         ColorRGBA color = getMeshes()->at(0)->getMaterials()->at(0)->getColorDiffuse();
-        spriteMesh->getData()->setQuad(buffer, 0, -0.5f, -0.5f, 1.0f, 1.0f, color);
+        spriteMesh->getData()->setQuad(buffer, 0, -x, -y, width, height, color);
 
         data->unmapBuffer();
-    }
 
-    Object::setPosition(Vector3(x + width * 0.5f * scaleX, y + height * 0.5f * scaleY, 0.0f));
-    Object::setScale(Vector3(width * scaleX, height * scaleY, 1.0f));
+        box = Box(Vector3(-x, -y, 0.0f), Vector3(x, y, 0.0f));
+    }
 
     return true;
 }
@@ -387,46 +385,11 @@ void Magic3D::Sprite::addMaterial(Material* material)
     }
 }
 
-void Magic3D::Sprite::setPosition(float x, float y)
-{
-    this->x = x;
-    this->y = y;
-    needUpdate = true;
-}
-
-void Magic3D::Sprite::setPosition(float x, float y, float z)
-{
-    Object::setPosition(Vector3(x, y, z));
-}
-
-
 void Magic3D::Sprite::setSize(float width, float height)
 {
     this->width = width;
     this->height = height;
     needUpdate = true;
-}
-
-void Magic3D::Sprite::setScale(float x, float y)
-{
-    scaleX = x;
-    scaleY = y;
-    needUpdate = true;
-}
-
-void Magic3D::Sprite::setScale(float x, float y, float z)
-{
-    Object::setScale(Vector3(x, y, z));
-}
-
-float Magic3D::Sprite::getX()
-{
-    return x;
-}
-
-float Magic3D::Sprite::getY()
-{
-    return y;
 }
 
 float Magic3D::Sprite::getWidth()
@@ -437,16 +400,6 @@ float Magic3D::Sprite::getWidth()
 float Magic3D::Sprite::getHeight()
 {
     return height;
-}
-
-float Magic3D::Sprite::getScaleX()
-{
-    return scaleX;
-}
-
-float Magic3D::Sprite::getScaleY()
-{
-    return scaleY;
 }
 
 void Magic3D::Sprite::setHorizontalAnchor(float anchor)
@@ -494,37 +447,6 @@ const Magic3D::Box& Magic3D::Sprite::getBoundingBox()
     return box;
 }
 
-Magic3D::Matrix4 Magic3D::Sprite::getMatrixFromParent()
-{
-    Matrix4 m = getMatrix();
-
-    if (getParent())
-    {
-        Matrix4 pm = getParent()->getMatrixFromParent();
-
-        Sprite* sp = static_cast<Sprite*>(getParent());
-
-        if (getParent()->getType() == eOBJECT_SPRITE)
-        {
-            Matrix3 mRot = pm.getUpper3x3();
-
-            Vector3 tmpScale  = Vector3(length(mRot.getCol0()), length(mRot.getCol1()), length(mRot.getCol2()));
-            mRot.setCol0(normalize(mRot.getCol0()));
-            mRot.setCol1(normalize(mRot.getCol1()));
-            mRot.setCol2(normalize(mRot.getCol2()));
-            pm = Matrix4(mRot, pm.getTranslation());
-            pm *= Matrix4(Quaternion::identity(), Vector3(tmpScale.getX() * -0.5f, tmpScale.getY() * -0.5f, 0.0f));
-        }
-        else
-        {
-            pm *= Matrix4(Quaternion::identity(), Vector3(sp->getWidth() * -0.5f, sp->getHeight() * -0.5f, 0.0f));
-        }
-        m = pm * m;
-    }
-
-    return m;
-}
-
 void Magic3D::Sprite::updateFrame()
 {
     if (sequence)
@@ -563,15 +485,19 @@ void Magic3D::Sprite::addSequence(SpriteSequence* sequence)
 Magic3D::SpriteSequence* Magic3D::Sprite::getSequence(std::string name)
 {
     SpriteSequence* result = NULL;
-    std::vector<SpriteSequence*>::const_iterator it_s = getSequences()->begin();
-    while (it_s != getSequences()->end())
-    {
-        SpriteSequence* seq = *it_s++;
 
-        if (seq->getName().compare(name) == 0)
+    if (getSequences())
+    {
+        std::vector<SpriteSequence*>::const_iterator it_s = getSequences()->begin();
+        while (it_s != getSequences()->end())
         {
-            result = seq;
-            break;
+            SpriteSequence* seq = *it_s++;
+
+            if (seq->getName().compare(name) == 0)
+            {
+                result = seq;
+                break;
+            }
         }
     }
 
@@ -710,6 +636,15 @@ Magic3D::Texture* Magic3D::Sprite::getSpriteTexture()
     return result;
 }
 
+void Magic3D::Sprite::saveSpriteTexture()
+{
+    Texture* tex = getSpriteTexture();
+    if (tex)
+    {
+        tex->needSave = true;
+    }
+}
+
 Magic3D::XMLElement* Magic3D::Sprite::save(XMLElement* root)
 {
     Object::save(root);
@@ -719,13 +654,9 @@ Magic3D::XMLElement* Magic3D::Sprite::save(XMLElement* root)
         root->LinkEndChild(sprite);
 
         XMLElement* attribute = sprite->GetDocument()->NewElement( M3D_SPRITE_XML_POSITION );
-        attribute->SetAttribute(M3D_VECTOR_XML_X, x);
-        attribute->SetAttribute(M3D_VECTOR_XML_Y, y);
         sprite->LinkEndChild( attribute );
 
         attribute = sprite->GetDocument()->NewElement( M3D_SPRITE_XML_SCALE );
-        attribute->SetAttribute(M3D_VECTOR_XML_X, scaleX);
-        attribute->SetAttribute(M3D_VECTOR_XML_Y, scaleY);
         sprite->LinkEndChild( attribute );
 
         attribute = sprite->GetDocument()->NewElement( M3D_SPRITE_XML_SIZE );
@@ -762,21 +693,8 @@ Magic3D::XMLElement* Magic3D::Sprite::load(XMLElement* root)
     {
         XMLElement* sprite = root->FirstChildElement(M3D_SPRITE_XML);
 
-        XMLElement* xml = sprite->FirstChildElement(M3D_SPRITE_XML_POSITION);
-        if (xml)
-        {
-            xml->QueryFloatAttribute(M3D_VECTOR_XML_X, &x);
-            xml->QueryFloatAttribute(M3D_VECTOR_XML_Y, &y);
-        }
+        XMLElement* xml = sprite->FirstChildElement(M3D_SPRITE_XML_SIZE);
 
-        xml = sprite->FirstChildElement(M3D_SPRITE_XML_SCALE);
-        if (xml)
-        {
-            xml->QueryFloatAttribute(M3D_VECTOR_XML_X, &scaleX);
-            xml->QueryFloatAttribute(M3D_VECTOR_XML_Y, &scaleY);
-        }
-
-        xml = sprite->FirstChildElement(M3D_SPRITE_XML_SIZE);
         if (xml)
         {
             xml->QueryFloatAttribute(M3D_SPRITE_XML_WIDTH, &width);

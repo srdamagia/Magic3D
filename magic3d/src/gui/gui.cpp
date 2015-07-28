@@ -101,5 +101,5 @@ void Magic3D::GUI::updateBoundingBox()
 {
     float halfWidth = width * 0.5f;
     float halfHeight = height * 0.5f;
-    box = Box(Vector3(-halfWidth, -halfHeight, -0.5f), Vector3(halfWidth, halfHeight, 0.5f));
+    box = Box(Vector3(-halfWidth, -halfHeight, 0.0f), Vector3(halfWidth, halfHeight, 0.0f));
 }

@@ -68,6 +68,7 @@ private:
     Joystick_Input_Mouse* inputMouse;
     Joystick_Input_Touch* inputTouch;
 
+    void init();
 
 protected:
     Joystick(const Joystick& joystick, std::string name);
@@ -82,7 +83,7 @@ public:
 
     virtual bool updateMeshes();
 
-    void calculateDirection(int x, int y);
+    void calculateDirection(float x, float y);
 
     void down(int x, int y, int button);
     void pressed(int x, int y, int button);

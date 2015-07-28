@@ -339,6 +339,17 @@ std::string Magic3D::Config::getString(std::string key)
     return result.str();
 }
 
+
+bool Magic3D::Config::isConfigured(std::string key)
+{
+    bool result = false;
+    if (config.find(key) != config.end())
+    {
+        result = true;
+    }
+    return result;
+}
+
 void Magic3D::Config::clear()
 {
     while (!config.empty())
@@ -414,9 +425,10 @@ Magic3D::XMLElement* Magic3D::Config::save(XMLElement* root)
             XMLElement* xmlItem = root->GetDocument()->NewElement(M3D_CONFIG_XML_ITEM);
             root->LinkEndChild(xmlItem);
 
-            xmlItem->SetAttribute(M3D_CONFIG_XML_KEY, (*it_c).first.c_str());
+            xmlItem->SetAttribute(M3D_CONFIG_XML_KEY, (*it_c).first.c_str());            
 
             ConfigItem* item = (*it_c).second;
+            xmlItem->SetAttribute(M3D_CONFIG_XML_TYPE, item->getType());
             switch (item->getType())
             {
                 case eCONFIG_INTEGER: xmlItem->SetAttribute(M3D_CONFIG_XML_VALUE, static_cast<ConfigItemInteger*>(item)->getValue()); break;
@@ -435,23 +447,55 @@ Magic3D::XMLElement* Magic3D::Config::load(XMLElement* root)
 {
     if (root)
     {
-        /*XMLElement* xmlItem = root->FirstChildElement();
+        clear();
+        XMLElement* xmlItem = root->FirstChildElement();
         while (xmlItem != NULL)
         {
-
-            xmlItem->SetAttribute(M3D_CONFIG_XML_KEY, (*it_c).first.c_str());
-
-            ConfigItem* item = (*it_c).second;
-            switch (item->getType())
+            std::string key = xmlItem->Attribute(M3D_CONFIG_XML_KEY);
+            if (!key.empty())
             {
-                case eCONFIG_INTEGER: xmlItem->SetAttribute(M3D_CONFIG_XML_VALUE, static_cast<ConfigItemInteger*>(item)->getValue()); break;
-                case eCONFIG_FLOAT:   xmlItem->SetAttribute(M3D_CONFIG_XML_VALUE, static_cast<ConfigItemFloat*>(item)->getValue()); break;
-                case eCONFIG_BOOLEAN: xmlItem->SetAttribute(M3D_CONFIG_XML_VALUE, static_cast<ConfigItemBoolean*>(item)->getValue()); break;
-                case eCONFIG_STRING:  xmlItem->SetAttribute(M3D_CONFIG_XML_VALUE, static_cast<ConfigItemString*>(item)->getValue().c_str()); break;
+                int ctype = eCONFIG_INTEGER;
+                xmlItem->QueryIntAttribute(M3D_CONFIG_XML_TYPE, &ctype);
+                ConfigItem* item = NULL;
+                switch (ctype)
+                {
+                    case eCONFIG_INTEGER:
+                    {
+                        int value = 0;
+                        xmlItem->QueryIntAttribute(M3D_CONFIG_XML_VALUE, &value);
+                        item = new ConfigItemInteger(value);
+                        break;
+                    }
+                    case eCONFIG_FLOAT:
+                    {
+                        float value = 0.0f;
+                        xmlItem->QueryFloatAttribute(M3D_CONFIG_XML_VALUE, &value);
+                        item = new ConfigItemFloat(value);
+                        break;
+                    }
+                    case eCONFIG_BOOLEAN:
+                    {
+                        bool value = false;
+                        xmlItem->QueryBoolAttribute(M3D_CONFIG_XML_VALUE, &value);
+                        item = new ConfigItemBoolean(value);
+                        break;
+                    }
+                    case eCONFIG_STRING:
+                    {
+                        std::string value = xmlItem->Attribute(M3D_CONFIG_XML_VALUE);
+                        item = new ConfigItemString(value);
+                        break;
+                    }
+                }
+
+                if (item)
+                {
+                    config[key] = item;
+                }
             }
 
-            it_c++;
-        }*/
+            xmlItem = xmlItem->NextSiblingElement();
+        }
     }
     return root;
 }

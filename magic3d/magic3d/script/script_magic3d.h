@@ -55,8 +55,12 @@ public:
     int setWindowHeight(lua_State *lua);
     int getWindowHeight(lua_State *lua);
 
+    int getWindowAspectX(lua_State *lua);
+    int getWindowAspectY(lua_State *lua);
+
     int getTicks(lua_State *lua);
     int getElapsedTime(lua_State *lua);
+    int getElapsedTimeReal(lua_State *lua);
     int getTimeSinceStart(lua_State *lua);
     int getTimeScale(lua_State *lua);
     int setTimeScale(lua_State *lua);
@@ -86,8 +90,11 @@ public:
     int getConfigFloat(lua_State *lua);
     int getConfigBoolean(lua_State *lua);
     int getConfigString(lua_State *lua);
+    int isConfigured(lua_State *lua);
 
     int debugLine(lua_State *lua);
+
+    int rayCast(lua_State *lua);
 };
 }
 #endif /* SCRIPT_MAGIC3D_H */

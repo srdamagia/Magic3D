@@ -93,12 +93,12 @@ vec4 glow(vec4 color)
     vec4 result = color;
 
 #ifdef GLOW
-    if (useTexture_Depth == -1)
+    if (useTexture_Depth < 0)
     {
         float z = gl_FragCoord.z;
         float d = texture2D(texture_Depth, gl_FragCoord.xy / GLOW_SIZE).z;
 
-        result = z <= d + 0.00005 ? color : vec4(0.0, 0.0, 0.0, 1.0);
+        result = z <= d + 0.00005 && useTexture_Depth == -1 ? color : vec4(0.0, 0.0, 0.0, color.a);
     }
 #endif
 

@@ -30,8 +30,9 @@ namespace Magic3D
 {
 #define CONFIG_FILE "magic3d.config"
 
-#define M3D_CONFIG_XML_ITEM "item"
-#define M3D_CONFIG_XML_KEY "key"
+#define M3D_CONFIG_XML_ITEM  "item"
+#define M3D_CONFIG_XML_KEY   "key"
+#define M3D_CONFIG_XML_TYPE  "type"
 #define M3D_CONFIG_XML_VALUE "value"
 
 enum CONFIG_TYPE
@@ -125,6 +126,8 @@ public:
     float getFloat(std::string key);
     bool getBoolean(std::string key);
     std::string getString(std::string key);
+
+    bool isConfigured(std::string key);
 
     void clear();
     bool isEmpty();

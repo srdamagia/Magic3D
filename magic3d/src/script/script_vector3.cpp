@@ -49,6 +49,16 @@ Magic3D::ScriptClass<Magic3D::ScriptVector3>::ScriptFunction Magic3D::ScriptVect
     ScriptClassFunction(ScriptVector3, cross,      "Vector3 cross(Vector3 vector)", ""),
     ScriptClassFunction(ScriptVector3, distance,   "float distance(Vector3 vector)", ""),
     ScriptClassFunction(ScriptVector3, normalized, "Vector3 normalized()", ""),
+
+    ScriptClassFunction(ScriptVector3, angle,      "float angle(Vector3 vector)", ""),
+    ScriptClassFunction(ScriptVector3, slerp,      "float slerp(Vector3 vector, float factor)", ""),
+
+    ScriptClassFunction(ScriptVector3, getEulerRight, "", ""),
+    ScriptClassFunction(ScriptVector3, getEulerUp,    "", ""),
+    ScriptClassFunction(ScriptVector3, getEulerFront, "", ""),
+    ScriptClassFunction(ScriptVector3, getEulerLeft,  "", ""),
+    ScriptClassFunction(ScriptVector3, getEulerDown,  "", ""),
+    ScriptClassFunction(ScriptVector3, getEulerBack,  "", ""),
     {NULL, NULL, NULL, NULL}
 };
 
@@ -151,13 +161,7 @@ int Magic3D::ScriptVector3::dot(lua_State *lua)
     ScriptVector3* vector = ScriptClass<ScriptVector3>::check(lua, 1);
     float dp = Vectormath::Aos::dot(getValue(), vector->getValue());
 
-    float ang = 0.0f;
-    if( dp <= 0.999f )
-    {
-        ang = Math::degrees(acosf( dp ));
-    }
-
-    lua_pushnumber(lua, ang);
+    lua_pushnumber(lua, dp);
     return 1;
 }
 
@@ -183,6 +187,81 @@ int Magic3D::ScriptVector3::normalized(lua_State *lua)
 {
     ScriptVector3* vec = new ScriptVector3(normalize(getValue()));
 
+    ScriptClass<ScriptVector3>::push(lua, vec, true);
+    return 1;
+}
+
+int Magic3D::ScriptVector3::angle(lua_State *lua)
+{
+    ScriptVector3* vector = ScriptClass<ScriptVector3>::check(lua, 1);
+    ScriptVector3* normal = ScriptClass<ScriptVector3>::check(lua, 2);
+    float ang = Math::angle(getValue(), vector->getValue(), normal->getValue());
+
+    lua_pushnumber(lua, ang);
+    return 1;
+}
+
+int Magic3D::ScriptVector3::slerp(lua_State *lua)
+{
+    ScriptVector3* rot = ScriptClass<ScriptVector3>::check(lua, 1);
+    Quaternion q = Math::quaternion(rot->getValue());
+    Quaternion r = Math::quaternion(getValue());
+    ScriptVector3* vec = new ScriptVector3(Math::euler(Vectormath::Aos::slerp(luaL_checknumber(lua, 2), r, q)));
+
+    ScriptClass<ScriptVector3>::push(lua, vec, true);
+    return 1;
+}
+
+int Magic3D::ScriptVector3::getEulerRight(lua_State *lua)
+{
+    Matrix3 matrix = Matrix3(Math::quaternion(getValue()));
+
+    ScriptVector3* vec = new ScriptVector3(matrix.getCol0());
+    ScriptClass<ScriptVector3>::push(lua, vec, true);
+    return 1;
+}
+
+int Magic3D::ScriptVector3::getEulerUp(lua_State *lua)
+{
+    Matrix3 matrix = Matrix3(Math::quaternion(getValue()));
+
+    ScriptVector3* vec = new ScriptVector3(matrix.getCol1());
+    ScriptClass<ScriptVector3>::push(lua, vec, true);
+    return 1;
+}
+
+int Magic3D::ScriptVector3::getEulerFront(lua_State *lua)
+{
+    Matrix3 matrix = Matrix3(Math::quaternion(getValue()));
+
+    ScriptVector3* vec = new ScriptVector3(matrix.getCol2());
+    ScriptClass<ScriptVector3>::push(lua, vec, true);
+    return 1;
+}
+
+int Magic3D::ScriptVector3::getEulerLeft(lua_State *lua)
+{
+    Matrix3 matrix = Matrix3(Math::quaternion(getValue()));
+
+    ScriptVector3* vec = new ScriptVector3(-matrix.getCol0());
+    ScriptClass<ScriptVector3>::push(lua, vec, true);
+    return 1;
+}
+
+int Magic3D::ScriptVector3::getEulerDown(lua_State *lua)
+{
+    Matrix3 matrix = Matrix3(Math::quaternion(getValue()));
+
+    ScriptVector3* vec = new ScriptVector3(-matrix.getCol1());
+    ScriptClass<ScriptVector3>::push(lua, vec, true);
+    return 1;
+}
+
+int Magic3D::ScriptVector3::getEulerBack(lua_State *lua)
+{
+    Matrix3 matrix = Matrix3(Math::quaternion(getValue()));
+
+    ScriptVector3* vec = new ScriptVector3(-matrix.getCol2());
     ScriptClass<ScriptVector3>::push(lua, vec, true);
     return 1;
 }

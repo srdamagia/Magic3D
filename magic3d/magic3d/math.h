@@ -32,6 +32,7 @@ namespace Magic3D
 {
 
 #define M3D_MATH_DELTA 1e-10 // error tolerance
+#define BIT(x) (1<<(x))
 
 static const float M3D_MATH_EPSILON = 0.005f;            // error tolerance for check
 static const int   M3D_MATH_FLOAT_DECIMAL_TOLERANCE = 3; // decimal places for float rounding
@@ -146,9 +147,10 @@ public:
     static Vector3 euler(const Quaternion& quaternion);
     static Quaternion quaternion(const Vector3& euler);
     static void toAxisAngle(const Quaternion& quaternion, Vector3& axis, float& angle);
-    static float angleX(Vector3 vec1, Vector3 vec2);
+    static float angle(Vector3 vec1, Vector3 vec2, Vector3 normal);
+    /*static float angleX(Vector3 vec1, Vector3 vec2);
     static float angleY(Vector3 vec1, Vector3 vec2);
-    static float angleZ(Vector3 vec1, Vector3 vec2);
+    static float angleZ(Vector3 vec1, Vector3 vec2);*/
     static Quaternion inverse(const Quaternion& quaternion);
 
     static bool isInteger(std::string str);
@@ -323,8 +325,17 @@ struct Box
     inline Vector3 getCenter() {return Vector3(corners[0].getX() + getWidth() * 0.5f, corners[0].getY() + getHeight() * 0.5f, corners[0].getZ() + getDepth() * 0.5f);}
     bool contains(const Box& box)
     {
-        return corners[0].getX() < box.corners[0].getX() && corners[0].getY() < box.corners[0].getY() && corners[0].getZ() < box.corners[0].getZ() &&
-               corners[1].getX() > box.corners[1].getX() && corners[1].getY() > box.corners[1].getY() && corners[1].getZ() > box.corners[1].getZ();
+        Box b = box;
+        if (b.getMaxSize() > 0.0f)
+        {
+            return corners[0].getX() <= box.corners[0].getX() && corners[0].getY() <= box.corners[0].getY() && corners[0].getZ() <= box.corners[0].getZ() &&
+                   corners[1].getX() >= box.corners[1].getX() && corners[1].getY() >= box.corners[1].getY() && corners[1].getZ() >= box.corners[1].getZ();
+        }
+        else
+        {
+            return corners[0].getX() < box.corners[0].getX() && corners[0].getY() < box.corners[0].getY() && corners[0].getZ() < box.corners[0].getZ() &&
+                   corners[1].getX() > box.corners[1].getX() && corners[1].getY() > box.corners[1].getY() && corners[1].getZ() > box.corners[1].getZ();
+        }
     }
 
     Vector3 corners[2];

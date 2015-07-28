@@ -28,15 +28,21 @@ Magic3D::GUIWindow::GUIWindow(const GUIWindow& guiWindow, std::string name) : GU
 {
     this->sizeBorder = guiWindow.sizeBorder;
     this->sizeTitle = guiWindow.sizeTitle;
+    init();
 }
 
 Magic3D::GUIWindow::GUIWindow(std::string name) : GUI(eOBJECT_GUI_WINDOW, name)
 {
-    sizeBorder = 4.0f;
-    sizeTitle  = 32.0f;
-    width = 128.0f;
-    height = 128.0f;
+    sizeBorder = 0.01f;
+    sizeTitle  = 0.05f;
+    width = 0.5f;
+    height = 0.5f;
 
+    init();
+}
+
+void Magic3D::GUIWindow::init()
+{
     for (int i = 0; i < 15; i++)
     {
         spriteMesh->getData()->addQuad(0.0f, 0.0f, 1.0f, 1.0f, eAXIS_Z);
@@ -80,7 +86,7 @@ float Magic3D::GUIWindow::getTitleSize()
 }
 
 bool Magic3D::GUIWindow::updateMeshes()
-{
+{    
     float widthReal = width - sizeBorder * 2.0f;
     float heightReal = height - sizeBorder * 3.0f - sizeTitle;
 
@@ -192,9 +198,6 @@ bool Magic3D::GUIWindow::updateMeshes()
     data->setQuad(buffer, index++, startX, startY, sizeBorder, size, color);
 
     data->unmapBuffer();
-
-    setPosition(x + width * 0.5f * scaleX, y + height * 0.5f * scaleY, 0.0f);
-    setScale(scaleX, scaleY, 1.0f);
 
     return true;
 }

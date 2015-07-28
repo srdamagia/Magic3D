@@ -172,7 +172,7 @@ void Magic3D::ResourceManager::setPath(std::string path)
     shaders->setPath(&this->path);
     materials->setPath(&this->path);
     animations->setPath(&this->path);
-    fonts->setPath(&this->path);
+    fonts->setPath(&this->path);    
 }
 
 std::string Magic3D::ResourceManager::getPath()
@@ -188,6 +188,7 @@ void Magic3D::ResourceManager::setUserPath(std::string path)
     {
         this->pathUser += ending;
     }
+    Config::getInstance()->load();
 }
 
 std::string Magic3D::ResourceManager::getUserPath()

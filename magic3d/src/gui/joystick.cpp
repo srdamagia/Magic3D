@@ -32,8 +32,7 @@ Magic3D::Joystick::Joystick(const Joystick& joystick, std::string name) : GUI(jo
     this->force = 0.0f;
     this->button = -1;
 
-    Input::getInstance()->addEventListener(new Joystick_Input_Mouse(this));
-    Input::getInstance()->addEventListener(new Joystick_Input_Touch(this));
+    init();
 }
 
 Magic3D::Joystick::Joystick(std::string name) : GUI(eOBJECT_JOYSTICK, name)
@@ -44,9 +43,14 @@ Magic3D::Joystick::Joystick(std::string name) : GUI(eOBJECT_JOYSTICK, name)
     this->force = 0.0f;
     button = -1;
 
-    width = 32.0f;
-    height = 32.0f;
+    width = 0.25f;
+    height = 0.25f;
 
+    init();
+}
+
+void Magic3D::Joystick::init()
+{
     float col = 8.0f;
     float row = 8.0f;
 
@@ -147,15 +151,12 @@ bool Magic3D::Joystick::updateMeshes()
 
     data->unmapBuffer();
 
-    setPosition(x + width * 0.5f * scaleX, y + height * 0.5f * scaleY, 0.0f);
-    setScale(scaleX, scaleY, 1.0f);
-
     return true;
 }
 
-void Magic3D::Joystick::calculateDirection(int x, int y)
+void Magic3D::Joystick::calculateDirection(float x, float y)
 {
-    Vector3 curPos = Vector3(getX() + getWidth() * 0.5f, getY() + getHeight() * 0.5f, 0.0f);
+    Vector3 curPos = getPosition();
     Vector3 newPos = Vector3(x, y, 0.0f);
 
     float min = Math::min(getWidth() * 0.5f, getHeight() * 0.5f);
@@ -180,15 +181,20 @@ void Magic3D::Joystick::down(int x, int y, int button)
 {
     if (this->button == -1)
     {
-        if (x > getX() && x < getX() + getWidth() &&
-            y > getY() && y < getY() + getHeight())
+        Vector3 pos = Renderer::getInstance()->getWindow()->getWindowScreenXY((float)x, (float)y);
+
+        float halfW = getWidth() * 0.5f * getScale().getX();
+        float halfH = getHeight() * 0.5f * getScale().getY();
+
+        if (pos.getX() > getPosition().getX() - halfW && pos.getX() < getPosition().getX() + halfW &&
+            pos.getY() > getPosition().getY() - halfH && pos.getY() < getPosition().getY() + halfH)
         {
             this->button = button;
 
-            startPos.setX(x);
-            startPos.setY(y);
+            startPos.setX(pos.getX());
+            startPos.setY(pos.getY());
 
-            calculateDirection(x, y);
+            calculateDirection(pos.getX(), pos.getY());
         }
     }
 }
@@ -211,7 +217,7 @@ void Magic3D::Joystick::up(int x, int y, int button)
     {
         this->button = -1;
 
-        calculateDirection(getX() + getWidth() * 0.5f, getY() + getHeight() * 0.5f);
+        calculateDirection(getPosition().getX(), getPosition().getY());
     }
 }
 
@@ -219,10 +225,10 @@ void Magic3D::Joystick::move(int deltaX, int deltaY, int button)
 {
     if (button == this->button)
     {
-        /*startPos.setX(startPos.getX() + (float)deltaX * 0.5f);
-        startPos.setY(startPos.getY() + (float)deltaY * 0.5f);*/
-        startPos.setX((float)deltaX);
-        startPos.setY((float)deltaY);
+        Vector3 pos = Renderer::getInstance()->getWindow()->getWindowScreenXY((float)deltaX, (float)deltaY);
+
+        startPos.setX(pos.getX());
+        startPos.setY(pos.getY());
         calculateDirection(startPos.getX(), startPos.getY());
     }
 }

@@ -56,9 +56,11 @@ namespace Magic3D
 #define CONFIGURATION_FILE "config.xml"
 
 #define CFG_XML_SELECTED            "selected"
+#define CFG_XML_TITLE               "TITLE"
 #define CFG_XML_WINDOW_WIDTH        "WINDOW_WIDTH"
 #define CFG_XML_WINDOW_HEIGHT       "WINDOW_HEIGHT"
 #define CFG_XML_FULLSCREEN          "FULLSCREEN"
+#define CFG_XML_CURSOR              "CURSOR"
 #define CFG_XML_FBO_MAP_SIZE        "FBO_MAP_SIZE"
 #define CFG_XML_SHADOW_MAP_SIZE     "SHADOW_MAP_SIZE"
 #define CFG_XML_REFLECTION_MAP_SIZE "REFLECTION_MAP_SIZE"
@@ -89,10 +91,12 @@ class ResourceManager;
 struct Magic3DConfiguration
 {
     std::string NAME;
+    std::string TITLE;
 
     int WINDOW_WIDTH;
     int WINDOW_HEIGHT;
     bool FULLSCREEN;
+    bool CURSOR;
 
     int FBO_MAP_SIZE;
     int SHADOW_MAP_SIZE;
@@ -176,6 +180,7 @@ public:
     float getTimeScale();
     float getTicks();
     float getElapsedTime();
+    float getElapsedTimeReal();
     float getTimeSinceStart();
     float getTime();
     float getTimeSin();

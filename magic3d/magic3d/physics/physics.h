@@ -28,6 +28,9 @@ subject to the following restrictions:
 
 namespace Magic3D
 {
+#define M3D_PHYSICS_WORLDS 2
+
+class PhysicsRenderer2D;
 class PhysicsObject;
 class PhysicsConstraint;
 
@@ -40,6 +43,20 @@ enum PHYSICS_SHAPE
     ePHYSICS_SHAPE_CONE,
     ePHYSICS_SHAPE_CONVEXHULL,
     ePHYSICS_SHAPE_TRIANGLEMESH
+};
+
+enum PHYSICS_GROUP
+{
+    ePHYSICS_GROUP_0 = BIT(0),
+    ePHYSICS_GROUP_1 = BIT(1),
+    ePHYSICS_GROUP_2 = BIT(2),
+    ePHYSICS_GROUP_3 = BIT(3),
+    ePHYSICS_GROUP_4 = BIT(4),
+    ePHYSICS_GROUP_5 = BIT(5),
+    ePHYSICS_GROUP_6 = BIT(6),
+    ePHYSICS_GROUP_7 = BIT(7),
+    ePHYSICS_GROUP_8 = BIT(8),
+    ePHYSICS_GROUP_9 = BIT(9)
 };
 
 class PhysicsCollision
@@ -62,11 +79,12 @@ class Physics
 private:
     static Physics* instance;
 
-    btDefaultCollisionConfiguration*     collisionConfiguration;
-    btCollisionDispatcher*               dispatcher;
-    btBroadphaseInterface*               overlappingPairCache;
-    btSequentialImpulseConstraintSolver* solver;
-    btDiscreteDynamicsWorld*             dynamicsWorld;
+    PhysicsRenderer2D* renderer2D;
+    btDefaultCollisionConfiguration*     collisionConfiguration[2];
+    btCollisionDispatcher*               dispatcher[2];
+    btBroadphaseInterface*               overlappingPairCache[2];
+    btSequentialImpulseConstraintSolver* solver[2];
+    btDiscreteDynamicsWorld*             dynamicsWorld[2];
 
     bool playing;
 
@@ -108,7 +126,7 @@ public:
     void setGravity(const Vector3& gravity);
     Vector3 getGravity();
 
-    RayCastReturn rayCast(Vector3 start, Vector3 end);
+    RayCastReturn rayCast(Vector3 start, Vector3 end, bool orthographic);
 };
 
 }

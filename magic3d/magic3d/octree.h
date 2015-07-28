@@ -40,6 +40,7 @@ private:
 
     std::list<Object*> objects;
     std::list<Object*> pendingInsertion;
+    static std::list<Object*> log;
 
     Octree* childs[8];
 
@@ -86,6 +87,7 @@ public:
     void add(Object* item, bool update = false);
     void remove(Object* item);
     void clear();
+    void teste(bool main = true);
 
     int getNodesCount();
     int getRenderedNodes();

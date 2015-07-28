@@ -24,6 +24,7 @@ subject to the following restrictions:
 #include <magic3d/tween/tween_alpha.h>
 
 #include <magic3d/object.h>
+#include <magic3d/gui/guilabel.h>
 
 Magic3D::TweenAlpha::TweenAlpha() : Tween(eTWEEN_ALPHA)
 {
@@ -58,25 +59,37 @@ float Magic3D::TweenAlpha::getAlpha()
 void Magic3D::TweenAlpha::tween(float factor)
 {
     if (getPhysicsObject()->getType() != eOBJECT_BONE)
-    {
-        Object* object = static_cast<Object*>(getPhysicsObject());
-        std::vector<Mesh*>* meshes = object->getMeshes();
-        std::vector<Mesh*>::const_iterator it_m = meshes->begin();
-
-        while (it_m != meshes->end())
+    {        
+        if (getPhysicsObject()->getType() == eOBJECT_GUI_LABEL)
         {
-            Mesh* mesh = *it_m++;
-            std::vector<Material*>* materials = mesh->getMaterials();
-            std::vector<Material*>::const_iterator it_mat = materials->begin();
+            GUILabel* label = static_cast<GUILabel*>(getPhysicsObject());
 
-            while (it_mat != materials->end())
+            ColorRGBA color = label->getTextColor();
+            color.a = factor * alpha;
+
+            label->setTextColor(color);
+        }
+        else
+        {
+            Object* object = static_cast<Object*>(getPhysicsObject());
+            std::vector<Mesh*>* meshes = object->getMeshes();
+            std::vector<Mesh*>::const_iterator it_m = meshes->begin();
+
+            while (it_m != meshes->end())
             {
-                Material* material = *it_mat++;
+                Mesh* mesh = *it_m++;
+                std::vector<Material*>* materials = mesh->getMaterials();
+                std::vector<Material*>::const_iterator it_mat = materials->begin();
 
-                ColorRGBA color = material->getColorDiffuse();
-                color.a = factor * alpha;
+                while (it_mat != materials->end())
+                {
+                    Material* material = *it_mat++;
 
-                material->setColorDiffuse(color);
+                    ColorRGBA color = material->getColorDiffuse();
+                    color.a = factor * alpha;
+
+                    material->setColorDiffuse(color);
+                }
             }
         }
     }

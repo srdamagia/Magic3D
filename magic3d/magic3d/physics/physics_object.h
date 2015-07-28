@@ -45,6 +45,9 @@ namespace Magic3D
 #define M3D_PHYSICS_OBJECT_XML_RESTITUTION      "restitution"
 #define M3D_PHYSICS_OBJECT_XML_DAMPINGLINEAR    "damping_linear"
 #define M3D_PHYSICS_OBJECT_XML_DAMPINGANGULAR   "damping_angular"
+#define M3D_PHYSICS_OBJECT_XML_ISGROUPCOLLISION "is_group_collision"
+#define M3D_PHYSICS_OBJECT_XML_GROUP            "group"
+#define M3D_PHYSICS_OBJECT_XML_GROUPCOLLISION   "group_collision"
 #define M3D_PHYSICS_OBJECT_XML_GHOST            "ghost"
 #define M3D_TWEENS_XML                          "Tweens"
 #define M3D_PHYSICS_CONSTRAINTS_XML             "Constraints"
@@ -101,6 +104,12 @@ private:
     float dampingLinear;
     float dampingAngular;
 
+    RENDER render;
+
+    bool groupFilter;
+    int group;
+    int groupCollision;
+
     bool ghost;
 
     PHYSICS_SHAPE shape;
@@ -115,7 +124,7 @@ protected:
     PhysicsObject(const PhysicsObject& physicsObject);
 
 public:
-    PhysicsObject(OBJECT type);
+    PhysicsObject(OBJECT type, RENDER render);
     virtual ~PhysicsObject();
     virtual PhysicsObject* spawn() const;
 
@@ -148,10 +157,17 @@ public:
     virtual void setScale(Vector3 scale);
     virtual Vector3 getScale();
     virtual RENDER getRender();
-    virtual void lookAt(Vector3 position, Vector3 up);
+    virtual void lookAt(Vector3 position, Vector3 up, float factor);
 
     void setRigidBody(btRigidBody* body);
     btRigidBody* getRigidBody();
+
+    void setIsGroupCollision(bool groupCollision);
+    bool isGroupCollision();
+    void setGroup(int group);
+    int getGroup();
+    void setGroupCollision(int collision);
+    int getGroupCollision();
 
     void setShape(PHYSICS_SHAPE shape);
     PHYSICS_SHAPE getShape();

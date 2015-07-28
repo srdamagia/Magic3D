@@ -14685,7 +14685,8 @@ build/script_object.o: magic3d/src/script/script_object.cpp magic3d/magic3d/scri
 		magic3d/magic3d/input_define.h \
 		magic3d/magic3d/model/model.h \
 		magic3d/magic3d/model/animation.h \
-		magic3d/magic3d/model/loader.h
+		magic3d/magic3d/model/loader.h \
+		magic3d/magic3d/tween/tween.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/script_object.o magic3d/src/script/script_object.cpp
 
 build/script_vector3.o: magic3d/src/script/script_vector3.cpp magic3d/magic3d/script/script_vector3.h \
@@ -15173,7 +15174,10 @@ build/tween_alpha.o: magic3d/src/tween/tween_alpha.cpp magic3d/magic3d/tween/twe
 		magic3d/magic3d/material.h \
 		magic3d/magic3d/resource/resources_shader.h \
 		magic3d/magic3d/resource/resources.h \
-		magic3d/magic3d/model/skeleton.h
+		magic3d/magic3d/model/skeleton.h \
+		magic3d/magic3d/gui/guilabel.h \
+		magic3d/magic3d/gui/gui.h \
+		magic3d/magic3d/sprite.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/tween_alpha.o magic3d/src/tween/tween_alpha.cpp
 
 build/tween_delay.o: magic3d/src/tween/tween_delay.cpp magic3d/magic3d/tween/tween_delay.h \
@@ -15929,7 +15933,14 @@ build/tween_translate.o: magic3d/src/tween/tween_translate.cpp magic3d/magic3d/t
 		vectormath/ios/vectormath_aos.h \
 		vectormath/scalar/cpp/vectormath_aos.h \
 		magic3d/magic3d/physics/physics.h \
-		magic3d/magic3d/physics/physics_constraint.h
+		magic3d/magic3d/physics/physics_constraint.h \
+		magic3d/magic3d/sprite.h \
+		magic3d/magic3d/object.h \
+		magic3d/magic3d/mesh.h \
+		magic3d/magic3d/material.h \
+		magic3d/magic3d/resource/resources_shader.h \
+		magic3d/magic3d/resource/resources.h \
+		magic3d/magic3d/model/skeleton.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/tween_translate.o magic3d/src/tween/tween_translate.cpp
 
 build/physics.o: magic3d/src/physics/physics.cpp magic3d/magic3d/magic3d.h \

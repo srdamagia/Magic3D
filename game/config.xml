@@ -1,9 +1,11 @@
 <?0.9.0?>
 <Magic3D>
     <!-- Magic3D Configuration -->
+    <TITLE>Pocket Dragons Killer</TITLE>
     <WINDOW_WIDTH>800</WINDOW_WIDTH>
     <WINDOW_HEIGHT>600</WINDOW_HEIGHT>
     <FULLSCREEN>0</FULLSCREEN>
+    <CURSOR>1</CURSOR>
     <selected>default</selected>
     <default>
         <FBO_MAP_SIZE>512</FBO_MAP_SIZE>
@@ -13,7 +15,7 @@
         <GLOW_MAP_SIZE>64</GLOW_MAP_SIZE>
         <SCREEN_FBO_SIZE>1024</SCREEN_FBO_SIZE>
         <SCREEN_VERTICES>64</SCREEN_VERTICES>        
-        <SHOW_FPS>0</SHOW_FPS>
+        <SHOW_FPS>1</SHOW_FPS>
         <SHOW_INFORMATION>0</SHOW_INFORMATION>
         <SHOW_COORDINATES>0</SHOW_COORDINATES>
         <SHADOWS>1</SHADOWS>

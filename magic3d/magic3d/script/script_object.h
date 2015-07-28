@@ -127,8 +127,6 @@ public:
     int getTotalTorque(lua_State *lua);
     int isPhysicsSleeping(lua_State *lua);
 
-    int rayCast(lua_State *lua);
-
     int resetPhysics(lua_State *lua);
 
     int setMeshTexture(lua_State *lua);
@@ -143,7 +141,8 @@ public:
     int stop(lua_State *lua);
     int isPlaying(lua_State *lua);
 
-
+    int playTween(lua_State *lua);
+    int stopTween(lua_State *lua);
 
     int setCurrentAnimation(lua_State *lua);
     int getCurrentAnimation(lua_State *lua);

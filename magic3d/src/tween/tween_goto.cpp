@@ -58,7 +58,7 @@ const Magic3D::Vector3& Magic3D::TweenGoTo::getPosition()
 
 void Magic3D::TweenGoTo::tween(float factor)
 {
-    getPhysicsObject()->setPosition(startPosition + (position * factor));
+    getPhysicsObject()->setPosition(lerp(factor, startPosition, position));
 }
 
 Magic3D::XMLElement* Magic3D::TweenGoTo::save(XMLElement* root)

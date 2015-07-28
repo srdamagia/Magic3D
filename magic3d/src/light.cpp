@@ -124,7 +124,7 @@ Magic3D::Light::Light(std::string name) : Camera(eOBJECT_LIGHT, name)
             {
                 flares[i].scale = 0.5f;
                 flares[i].position = -0.15f;
-                flares[i].color = ColorRGBA(240.0f/255.0f, 255.0f/255.0f, 255.0f/255.0f, 0.0f);
+                flares[i].color = ColorRGBA(0.9f, 1.0f, 1.0f, 0.0f);
 
                 buffer = mesh->getData()->mapBuffer();
                 mesh->getData()->setQuadTexture(buffer, i, 0, 0.875f, 0.75f, 0.125f, 0.125f);
@@ -135,7 +135,7 @@ Magic3D::Light::Light(std::string name) : Camera(eOBJECT_LIGHT, name)
             {
                 flares[i].scale = 0.25f;
                 flares[i].position = -0.25f;
-                flares[i].color = ColorRGBA(95.0f/255.0f, 80.0f/255.0f, 255.0f/255.0f, 0.0f);
+                flares[i].color = ColorRGBA(0.4f, 0.3f, 1.0f, 0.0f);
 
                 buffer = mesh->getData()->mapBuffer();
                 mesh->getData()->setQuadTexture(buffer, i, 0, 0.25f, 0.625f, 0.125f, 0.125f);
@@ -144,9 +144,9 @@ Magic3D::Light::Light(std::string name) : Camera(eOBJECT_LIGHT, name)
             }
             case 4:
             {
-                flares[i].scale = 0.4f;
+                flares[i].scale = 0.9f;
                 flares[i].position = -0.35f;
-                flares[i].color = ColorRGBA(255.0f/255.0f, 255.0f/255.0f, 255.0f/255.0f, 0.0f);
+                flares[i].color = ColorRGBA(1.0f, 1.0f, 1.0f, 0.0f);
 
                 buffer = mesh->getData()->mapBuffer();
                 mesh->getData()->setQuadTexture(buffer, i, 0, 0.875f, 0.75f, 0.125f, 0.125f);
@@ -155,9 +155,9 @@ Magic3D::Light::Light(std::string name) : Camera(eOBJECT_LIGHT, name)
             }
             case 5:
             {
-                flares[i].scale = 0.2f;
+                flares[i].scale = 0.5f;
                 flares[i].position = -0.45f;
-                flares[i].color = ColorRGBA(95.0f/255.0f, 255.0f/255.0f, 160.0f/255.0f, 0.0f);
+                flares[i].color = ColorRGBA(0.4f, 1.0f, 0.6f, 0.0f);
 
                 buffer = mesh->getData()->mapBuffer();
                 mesh->getData()->setQuadTexture(buffer, i, 0, 0.25f, 0.625f, 0.125f, 0.125f);
@@ -166,9 +166,9 @@ Magic3D::Light::Light(std::string name) : Camera(eOBJECT_LIGHT, name)
             }
             case 6:
             {
-                flares[i].scale = 0.5f;
+                flares[i].scale = 1.0f;
                 flares[i].position = -0.6f;
-                flares[i].color = ColorRGBA(255.0f/255.0f, 255.0f/255.0f, 255.0f/255.0f, 0.0f);
+                flares[i].color = ColorRGBA(1.0f, 1.0f, 1.0f, 0.0f);
 
                 buffer = mesh->getData()->mapBuffer();
                 mesh->getData()->setQuadTexture(buffer, i, 0, 0.875f, 0.75f, 0.125f, 0.125f);
@@ -177,9 +177,9 @@ Magic3D::Light::Light(std::string name) : Camera(eOBJECT_LIGHT, name)
             }
             case 7:
             {
-                flares[i].scale = 0.3f;
+                flares[i].scale = 0.75f;
                 flares[i].position = -0.75f;
-                flares[i].color = ColorRGBA(255.0f/255.0f, 80.0f/255.0f, 80.0f/255.0f, 0.0f);
+                flares[i].color = ColorRGBA(1.0f, 0.3f, 0.3f, 0.0f);
 
                 buffer = mesh->getData()->mapBuffer();
                 mesh->getData()->setQuadTexture(buffer, i, 0, 0.25f, 0.625f, 0.125f, 0.125f);
@@ -188,9 +188,9 @@ Magic3D::Light::Light(std::string name) : Camera(eOBJECT_LIGHT, name)
             }
             case 8:
             {
-                flares[i].scale = 0.25f;
+                flares[i].scale = 1.0f;
                 flares[i].position = -0.9f;
-                flares[i].color = ColorRGBA(255.0f/255.0f, 255.0f/255.0f, 0.0f/255.0f, 0.0f);
+                flares[i].color = ColorRGBA(1.0f, 1.0f, 0.0f, 0.0f);
 
                 buffer = mesh->getData()->mapBuffer();
                 mesh->getData()->setQuadTexture(buffer, i, 0, 0.25f, 0.625f, 0.125f, 0.125f);
@@ -201,7 +201,7 @@ Magic3D::Light::Light(std::string name) : Camera(eOBJECT_LIGHT, name)
             {
                 flares[i].scale = 1.5f;
                 flares[i].position = -1.0f;
-                flares[i].color = ColorRGBA(255.0f/255.0f, 255.0f/255.0f, 255.0f/255.0f, 0.0f);
+                flares[i].color = ColorRGBA(1.0f, 1.0f, 1.0f, 0.0f);
 
                 buffer = mesh->getData()->mapBuffer();
                 mesh->getData()->setQuadTexture(buffer, i, 0, 0.875f, 0.875f, 0.125f, 0.125f);
@@ -286,18 +286,19 @@ bool Magic3D::Light::update()
                 MeshData* data = getMeshes()->at(0)->getData();
                 float* buffer = data->mapBuffer();
 
+                Vector3 a = Renderer::getInstance()->getWindow()->getWindowScreenAspect();
                 if ( (i > 1 && isShowingLens()) || (((i == 0 && ang < 5) || i == 1) && isShowingFlare()))
-                {
+                {                    
                     alpha = (1.0f - ( ang / camera->getFovy()));
-                    sizeX = window->getWidth() * 0.25f * flares[i].scale * aspectY * aspect;
-                    sizeY = window->getHeight() * 0.25f * flares[i].scale * aspectX * aspect;
+                    sizeX = a.getX() /* 0.5f*/ * flares[i].scale * aspectY * aspect;
+                    sizeY = a.getY() /* 0.5f*/ * flares[i].scale * aspectX * aspect;
 
-                    color.a = alpha * (i > 1 ? 0.25f : 1.0f) ;
+                    color.a = alpha * (i > 1 ? 0.3f : 1.0f) ;
 
                     float factor = 1.0f;
                     float scale = maxElem(getScale());
                     float frac = 1.0f / scale;
-                    factor = (scale - distance / getFar() ) * frac;
+                    factor = (scale - distance / getFar() * 0.75f) * frac;
 
                     if (factor < 0.0f)
                     {
@@ -310,7 +311,7 @@ bool Magic3D::Light::update()
                     pos = lensflare_screen_pos + flares_screen_pos * flares[i].position;
                 }
 
-                data->setQuad(buffer, i, pos.getX() * window->getWidth() - sizeX * 0.5f, pos.getY() * window->getHeight() - sizeY * 0.5f, -pos.getZ(), sizeX, sizeY, color);
+                data->setQuad(buffer, i, pos.getX() * a.getX() - sizeX * 0.5f, pos.getY() * a.getY() - sizeY * 0.5f, -pos.getZ(), sizeX, sizeY, color);
                 data->unmapBuffer();
             }
         }

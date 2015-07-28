@@ -35,6 +35,8 @@ private:
     float sizeBorder;
     float sizeTitle;
 
+    void init();
+
 protected:
     GUIWindow(const GUIWindow& guiWindow, std::string name);
 

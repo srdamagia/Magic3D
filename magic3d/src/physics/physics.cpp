@@ -27,20 +27,29 @@ Magic3D::Physics* Magic3D::Physics::instance = NULL;
 
 Magic3D::Physics::Physics()
 {
+    renderer2D = new PhysicsRenderer2D();
     bodiesCount = 0;
     constraintsCount = 0;
 
-    collisionConfiguration = NULL;
-    dispatcher = NULL;
-    overlappingPairCache = NULL;
-    solver = NULL;
-    dynamicsWorld = NULL;
+    for (int i = 0; i < M3D_PHYSICS_WORLDS; i++)
+    {
+        collisionConfiguration[i] = NULL;
+        dispatcher[i] = NULL;
+        overlappingPairCache[i] = NULL;
+        solver[i] = NULL;
+        dynamicsWorld[i] = NULL;
+    }
 
     play();
 }
 
 Magic3D::Physics::~Physics()
 {
+    if (renderer2D)
+    {
+        delete renderer2D;
+        renderer2D = NULL;
+    }
     stop();
 }
 
@@ -93,68 +102,75 @@ Magic3D::Physics* Magic3D::Physics::getInstance()
 
 void Magic3D::Physics::createWorld()
 {
-    collisionConfiguration = new btDefaultCollisionConfiguration();
-    dispatcher             = new btCollisionDispatcher(collisionConfiguration);
-    overlappingPairCache   = new btDbvtBroadphase();
-    solver                 = new btSequentialImpulseConstraintSolver;
-    dynamicsWorld          = new btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
+    for (int i = 0; i < M3D_PHYSICS_WORLDS; i++)
+    {
+        collisionConfiguration[i] = new btDefaultCollisionConfiguration();
+        dispatcher[i]             = new btCollisionDispatcher(collisionConfiguration[i]);
+        overlappingPairCache[i]   = new btDbvtBroadphase();
+        solver[i]                 = new btSequentialImpulseConstraintSolver;
+        dynamicsWorld[i]          = new btDiscreteDynamicsWorld(dispatcher[i], overlappingPairCache[i], solver[i], collisionConfiguration[i]);
 
-    dynamicsWorld->setGravity(btVector3(0,-10,0));
-    dynamicsWorld->setDebugDrawer(Renderer::getInstance());
+        dynamicsWorld[i]->setGravity(btVector3(0,-10,0));
+        dynamicsWorld[i]->setDebugDrawer(Renderer::getInstance());
+    }
+    dynamicsWorld[1]->setDebugDrawer(renderer2D);
 }
 
 void Magic3D::Physics::destroyWorld()
 {
-    if (dynamicsWorld)
+    for (int i = 0; i < M3D_PHYSICS_WORLDS; i++)
     {
-        for (int i = dynamicsWorld->getNumCollisionObjects()-1; i >= 0 ; i--)
+        if (dynamicsWorld[i])
         {
-            btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[i];
-            btRigidBody* body = btRigidBody::upcast(obj);
-
-            if (body && body->getMotionState())
+            for (int a = dynamicsWorld[i]->getNumCollisionObjects()-1; a >= 0 ; a--)
             {
-                delete body->getMotionState();
-            }
+                btCollisionObject* obj = dynamicsWorld[i]->getCollisionObjectArray()[a];
+                btRigidBody* body = btRigidBody::upcast(obj);
 
-            if (body && body->getCollisionShape())
-            {
-                delete body->getCollisionShape();
-            }
+                if (body && body->getMotionState())
+                {
+                    delete body->getMotionState();
+                }
 
-            dynamicsWorld->removeRigidBody(body);
-            delete obj;
+                if (body && body->getCollisionShape())
+                {
+                    delete body->getCollisionShape();
+                }
+
+                dynamicsWorld[i]->removeRigidBody(body);
+                delete obj;
+            }
         }
-    }
 
-    if (dynamicsWorld)
-    {
-        delete dynamicsWorld;
-        dynamicsWorld = NULL;
-    }
+        if (dynamicsWorld[i])
+        {
+            delete dynamicsWorld[i];
+            dynamicsWorld[i] = NULL;
+        }
 
-    if (solver)
-    {
-        delete solver;
-        solver = NULL;
-    }
+        if (solver[i])
+        {
+            delete solver[i];
+            solver[i] = NULL;
+        }
 
-    if (overlappingPairCache)
-    {
-        delete overlappingPairCache;
-        overlappingPairCache = NULL;
-    }
+        if (overlappingPairCache[i])
+        {
+            delete overlappingPairCache[i];
+            overlappingPairCache[i] = NULL;
+        }
 
-    if (dispatcher)
-    {
-        delete dispatcher;
-        dispatcher = NULL;
-    }
+        if (dispatcher[i])
+        {
+            delete dispatcher[i];
+            dispatcher[i] = NULL;
+        }
 
-    if (collisionConfiguration)
-    {
-        delete collisionConfiguration;
-        collisionConfiguration = NULL;
+        if (collisionConfiguration[i])
+        {
+            delete collisionConfiguration[i];
+            collisionConfiguration[i] = NULL;
+        }
     }
 
     bodiesCount = 0;
@@ -163,12 +179,30 @@ void Magic3D::Physics::destroyWorld()
 
 void Magic3D::Physics::render()
 {
-    dynamicsWorld->debugDrawWorld();
+    for (int i = 0; i < M3D_PHYSICS_WORLDS; i++)
+    {
+        dynamicsWorld[i]->debugDrawWorld();
+    }
 }
 
 void Magic3D::Physics::play(bool create)
 {
-    if (create && !dynamicsWorld)
+    bool allWorldsNULL = true;
+    for (int i = 0; i < M3D_PHYSICS_WORLDS; i++)
+    {
+        if (create && dynamicsWorld[i])
+        {
+            allWorldsNULL = false;
+            break;
+        }
+    }
+
+    if (create && !allWorldsNULL)
+    {
+        destroyWorld();
+    }
+
+    if (create)
     {
         createWorld();
     }
@@ -178,7 +212,7 @@ void Magic3D::Physics::play(bool create)
 void Magic3D::Physics::stop(bool destroy)
 {
     playing = false;
-    if (destroy && dynamicsWorld)
+    if (destroy)
     {
         destroyWorld();
     }
@@ -201,47 +235,50 @@ int Magic3D::Physics::getConstraintsCount()
 
 bool Magic3D::Physics::update()
 {
-    if (isPlaying() && dynamicsWorld)
+    for (int i = 0; i < M3D_PHYSICS_WORLDS; i++)
     {
-        dynamicsWorld->stepSimulation(Magic3D::Magic3D::getInstance()->getElapsedTime(), 3);
-        //dynamicsWorld->stepSimulation(1.0f / 60.0f, 5);
-
-        int numManifolds = dynamicsWorld->getDispatcher()->getNumManifolds();
-        for (int i=0;i<numManifolds;i++)
+        if (isPlaying() && dynamicsWorld[i])
         {
-            btPersistentManifold* contactManifold =  dynamicsWorld->getDispatcher()->getManifoldByIndexInternal(i);
-            const btCollisionObject* obA = contactManifold->getBody0();
-            const btCollisionObject* obB = contactManifold->getBody1();
+            dynamicsWorld[i]->stepSimulation(Magic3D::Magic3D::getInstance()->getElapsedTime(), 3);
+            //dynamicsWorld->stepSimulation(1.0f / 60.0f, 5);
 
-            Object* objectA = static_cast<Object*>(obA->getUserPointer());
-            Object* objectB = static_cast<Object*>(obB->getUserPointer());
-            int numContacts = contactManifold->getNumContacts();
-
-            for (int j=0;j<numContacts;j++)
+            int numManifolds = dynamicsWorld[i]->getDispatcher()->getNumManifolds();
+            for (int a=0; a < numManifolds; a++)
             {
-                btManifoldPoint& pt = contactManifold->getContactPoint(j);
+                btPersistentManifold* contactManifold =  dynamicsWorld[i]->getDispatcher()->getManifoldByIndexInternal(a);
+                const btCollisionObject* obA = contactManifold->getBody0();
+                const btCollisionObject* obB = contactManifold->getBody1();
 
-                const btVector3& ptA = pt.getPositionWorldOnA();
-                const btVector3& ptB = pt.getPositionWorldOnB();
-                const btVector3& normalOnA = -pt.m_normalWorldOnB;
-                const btVector3& normalOnB = pt.m_normalWorldOnB;
+                Object* objectA = static_cast<Object*>(obA->getUserPointer());
+                Object* objectB = static_cast<Object*>(obB->getUserPointer());
+                int numContacts = contactManifold->getNumContacts();
 
-                if (objectA->getPhysicsCollision())
+                for (int j=0;j<numContacts;j++)
                 {
-                    objectA->getPhysicsCollision()->collide(objectB, Vector3(ptA.x(), ptA.y(), ptA.z()), Vector3(ptB.x(), ptB.y(), ptB.z()), Vector3(normalOnB.x(), normalOnB.y(), normalOnB.z()));
-                }
-                if (objectA->isScripted())
-                {
-                    Script::getInstance()->call_collision(objectA, objectB, Vector3(ptA.x(), ptA.y(), ptA.z()), Vector3(ptB.x(), ptB.y(), ptB.z()), Vector3(normalOnB.x(), normalOnB.y(), normalOnB.z()));
-                }
+                    btManifoldPoint& pt = contactManifold->getContactPoint(j);
 
-                if (objectB->getPhysicsCollision())
-                {
-                    objectB->getPhysicsCollision()->collide(objectA, Vector3(ptB.x(), ptB.y(), ptB.z()), Vector3(ptA.x(), ptA.y(), ptA.z()), Vector3(normalOnA.x(), normalOnA.y(), normalOnA.z()));
-                }
-                if (objectB->isScripted())
-                {
-                    Script::getInstance()->call_collision(objectB, objectA, Vector3(ptB.x(), ptB.y(), ptB.z()), Vector3(ptA.x(), ptA.y(), ptA.z()), Vector3(normalOnA.x(), normalOnA.y(), normalOnA.z()));
+                    const btVector3& ptA = pt.getPositionWorldOnA();
+                    const btVector3& ptB = pt.getPositionWorldOnB();
+                    const btVector3& normalOnA = -pt.m_normalWorldOnB;
+                    const btVector3& normalOnB = pt.m_normalWorldOnB;
+
+                    if (objectA->getPhysicsCollision())
+                    {
+                        objectA->getPhysicsCollision()->collide(objectB, Vector3(ptA.x(), ptA.y(), ptA.z()), Vector3(ptB.x(), ptB.y(), ptB.z()), Vector3(normalOnB.x(), normalOnB.y(), normalOnB.z()));
+                    }
+                    if (objectA->isScripted())
+                    {
+                        Script::getInstance()->call_collision(objectA, objectB, Vector3(ptA.x(), ptA.y(), ptA.z()), Vector3(ptB.x(), ptB.y(), ptB.z()), Vector3(normalOnB.x(), normalOnB.y(), normalOnB.z()));
+                    }
+
+                    if (objectB->getPhysicsCollision())
+                    {
+                        objectB->getPhysicsCollision()->collide(objectA, Vector3(ptB.x(), ptB.y(), ptB.z()), Vector3(ptA.x(), ptA.y(), ptA.z()), Vector3(normalOnA.x(), normalOnA.y(), normalOnA.z()));
+                    }
+                    if (objectB->isScripted())
+                    {
+                        Script::getInstance()->call_collision(objectB, objectA, Vector3(ptB.x(), ptB.y(), ptB.z()), Vector3(ptA.x(), ptA.y(), ptA.z()), Vector3(normalOnA.x(), normalOnA.y(), normalOnA.z()));
+                    }
                 }
             }
         }
@@ -251,7 +288,8 @@ bool Magic3D::Physics::update()
 
 void Magic3D::Physics::add(PhysicsObject* physicsObject)
 {
-    if (dynamicsWorld && physicsObject)
+    int index = physicsObject->getRender() == eRENDER_2D ? 1 : 0;
+    if (dynamicsWorld[index] && physicsObject)
     {
         if (physicsObject->getRigidBody())
         {
@@ -415,7 +453,14 @@ void Magic3D::Physics::add(PhysicsObject* physicsObject)
             body->setFriction(physicsObject->getFriction());
             body->setRestitution(physicsObject->getRestitution());
 
-            dynamicsWorld->addRigidBody(body);
+            if (physicsObject->isGroupCollision())
+            {
+                dynamicsWorld[index]->addRigidBody(body, BIT(physicsObject->getGroup()), physicsObject->getGroupCollision());
+            }
+            else
+            {
+                dynamicsWorld[index]->addRigidBody(body);
+            }
 
             body->setActivationState( ACTIVE_TAG );
             body->activate(true);
@@ -432,6 +477,7 @@ void Magic3D::Physics::remove(PhysicsObject* physicsObject)
 {
     if (physicsObject)
     {
+        int index = physicsObject->getRender() == eRENDER_2D ? 1 : 0;
         btRigidBody* body = physicsObject->getRigidBody();
 
         if (body && body->getMotionState())
@@ -444,7 +490,7 @@ void Magic3D::Physics::remove(PhysicsObject* physicsObject)
             delete body->getCollisionShape();
         }
 
-        dynamicsWorld->removeRigidBody(body);
+        dynamicsWorld[index]->removeRigidBody(body);
         delete body;
 
         physicsObject->setRigidBody(NULL);
@@ -496,7 +542,8 @@ void Magic3D::Physics::addConstraint(PhysicsConstraint* constraint)
 {
     if (constraint && constraint->getConstraint())
     {
-        dynamicsWorld->addConstraint(constraint->getConstraint());
+        int index = constraint->getPhysicsObject()->getRender() == eRENDER_2D ? 1 : 0;
+        dynamicsWorld[index]->addConstraint(constraint->getConstraint());
         constraintsCount++;
     }
 }
@@ -505,7 +552,8 @@ void Magic3D::Physics::removeConstraint(PhysicsConstraint* constraint)
 {
     if (constraint && constraint->getConstraint())
     {
-        dynamicsWorld->removeConstraint(constraint->getConstraint());
+        int index = constraint->getPhysicsObject()->getRender() == eRENDER_2D ? 1 : 0;
+        dynamicsWorld[index]->removeConstraint(constraint->getConstraint());
         constraintsCount--;
     }
 }
@@ -533,25 +581,29 @@ void Magic3D::Physics::unmapShape(PhysicsObject* physicsObject)
 
 void Magic3D::Physics::setGravity(const Vector3& gravity)
 {
-    if (dynamicsWorld)
+    for (int i = 0; i < M3D_PHYSICS_WORLDS; i++)
     {
-        dynamicsWorld->setGravity(btVector3(gravity.getX(), gravity.getY(), gravity.getZ()));
+        if (dynamicsWorld[i])
+        {
+            dynamicsWorld[i]->setGravity(btVector3(gravity.getX(), gravity.getY(), gravity.getZ()));
+        }
     }
 }
 
 Magic3D::Vector3 Magic3D::Physics::getGravity()
 {
     Vector3 result = Vector3(0.0f, 0.0f, 0.0f);
-    if (dynamicsWorld)
+    if (dynamicsWorld[0])
     {
-        result = Vector3(dynamicsWorld->getGravity().getX(), dynamicsWorld->getGravity().getY(), dynamicsWorld->getGravity().getZ());
+        result = Vector3(dynamicsWorld[0]->getGravity().getX(), dynamicsWorld[0]->getGravity().getY(), dynamicsWorld[0]->getGravity().getZ());
     }
     return result;
 }
 
-Magic3D::RayCastReturn Magic3D::Physics::rayCast(Vector3 start, Vector3 end)
-{
+Magic3D::RayCastReturn Magic3D::Physics::rayCast(Vector3 start, Vector3 end, bool orthographic)
+{    
     RayCastReturn result;
+    int index = orthographic ? 1 : 0;
     result.point = Vector3(0.0f, 0.0f, 0.0f);
     result.normal = Vector3(0.0f, 0.0f, 0.0f);
     result.physicsObject = NULL;
@@ -560,7 +612,7 @@ Magic3D::RayCastReturn Magic3D::Physics::rayCast(Vector3 start, Vector3 end)
     btVector3 btTo(end.getX(), end.getY(), end.getZ());
 
     btCollisionWorld::ClosestRayResultCallback RayCallback(btFrom, btTo);
-    dynamicsWorld->rayTest(btFrom, btTo, RayCallback);
+    dynamicsWorld[index]->rayTest(btFrom, btTo, RayCallback);
 
     if(RayCallback.hasHit())
     {

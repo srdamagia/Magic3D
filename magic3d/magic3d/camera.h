@@ -177,6 +177,8 @@ public:
 
     float getBoxMinZ(const Matrix4& model, const Box& box);
 
+    void render();
+
     XMLElement* save(XMLElement* root);
     XMLElement* load(XMLElement* root);
 };

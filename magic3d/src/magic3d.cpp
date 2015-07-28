@@ -200,9 +200,11 @@ void Magic3D::Magic3D::loadConfiguration()
         {
             XMLElement* cfg = pElem;
 
+            configuration.TITLE         = Xml::loadString(cfg, CFG_XML_TITLE);
             configuration.WINDOW_WIDTH  = Xml::loadInt(cfg, CFG_XML_WINDOW_WIDTH);
             configuration.WINDOW_HEIGHT = Xml::loadInt(cfg, CFG_XML_WINDOW_HEIGHT);
             configuration.FULLSCREEN    = Xml::loadBool(cfg, CFG_XML_FULLSCREEN);
+            configuration.CURSOR        = Xml::loadBool(cfg, CFG_XML_CURSOR);
 
             configuration.NAME          = Xml::loadString(cfg, CFG_XML_SELECTED);
 
@@ -245,9 +247,11 @@ void Magic3D::Magic3D::loadConfiguration()
     {
         Log::log(eLOG_FAILURE, "Failed To Load Configuration!");
 
+        configuration.TITLE  = "Magic3D";
         configuration.WINDOW_WIDTH  = 800;
         configuration.WINDOW_HEIGHT = 600;
         configuration.FULLSCREEN    = false;
+        configuration.CURSOR        = true;
 
         configuration.NAME                 = "default";
         configuration.FBO_MAP_SIZE         = 512;
@@ -463,6 +467,11 @@ float Magic3D::Magic3D::getTicks()
 float Magic3D::Magic3D::getElapsedTime()
 {
     return timer->getTimeElapsed();
+}
+
+float Magic3D::Magic3D::getElapsedTimeReal()
+{
+    return timer->getTimeElapsedReal();
 }
 
 int Magic3D::Magic3D::getFPS()

@@ -28,18 +28,19 @@ subject to the following restrictions:
 
 namespace Magic3D
 {
-#define M3D_TWEEN_XML                "Tween"
-#define M3D_TWEEN_XML_TYPE           "type"
-#define M3D_TWEEN_XML_PLAYING        "playing"
-#define M3D_TWEEN_XML_START_VALUE    "start_value"
-#define M3D_TWEEN_XML_SPEED          "speed"
-#define M3D_TWEEN_XML_DURATION       "duration"
-#define M3D_TWEEN_XML_REPEAT         "repeat"
-#define M3D_TWEEN_XML_UPDATE_TYPE    "update_type"
-#define M3D_TWEEN_XML_NEXT_OBJECT    "next_object"
-#define M3D_TWEEN_XML_NEXT_BONE      "next_bone"
-#define M3D_TWEEN_XML_NEXT_INDEX     "next_index"
-#define M3D_TWEEN_XML_ALLWAYS_UPDATE "allways_update"
+#define M3D_TWEEN_XML                  "Tween"
+#define M3D_TWEEN_XML_TYPE             "type"
+#define M3D_TWEEN_XML_PLAYING          "playing"
+#define M3D_TWEEN_XML_START_VALUE      "start_value"
+#define M3D_TWEEN_XML_SPEED            "speed"
+#define M3D_TWEEN_XML_DURATION         "duration"
+#define M3D_TWEEN_XML_REPEAT           "repeat"
+#define M3D_TWEEN_XML_UPDATE_TYPE      "update_type"
+#define M3D_TWEEN_XML_NEXT_OBJECT      "next_object"
+#define M3D_TWEEN_XML_NEXT_BONE        "next_bone"
+#define M3D_TWEEN_XML_NEXT_INDEX       "next_index"
+#define M3D_TWEEN_XML_ALLWAYS_UPDATE   "allways_update"
+#define M3D_TWEEN_XML_IGNORE_TIMESCALE "ignore_timescale"
 
 enum TWEEN
 {
@@ -99,6 +100,7 @@ private:
 
     bool allwaysUpdate;
     bool playAtStart;
+    bool ignoreTimeScale;
 
     PhysicsObject* physicsObject;
 
@@ -153,6 +155,9 @@ public:
 
     void setPlayingAtStart(bool playing);
     bool isPlayingAtStart();
+
+    void setIgnoreTimeScale(bool ignore);
+    bool isIgnoringTimeScale();
 
     void setPhysicsObject(PhysicsObject* physicsObject);
     PhysicsObject* getPhysicsObject();

@@ -338,8 +338,6 @@ protected:
     bool reflection;
     bool glow;
 
-    int objects2D;
-
     Renderer_OpenGL();
     virtual ~Renderer_OpenGL();
     virtual void initialize();

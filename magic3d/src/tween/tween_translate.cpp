@@ -22,11 +22,13 @@ subject to the following restrictions:
 */
 
 #include <magic3d/tween/tween_translate.h>
+#include <magic3d/sprite.h>
 
 Magic3D::TweenTranslate::TweenTranslate() : Tween(eTWEEN_TRANSLATE)
 {
     position = Vector3(1.0f, 1.0f, 1.0f);
     startPosition = position;
+    startAnchor = Vector3(0.0f, 0.0f, 0.0f);
 }
 
 Magic3D::TweenTranslate::~TweenTranslate()
@@ -44,6 +46,15 @@ void Magic3D::TweenTranslate::reset()
     Tween::reset();
 
     startPosition = getPhysicsObject()->getPosition();
+    if (getPhysicsObject()->getRender() == eRENDER_2D)
+    {
+        Sprite* sprite = static_cast<Sprite*>(getPhysicsObject());
+        startAnchor = Vector3(sprite->getHorizontalAnchor(), sprite->getVerticalAnchor(), 0.0f);
+    }
+    else
+    {
+        startAnchor = Vector3(0.0f, 0.0f, 0.0f);
+    }
 }
 
 void Magic3D::TweenTranslate::setPosition(Vector3 position)
@@ -58,7 +69,32 @@ const Magic3D::Vector3& Magic3D::TweenTranslate::getPosition()
 
 void Magic3D::TweenTranslate::tween(float factor)
 {
-    getPhysicsObject()->setPosition(startPosition + (position * factor));
+    if (getPhysicsObject()->getRender() == eRENDER_2D)
+    {
+        Sprite* sprite = static_cast<Sprite*>(getPhysicsObject());
+
+        Vector3 newPos = position;
+        Vector3 currentPos = sprite->getPosition();
+
+        if (sprite->getHorizontalAlign() != eHORIZONTAL_ALIGN_LEFT)
+        {
+            newPos.setX(0);
+            sprite->setHorizontalAnchor(startAnchor.getX() + position.getX() * factor);
+            startPosition.setX(currentPos.getX());
+        }
+        if (sprite->getVerticalAlign() != eVERTICAL_ALIGN_TOP)
+        {
+            newPos.setY(0);
+            sprite->setVerticalAnchor(startAnchor.getY() + position.getY() * factor);
+            startPosition.setY(currentPos.getY());
+        }
+
+        getPhysicsObject()->setPosition(startPosition + (newPos * factor));
+    }
+    else
+    {
+        getPhysicsObject()->setPosition(startPosition + (position * factor));
+    }
 }
 
 Magic3D::XMLElement* Magic3D::TweenTranslate::save(XMLElement* root)

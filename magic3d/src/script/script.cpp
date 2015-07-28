@@ -72,6 +72,7 @@ Magic3D::Script::Script()
 
 Magic3D::Script::~Script()
 {
+    Scene::getInstance()->getOctree()->teste();
     stop();
 
     if (m3d)
@@ -205,6 +206,10 @@ void Magic3D::Script::stop(bool finishScript)
                 if (object->getLayer())
                 {
                     Scene::getInstance()->removeObject(object->getLayer(), object);
+                }
+                else if (object->getOctree())
+                {
+                    object->getOctree()->remove(object);
                 }
                 ResourceManager::getObjects()->remove(object->getName());
             }
@@ -685,7 +690,12 @@ bool Magic3D::Script::executeAllScripts(std::string functionName, bool mainEnd)
 
 void Magic3D::Script::log(std::string text)
 {
-    Log::logFormat(eLOG_FAILURE, "Script Error: %s - %s", lua_tostring(lua, -1), text.c_str());
+    const char format[] = "Script Error: %s - %s";
+    const char* error = lua_tostring(lua, -1);
+    int size = strlen(format) + text.size() + strlen(error) + 1;
+    char formatedError[size];
+    sprintf(formatedError, format, error, text.c_str());
+    Log::log(eLOG_FAILURE, formatedError);
 }
 
 void Magic3D::Script::helpItems(std::vector<ScriptHelpItem>* list, const char* table)

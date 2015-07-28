@@ -191,7 +191,6 @@ bool Magic3D::RendererOpenGL_Shaders::render(Scene* scene)
     rendererTexChanges = 0;
     rendererReflective = 0;
     rendererShadows    = 0;
-    objects2D          = 0;
 
     shadowsMS     = 0.0f;
     reflectionsMS = 0.0f;
@@ -333,8 +332,6 @@ bool Magic3D::RendererOpenGL_Shaders::render(Scene* scene)
             }
 
             std::list<RenderObject>* obj2D = scene->getVisibleObjects2D();
-            float zFactor = 0.01f;
-            objects2D = zFactor * (float)obj2D->size();
 
             glDisable(GL_DEPTH_TEST);
             check_gl_error();
@@ -436,8 +433,10 @@ bool Magic3D::RendererOpenGL_Shaders::render(Scene* scene)
 #endif
 
     selectedObjects.clear();
-    debugLines->clear();
-    debugPoints->clear();
+    debugLines[0]->clear();
+    debugPoints[0]->clear();
+    debugLines[1]->clear();
+    debugPoints[1]->clear();
 
     distortions.clear();
 
@@ -596,6 +595,8 @@ void Magic3D::RendererOpenGL_Shaders::renderScreen(Camera* camera)
             check_gl_error();
             setUniform1f(glsl->uniforms[eUNIFORM_ZFAR], camera->getFar());
             check_gl_error();
+            setUniform4f(glsl->uniforms[eUNIFORM_BARREL_DISTORTION], camera->getDistortionX(), camera->getDistortionY(), camera->getDistortion(), camera->getDistortionCube());
+            check_gl_error();
         }
 
         setUniform4f(glsl->uniforms[eUNIFORM_WINDOW], getWindow()->getWidth(), getWindow()->getHeight(), screenViewPort->getArea().getZ(), screenViewPort->getArea().getW());
@@ -605,10 +606,7 @@ void Magic3D::RendererOpenGL_Shaders::renderScreen(Camera* camera)
         setUniform1f(glsl->uniforms[eUNIFORM_TIME_SIN], Magic3D::getInstance()->getTimeSin());
         check_gl_error();
         setUniform1i(glsl->uniforms[eUNIFORM_RANDOM], rand() % 100);
-        check_gl_error();
-
-        setUniform4f(glsl->uniforms[eUNIFORM_BARREL_DISTORTION], camera->getDistortionX(), camera->getDistortionY(), camera->getDistortion(), camera->getDistortionCube());
-        check_gl_error();
+        check_gl_error();        
 
         setUniform4fv(glsl->uniforms[eUNIFORM_SCREEN_ASPECT], 1, reinterpret_cast<float*>(&screenAspect));
         check_gl_error();
@@ -971,6 +969,10 @@ bool Magic3D::RendererOpenGL_Shaders::renderReflections(Scene* scene, Camera *ca
         }
     }
 
+#if defined(_MGE_)
+    scene->updateVisibleObjectsOctree(camera);
+#endif
+
     reflectionsMS += Magic3D::getInstance()->getTimeSinceReference();
 
     return result;
@@ -1003,7 +1005,7 @@ bool Magic3D::RendererOpenGL_Shaders::renderGlow(Scene* scene, Camera *camera, V
         fboViewPort->setPerspective(camera);
         view3D(fboViewPort);
 
-        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         check_gl_error();
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
         check_gl_error();
@@ -1017,19 +1019,52 @@ bool Magic3D::RendererOpenGL_Shaders::renderGlow(Scene* scene, Camera *camera, V
 
         glow = true;
         std::list<RenderObject>::const_iterator it_o = glows->begin();
+
+        glColorMask(true, true, true, false);
         while (it_o != glows->end())
         {
             const RenderObject* object = &(*it_o++);
 
             renderObject(camera, object, true, true, false);
-        }
+        }       
 
         glEnable(GL_BLEND);
         check_gl_error();
 
-        fboViewPort->setArea(0.0f, 0.0f, 1.0f, 1.0f);
+        glDisable(GL_DEPTH_TEST);
+        check_gl_error();
+        glDepthMask(GL_FALSE);
+        check_gl_error();
 
+        if (view->getOrthographic())
+        {
+            fboViewPort->setArea(view->getArea());
+            fboViewPort->setOrthographic(view->getOrthographic());
+            fboViewPort->setWidth(fbo_glow->getWidth() * screenAspect.getX());
+            fboViewPort->setHeight(fbo_glow->getHeight() * screenAspect.getY());
+            view2D(fboViewPort);
+            matrix_view = view->getOrthographic()->getView(eye);
+
+            std::list<RenderObject>* obj2D = scene->getVisibleObjects2D();
+            it_o = obj2D->begin();
+            while (it_o != obj2D->end())
+            {
+                const RenderObject* object = &(*it_o++);
+
+                renderObject(view->getOrthographic(), object, true, false, false);
+            }
+        }
+
+        glEnable(GL_DEPTH_TEST);
+        check_gl_error();
+        glDepthMask(GL_TRUE);
+        check_gl_error();
+
+        glColorMask(true, true, true, true);
+
+        fboViewPort->setArea(0.0f, 0.0f, 1.0f, 1.0f);
         glow = false;
+
         toTexture = false;
     }
 
@@ -1220,17 +1255,10 @@ bool Magic3D::RendererOpenGL_Shaders::renderLights(GLSLShader* shader, const Ren
     return hasLights;
 }
 
-bool Magic3D::RendererOpenGL_Shaders::prepareMatrix(Camera* camera, const RenderObject* object, float z)
+bool Magic3D::RendererOpenGL_Shaders::prepareMatrix(Camera* camera, const RenderObject* object)
 {
     matrix_model = object->object->getType() == eOBJECT_LIGHT ? camera->getView() : object->model;
     matrix_modelView = object->object->getType() == eOBJECT_LIGHT ? camera->getView() : object->modelView;
-
-    if (object->object->getRender() == eRENDER_2D)
-    {
-        //matrix[14] = -z - matrix[14] - object->object->getMaxSizeFromParent();
-        matrix_model.setElem(3, 2, -z - matrix_model.getElem(3, 2) - object->object->getMaxSizeFromParent());
-        matrix_modelView.setElem(3, 2, -z - matrix_modelView.getElem(3, 2) - object->object->getMaxSizeFromParent());
-    }
 
     return true;
 }
@@ -1246,7 +1274,7 @@ bool Magic3D::RendererOpenGL_Shaders::renderObject(Camera* camera, const RenderO
     finalObject->setReflective(false);
     finalObject->setGlowed(false);
 
-    prepareMatrix(camera, object, objects2D);
+    prepareMatrix(camera, object);
 
     bool isParticles = finalObject->getType() == eOBJECT_PARTICLES || finalObject->getType() == eOBJECT_LIGHT;
     bool depthMaskChange = false;
@@ -1270,9 +1298,9 @@ bool Magic3D::RendererOpenGL_Shaders::renderObject(Camera* camera, const RenderO
 
             if (isRenderingScreenEffects())
             {
-                x = pos.getX() * fbo_screen->getWidth() * screenAspect.getX();
+                /*x = pos.getX() * fbo_screen->getWidth() * screenAspect.getX();
                 float aspectY = screenAspect.getY();
-                y = fbo_screen->getHeight() * aspectY - pos.getY() * fbo_screen->getHeight() * aspectY;
+                y = fbo_screen->getHeight() * aspectY - pos.getY() * fbo_screen->getHeight() * aspectY;*/
 
                 bufferZ = pos.getZ();
             }
@@ -1281,9 +1309,8 @@ bool Magic3D::RendererOpenGL_Shaders::renderObject(Camera* camera, const RenderO
                 x = pos.getX() * getWindow()->getWidth();
                 y = getWindow()->getHeight() - pos.getY() * getWindow()->getHeight();
 
-                //glReadPixels(x, y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &bufferZ);
-                //check_gl_error();
-                bufferZ = pos.getZ();
+                glReadPixels(x, y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &bufferZ);
+                check_gl_error();
             }
 
             if (bufferZ < pos.getZ())
@@ -1319,12 +1346,12 @@ bool Magic3D::RendererOpenGL_Shaders::renderObject(Camera* camera, const RenderO
             finalObject->setInEffectFrustum(true);
         }
 
-        if ((shadows && !mesh->isCastingShadows()) || (reflection && mesh->isReflective()) || (glow && !mesh->isGlow()))
+        if ((shadows && !mesh->isCastingShadows()) || (reflection && mesh->isReflective()) || (glow && !mesh->isGlow() && finalObject->getRender() == eRENDER_3D))
         {
             continue;
         }
         
-        if (mesh->isVisible() && (getRenderMode() != eRENDER_MODE_WIREFRAME || mesh->getData() != finalObject->getCollisionMesh()))
+        if (mesh->isVisible() && (getRenderMode() != eRENDER_MODE_WIREFRAME || (mesh->getData() != finalObject->getCollisionMesh()  || !isShowingGizmosPhysics())))
         {
             if (mesh->isDoubleSide())
             {
@@ -1439,7 +1466,14 @@ bool Magic3D::RendererOpenGL_Shaders::renderObject(Camera* camera, const RenderO
                 check_gl_error();
                 setUniform1i(glsl->uniforms[eUNIFORM_USE_TEXTURE_REFLECTION],  reflection ? -1 : rendererReflective == 0 || finalObject->getRender() == eRENDER_2D ? 0 : 1);
                 check_gl_error();
-                setUniform1i(glsl->uniforms[eUNIFORM_USE_TEXTURE_DEPTH], glow ? -1 : finalObject->getRender() == eRENDER_2D ? 0 : 1);
+                if (glow)
+                {
+                    setUniform1i(glsl->uniforms[eUNIFORM_USE_TEXTURE_DEPTH], finalObject->getRender() == eRENDER_2D && !mesh->isGlow() ? -2 : -1);
+                }
+                else
+                {
+                    setUniform1i(glsl->uniforms[eUNIFORM_USE_TEXTURE_DEPTH], finalObject->getRender() == eRENDER_2D ? 0 : 1);
+                }
                 check_gl_error();
 
                 setUniform1i(glsl->uniforms[eUNIFORM_RENDER_TO_TEXTURE], toTexture ? 1 : 0);
@@ -1691,7 +1725,18 @@ bool Magic3D::RendererOpenGL_Shaders::renderObjects(Camera* camera, std::list<Re
         {
             const RenderObject* object = &(*it_o++);
 
-            renderObject(camera, object, textures, lights, gizmos);
+            if (object->object->getType() != eOBJECT_CAMERA)
+            {
+                renderObject(camera, object, textures, lights, gizmos);
+            }
+            else
+            {
+                Camera* cam = static_cast<Camera*>(object->object);
+                if (cam->getProjectionType() == ePROJECTION_PERSPECTIVE && cam != camera)
+                {
+                    cam->render();
+                }
+            }
         }
     }
     else
@@ -2118,10 +2163,12 @@ bool Magic3D::RendererOpenGL_Shaders::renderAxis(Camera* camera, Object* object)
 
     Matrix4 m = object->getMatrixFromParent();
 
+    float size = object->getRender() == eRENDER_2D ? 0.1f : 1.0f;
     float alpha = 1.0f;
-    Renderer::drawLine(m.getTranslation(), m.getTranslation() + normalize(m.getCol0().getXYZ()), ColorRGBA(1.0f, 0.0f, 0.0f, alpha));
-    Renderer::drawLine(m.getTranslation(), m.getTranslation() + normalize(m.getCol1().getXYZ()), ColorRGBA(0.0f, 1.0f, 0.0f, alpha));
-    Renderer::drawLine(m.getTranslation(), m.getTranslation() + normalize(m.getCol2().getXYZ()), ColorRGBA(0.0f, 0.0f, 1.0f, alpha));
+    bool ortho = camera->getProjectionType() == ePROJECTION_ORTHOGRAPHIC;
+    Renderer::drawLine(m.getTranslation(), m.getTranslation() + normalize(m.getCol0().getXYZ()) * size, ortho, ColorRGBA(1.0f, 0.0f, 0.0f, alpha));
+    Renderer::drawLine(m.getTranslation(), m.getTranslation() + normalize(m.getCol1().getXYZ()) * size, ortho, ColorRGBA(0.0f, 1.0f, 0.0f, alpha));
+    Renderer::drawLine(m.getTranslation(), m.getTranslation() + normalize(m.getCol2().getXYZ()) * size, ortho, ColorRGBA(0.0f, 0.0f, 1.0f, alpha));
 
     return true;
 }
@@ -2527,6 +2574,7 @@ bool Magic3D::RendererOpenGL_Shaders::renderBoundingBox(Camera* camera, Object* 
     Vector3 min = box.corners[0];
     Vector3 max = box.corners[1];
     ColorRGBA color = ColorRGBA(0.0f, 0.75f, 0.0f, 1.0f);
+    bool ortho = camera->getProjectionType() == ePROJECTION_ORTHOGRAPHIC;
 
     Vector3 topFrontLeft  = (matrix * Vector4(min.getX(), max.getY(), max.getZ(), 1.0f)).getXYZ();
     Vector3 topFrontRight = (matrix * Vector4(max.getX(), max.getY(), max.getZ(), 1.0f)).getXYZ();
@@ -2539,22 +2587,22 @@ bool Magic3D::RendererOpenGL_Shaders::renderBoundingBox(Camera* camera, Object* 
     Vector3 bottomBackRight  = (matrix * Vector4(max.getX(), min.getY(), min.getZ(), 1.0f)).getXYZ();
 
     //horizontal
-    Renderer::drawLine(topFrontLeft,    topFrontRight,    color);
-    Renderer::drawLine(topBackLeft,     topBackRight,     color);
-    Renderer::drawLine(bottomFrontLeft, bottomFrontRight, color);
-    Renderer::drawLine(bottomBackLeft,  bottomBackRight,  color);
+    Renderer::drawLine(topFrontLeft,    topFrontRight,    ortho, color);
+    Renderer::drawLine(topBackLeft,     topBackRight,     ortho, color);
+    Renderer::drawLine(bottomFrontLeft, bottomFrontRight, ortho, color);
+    Renderer::drawLine(bottomBackLeft,  bottomBackRight,  ortho, color);
 
     //Vertical
-    Renderer::drawLine(topFrontLeft,  bottomFrontLeft,  color);
-    Renderer::drawLine(topFrontRight, bottomFrontRight, color);
-    Renderer::drawLine(topBackLeft,   bottomBackLeft,  color);
-    Renderer::drawLine(topBackRight,  bottomBackRight, color);
+    Renderer::drawLine(topFrontLeft,  bottomFrontLeft,  ortho, color);
+    Renderer::drawLine(topFrontRight, bottomFrontRight, ortho, color);
+    Renderer::drawLine(topBackLeft,   bottomBackLeft,   ortho, color);
+    Renderer::drawLine(topBackRight,  bottomBackRight,  ortho, color);
 
     //Z
-    Renderer::drawLine(topFrontLeft,     topBackLeft,     color);
-    Renderer::drawLine(topFrontRight,    topBackRight,    color);
-    Renderer::drawLine(bottomFrontLeft,  bottomBackLeft,  color);
-    Renderer::drawLine(bottomFrontRight, bottomBackRight, color);
+    Renderer::drawLine(topFrontLeft,     topBackLeft,     ortho, color);
+    Renderer::drawLine(topFrontRight,    topBackRight,    ortho, color);
+    Renderer::drawLine(bottomFrontLeft,  bottomBackLeft,  ortho, color);
+    Renderer::drawLine(bottomFrontRight, bottomBackRight, ortho, color);
 
     renderAxis(camera, object);
 
@@ -2609,7 +2657,7 @@ bool Magic3D::RendererOpenGL_Shaders::renderBone(Camera* camera, Object* object,
 
     if (bone->getChilds()->size() == 0)
     {
-        Renderer::drawPoint(m.getTranslation(), 5.0f, color);
+        Renderer::drawPoint(m.getTranslation(), 5.0f, false, color);
     }
 
     if (bone->getParent() && bone->getParent()->isSelected())
@@ -2625,8 +2673,8 @@ bool Magic3D::RendererOpenGL_Shaders::renderBone(Camera* camera, Object* object,
         color = ColorRGBA(1.0f, 1.0f, 0.0f, 1.0f);
     }
 
-    Renderer::drawPoint(p.getTranslation(), 5.0f, color);
-    Renderer::drawLine(p.getTranslation(), m.getTranslation(), color);
+    Renderer::drawPoint(p.getTranslation(), 5.0f, false, color);
+    Renderer::drawLine(p.getTranslation(), m.getTranslation(), false, color);
 
     return true;
 }
@@ -2643,6 +2691,20 @@ bool Magic3D::RendererOpenGL_Shaders::renderDebug(Camera* camera, ViewPort* view
     Matrix4 identity = camera->getView(eye);
     prepareGizmo(identity, ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f), true, false);
 
+    MeshData* lines;
+    MeshData* points;
+
+    if (camera->getProjectionType() == ePROJECTION_ORTHOGRAPHIC)
+    {
+        lines = debugLines[1];
+        points = debugPoints[1];
+    }
+    else
+    {
+        lines = debugLines[0];
+        points = debugPoints[0];
+    }
+
     glEnableVertexAttribArray(eVERTEX_POSITION);
     check_gl_error();
     glEnableVertexAttribArray(eVERTEX_COLOR);
@@ -2650,25 +2712,25 @@ bool Magic3D::RendererOpenGL_Shaders::renderDebug(Camera* camera, ViewPort* view
     glEnableVertexAttribArray(eVERTEX_UV0);
     check_gl_error();
 
-    glVertexAttribPointer(eVERTEX_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), &debugLines->getVertices()->front().position);
+    glVertexAttribPointer(eVERTEX_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), &lines->getVertices()->front().position);
     check_gl_error();
-    glVertexAttribPointer(eVERTEX_COLOR, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), &debugLines->getVertices()->front().color);
+    glVertexAttribPointer(eVERTEX_COLOR, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), &lines->getVertices()->front().color);
     check_gl_error();
-    glVertexAttribPointer(eVERTEX_UV0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), &debugLines->getVertices()->front().uv[0]);
+    glVertexAttribPointer(eVERTEX_UV0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), &lines->getVertices()->front().uv[0]);
     check_gl_error();
 
-    glDrawElements(GL_LINES, debugLines->getLinesCount() * 2, GL_UINT, &debugLines->getLines()->front());
+    glDrawElements(GL_LINES, lines->getLinesCount() * 2, GL_UINT, &lines->getLines()->front());
     check_gl_error();
     rendererDrawCalls++;
 
-    glVertexAttribPointer(eVERTEX_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), &debugPoints->getVertices()->front().position);
+    glVertexAttribPointer(eVERTEX_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), &points->getVertices()->front().position);
     check_gl_error();
-    glVertexAttribPointer(eVERTEX_COLOR, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), &debugPoints->getVertices()->front().color);
+    glVertexAttribPointer(eVERTEX_COLOR, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), &points->getVertices()->front().color);
     check_gl_error();
-    glVertexAttribPointer(eVERTEX_UV0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), &debugPoints->getVertices()->front().uv[0]);
+    glVertexAttribPointer(eVERTEX_UV0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), &points->getVertices()->front().uv[0]);
     check_gl_error();
 
-    glDrawElements(GL_POINTS, debugPoints->getPointsCount(), GL_UINT, &debugPoints->getPoints()->front());
+    glDrawElements(GL_POINTS, points->getPointsCount(), GL_UINT, &points->getPoints()->front());
     check_gl_error();
     rendererDrawCalls++;
 
@@ -2692,8 +2754,8 @@ bool Magic3D::RendererOpenGL_Shaders::renderDebug(Camera* camera, ViewPort* view
     glEnable(GL_CULL_FACE);
     check_gl_error();
 
-    debugLines->clear();
-    debugPoints->clear();
+    lines->clear();
+    points->clear();
 
     return true;
 }
@@ -3565,30 +3627,6 @@ void Magic3D::RendererOpenGL_Shaders::blurTexture(FBO* fbo, int amount, float st
             glBindTexture(GL_TEXTURE_2D, lastTexture0->id);
             check_gl_error();
         }
-    }
-}
-
-void Magic3D::RendererOpenGL_Shaders::drawLine(const btVector3& from, const btVector3& to, const btVector3& color)
-{
-    Renderer::drawLine(Vector3(from.getX(), from.getY(), from.getZ()), Vector3(to.getX(), to.getY(), to.getZ()), ColorRGBA(color.getX(), color.getY(), color.getZ(), 1.0f));
-}
-
-void Magic3D::RendererOpenGL_Shaders::drawTransform(const btTransform& transform, btScalar orthoLen)
-{
-    Renderer::drawTransform(transform, orthoLen);
-    btVector3 start = transform.getOrigin();
-    if (orthoLen < 1.0f)
-    {
-        drawPoint(Vector3(start.x(), start.y(), start.z()), 5.0f, ColorRGBA(0.0f, 0.5f, 0.0f, 1.0f));
-    }
-}
-
-void Magic3D::RendererOpenGL_Shaders::drawContactPoint(const btVector3& PointOnB, const btVector3& normalOnB, btScalar distance, int lifeTime, const btVector3& color)
-{
-    if (lifeTime > 0)
-    {
-        drawPoint(Vector3(PointOnB.x(), PointOnB.y(), PointOnB.z()), 5.0f, ColorRGBA(color.x(), color.y(), color.z(), 1.0f));
-        Renderer::drawLine(Vector3(PointOnB.x(), PointOnB.y(), PointOnB.z()), Vector3(PointOnB.x(), PointOnB.y(), PointOnB.z()) + Vector3(normalOnB.x(), normalOnB.y(), normalOnB.z()) * distance, ColorRGBA(color.x(), color.y(), color.z(), 1.0f));
     }
 }
 

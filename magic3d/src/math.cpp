@@ -122,7 +122,31 @@ void Magic3D::Math::toAxisAngle(const Quaternion& quaternion, Vector3& axis, flo
     }
 }
 
-float Magic3D::Math::angleX(Vector3 vec1, Vector3 vec2)
+float Magic3D::Math::angle(Vector3 vec1, Vector3 vec2, Vector3 normal)
+{
+    float dp, angPi;
+    Vector3 v1 = normalize(vec1);
+    Vector3 v2 = normalize(vec2);    
+    Vector3 n = normalize(normal);
+    Vector3 perp = cross(n, v1);
+
+    dp = dot(vec1, v2);
+
+    if (dp < -1.0f)
+    {
+        dp = -1.0f;
+    }
+    if (dp > 1.0f)
+    {
+        dp = 1.0f;
+    }
+
+    angPi = acosf(dp) * (dot(perp, vec2) >= 0.0f ? 1.0f : -1.0f);
+
+    return angPi;
+}
+
+/*float Magic3D::Math::angleX(Vector3 vec1, Vector3 vec2)
 {
     float dp, angPi;
     Vector3 v1 = normalize(vec1);
@@ -130,7 +154,7 @@ float Magic3D::Math::angleX(Vector3 vec1, Vector3 vec2)
     dp = dot(v1, v2);
 
     //angPi = atan2f(length(cross(v1, v2)),  dp);
-    angPi = acos(dp);
+    angPi = acosf(dp);
 
     if (v1.getZ() * v2.getY() > v1.getY() * v2.getZ())
         return -angPi;
@@ -148,7 +172,7 @@ float Magic3D::Math::angleY(Vector3 vec1, Vector3 vec2)
     dp = dot(v1, v2);
 
     //angPi = atan2f(length(cross(v1, v2)),  dp);
-    angPi = acos(dp);
+    angPi = acosf(dp);
 
     if (v1.getZ() * v2.getX() > v1.getX() * v2.getZ())
         return -angPi;
@@ -166,7 +190,7 @@ float Magic3D::Math::angleZ(Vector3 vec1, Vector3 vec2)
     dp = dot(v1, v2);
 
     //angPi = atan2f(length(cross(v1, v2)),  dp);
-    angPi = acos(dp);
+    angPi = acosf(dp);
 
     if (v1.getX() * v2.getY() > v1.getY() * v2.getX())
         return -angPi;
@@ -174,7 +198,7 @@ float Magic3D::Math::angleZ(Vector3 vec1, Vector3 vec2)
         return angPi;
 
     return angPi;
-}
+}*/
 
 Magic3D::Quaternion Magic3D::Math::inverse(const Quaternion& quaternion)
 {

@@ -405,7 +405,14 @@ const Magic3D::Matrix4& Magic3D::Camera::view2D(float left, float right, float b
             }
         }
 
-        projection *= Matrix4::orthographic(viewLeft, vr, vb, viewTop, getNear(), getFar());
+        if (getType() == eOBJECT_LIGHT)
+        {
+            projection *= Matrix4::orthographic(viewLeft, vr, vb, viewTop, getNear(), getFar());
+        }
+        else
+        {
+            projection *= Matrix4::orthographic(viewLeft, vr, vb, viewTop, -2.0f, 2.0f);
+        }
 
         needUpdateView = false;
     }
@@ -877,11 +884,11 @@ Magic3D::Object* Magic3D::Camera::pick(float x, float y, int viewport, bool all)
 
     if (window)
     {
-        float fx = x;
-        float fy = y;
-
         int w = window->getWidth();
         int h = window->getHeight();
+
+        float fx = x;
+        float fy = y;
 
         float mx = fx;
         float my = -fy;
@@ -923,8 +930,14 @@ Magic3D::Object* Magic3D::Camera::pick(float x, float y, int viewport, bool all)
             objs = Scene::getInstance()->getVisibleObjects3D();
         }
         else
-        {
-            projection = view2D(0.0f, w, h, 0.0f);
+        {            
+            Vector3 aspect = Renderer::getInstance()->getWindow()->getWindowScreenAspect();
+            fx = (x / float(w)) * aspect.getX();
+            fy = (y / float(h)) * aspect.getY();
+            mx = fx;
+            my = -fy;
+
+            projection = view2D(0.0f, aspect.getX(), aspect.getY(), 0.0f);
             Scene::getInstance()->updateVisibleObjects2D(this, false);
             objs = Scene::getInstance()->getVisibleObjects2D();
         }
@@ -947,14 +960,22 @@ Magic3D::Object* Magic3D::Camera::pick(float x, float y, int viewport, bool all)
 
                 Vector4 mouse = inverse(object->modelView) * Vector4(mx, -my, object->object->getMaxSizeFromParent(), 1.0f);
                 Vector3 pos = Vector3(mouse.getX(), mouse.getY(), mouse.getZ());
+                float cNear = getNear();
+                float cFar = getFar();
+
                 if (getProjectionType() == ePROJECTION_PERSPECTIVE)
                 {
                     pos = n;
                 }
+                else
+                {
+                    cNear = -2.0f;
+                    cFar = 2.0f;
+                }
 
                 Ray ray = Ray(pos, dir);
 
-                if (Math::collide(ray, getNear(), getFar(), object->object->getBoundingBox()))
+                if (Math::collide(ray, cNear, cFar, object->object->getBoundingBox()))
                 {
                     result = object->object;
                 }
@@ -1051,6 +1072,46 @@ float Magic3D::Camera::getBoxMinZ(const Matrix4& model, const Box& box)
     z = Math::min(z, cornersZ[7]);
 
     return z;
+}
+
+void Magic3D::Camera::render()
+{
+    Window* window = Renderer::getInstance()->getWindow();
+    float ratio = window->getWidth() / window->getHeight();
+    float tang = (float)tan(Math::radians(fovy) * 0.5f) ;
+    float nh = getNear() * tang;
+    float nw = nh * ratio;
+    float fh = getFar()  * tang;
+    float fw = fh * ratio;
+
+    Vector3 nc = getPosition() + getDirectionFront() * getNear();
+    Vector3 fc = getPosition() + getDirectionFront() * getFar();
+
+    Vector3 ftl = fc + (getDirectionUp() * fh * 0.5f) - (getDirectionRight() * fw * 0.5f);
+    Vector3 ftr = fc + (getDirectionUp() * fh * 0.5f) + (getDirectionRight() * fw * 0.5f);
+    Vector3 fbl = fc - (getDirectionUp() * fh * 0.5f) - (getDirectionRight() * fw * 0.5f);
+    Vector3 fbr = fc - (getDirectionUp() * fh * 0.5f) + (getDirectionRight() * fw * 0.5f);
+
+    Vector3 ntl = nc + (getDirectionUp() * nh * 0.5f) - (getDirectionRight() * nw * 0.5f);
+    Vector3 ntr = nc + (getDirectionUp() * nh * 0.5f) + (getDirectionRight() * nw * 0.5f);
+    Vector3 nbl = nc - (getDirectionUp() * nh * 0.5f) - (getDirectionRight() * nw * 0.5f);
+    Vector3 nbr = nc - (getDirectionUp() * nh * 0.5f) + (getDirectionRight() * nw * 0.5f);
+
+    ColorRGBA color = ColorRGBA(1.0f, 1.0f, 0.0f, 1.0f);
+    Renderer::getInstance()->drawLine(ntl, ntr, false, color);
+    Renderer::getInstance()->drawLine(ntr, nbr, false, color);
+    Renderer::getInstance()->drawLine(nbr, nbl, false, color);
+    Renderer::getInstance()->drawLine(nbl, ntl, false, color);
+
+    Renderer::getInstance()->drawLine(ftl, ftr, false, color);
+    Renderer::getInstance()->drawLine(ftr, fbr, false, color);
+    Renderer::getInstance()->drawLine(fbr, fbl, false, color);
+    Renderer::getInstance()->drawLine(fbl, ftl, false, color);
+
+    Renderer::getInstance()->drawLine(ntl, ftl, false, color);
+    Renderer::getInstance()->drawLine(ntr, ftr, false, color);
+    Renderer::getInstance()->drawLine(nbl, fbl, false, color);
+    Renderer::getInstance()->drawLine(nbr, fbr, false, color);
 }
 
 Magic3D::XMLElement* Magic3D::Camera::save(XMLElement* root)

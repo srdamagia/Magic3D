@@ -63,6 +63,7 @@ class Light;
 class Layer
 {
 private:
+    std::vector<Object*> cameras;
     std::vector<Object*> lights;
     std::vector<Object*> objects2D;
     std::vector<Object*> objects3D;
@@ -86,6 +87,7 @@ public:
     void removeObject(Object* object);
     int getObjectIndex(std::string name, std::vector<Object*>* list);
 
+    std::vector<Object*>* getCameras();
     std::vector<Object*>* getLights();
     std::vector<Object*>* getObjects2D();
     std::vector<Object*>* getObjects3D();
@@ -191,7 +193,7 @@ private:
     void setCurrentLayerXML(bool next);
 
     void prepareUpdate(Camera* camera, bool reflectives = true, bool reflections = false, bool anyType = false);
-    void updateVisibleObjectsFromOctreeNode(Octree* octree, Camera* camera, bool reflectives, bool reflections, bool anyType);
+    bool updateVisibleObjectsFromOctreeNode(Octree* octree, Camera* camera, bool reflectives, bool reflections, bool anyType);
 
     Scene();
     virtual ~Scene();

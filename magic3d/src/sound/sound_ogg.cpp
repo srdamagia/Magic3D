@@ -222,15 +222,14 @@ void Magic3D::SoundOGG::release()
     stop();
 
     alSourcei(uiSource, AL_BUFFER, 0);
+    // Clean up buffers and sources    
+    alDeleteBuffers( M3D_SOUND_NUMBUFFERS, uiBuffers );
+    alDeleteSources( 1, &uiSource );
 
     if (pDecodeBuffer)
     {
         delete[] pDecodeBuffer;
-    }
-
-    // Clean up buffers and sources
-    alDeleteSources( 1, &uiSource );
-    alDeleteBuffers( M3D_SOUND_NUMBUFFERS, uiBuffers );
+    }    
 
     // Close OggVorbis stream
     ov_clear(&sOggVorbisFile);
@@ -243,6 +242,11 @@ void Magic3D::SoundOGG::play()
 {
     if (loaded)
     {
+        if (isPlaying())
+        {
+            stop();
+        }
+        ov_time_seek(&sOggVorbisFile, 0.0);
         // Fill all the Buffers with decoded audio data from the OggVorbis file
         for (iLoop = 0; iLoop < M3D_SOUND_NUMBUFFERS; iLoop++)
         {
@@ -265,7 +269,12 @@ void Magic3D::SoundOGG::stop()
 {
     if (isPlaying())
     {
-        alSourceStop(uiSource);
+        alSourceStop(uiSource);        
+        for (iLoop = 0; iLoop < M3D_SOUND_NUMBUFFERS; iLoop++)
+        {
+            uiBuffer = 0;
+            alSourceUnqueueBuffers(uiSource, 1, &uiBuffer);
+        }
     }
     started = false;
 }

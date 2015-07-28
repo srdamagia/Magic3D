@@ -123,6 +123,20 @@ PFNGLGETBUFFERPARAMETERIVARBPROC glGetBufferParameterivARB = NULL; // return var
 PFNGLMAPBUFFERARBPROC            glMapBufferARB = NULL;            // map VBO procedure
 PFNGLUNMAPBUFFERARBPROC          glUnmapBufferARB = NULL;          // unmap VBO procedure
 #endif
+bool WGLExtensionSupported(const char *extension_name)
+{
+    bool result = true;
+    typedef const char *(WINAPI * PFNWGLGETEXTENSIONSSTRINGEXTPROC) (void);
+    PFNWGLGETEXTENSIONSSTRINGEXTPROC _wglGetExtensionsStringEXT = NULL;
+    _wglGetExtensionsStringEXT = (PFNWGLGETEXTENSIONSSTRINGEXTPROC) wglGetProcAddress("wglGetExtensionsStringEXT");
+
+    if (strstr(_wglGetExtensionsStringEXT(), extension_name) == NULL)
+    {
+        result = false;
+    }
+
+    return result;
+}
 #endif
 
 //******************************************************************************
@@ -319,8 +333,6 @@ Magic3D::Renderer_OpenGL::Renderer_OpenGL() : Renderer()
     shadows = false;
     reflection = false;
     glow = false;
-
-    objects2D = 0;
 }
 
 Magic3D::Renderer_OpenGL::~Renderer_OpenGL()
@@ -414,14 +426,15 @@ void Magic3D::Renderer_OpenGL::initialize()
 #endif
     this->extDepthTexture = isExtensionSupported("GL_ARB_depth_texture") || isExtensionSupported("GL_OES_depth_texture");
 
-    //this->extMapBuffer = false;
-    /*if (isExtensionSupported("WGL_EXT_swap_control"))
+#if defined(__WIN32__)
+    if (WGLExtensionSupported("WGL_EXT_swap_control"))
     {
         typedef bool (APIENTRY *PFNWGLSWAPINTERVALFARPROC)( int );
         PFNWGLSWAPINTERVALFARPROC wglSwapIntervalEXT = 0;
         wglSwapIntervalEXT = (PFNWGLSWAPINTERVALFARPROC)wglGetProcAddress( "wglSwapIntervalEXT" );
         wglSwapIntervalEXT(0);
-    }*/
+    }
+#endif
 
 #if defined(__WIN32__)
 #if !defined(MAGIC3D_LEGACY) && !defined(MAGIC3D_OES2)
@@ -1580,7 +1593,8 @@ void Magic3D::Renderer_OpenGL::view2D(ViewPort* view)
         }
         else
         {
-            matrix_projection = camera->view2D(0.0f, ws, hs, 0.0f);
+            Vector3 aspect = Renderer::getInstance()->getWindow()->getWindowScreenAspect();
+            matrix_projection = camera->view2D(0.0f, aspect.getX(), aspect.getY(), 0.0f);
         }
     }
     else

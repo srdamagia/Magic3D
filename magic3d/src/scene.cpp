@@ -39,6 +39,7 @@ Magic3D::Layer::Layer(std::string name)
 
 Magic3D::Layer::~Layer()
 {
+    cameras.clear();
     lights.clear();
     objects2D.clear();
     objects3D.clear();
@@ -59,16 +60,26 @@ void Magic3D::Layer::addObject(Object* object)
     if (object)
     {
         object->setLayer(this);
-        if (object->getType() == eOBJECT_LIGHT)
+        switch (object->getType())
         {
-            lights.push_back(object);
-        }
-        else
-        {
-            switch (object->getRender())
+            case eOBJECT_LIGHT:
             {
-                case eRENDER_2D: objects2D.push_back(object); break;
-                case eRENDER_3D: objects3D.push_back(object); break;
+                lights.push_back(object);
+                break;
+            }
+            case eOBJECT_CAMERA:
+            {
+                cameras.push_back(object);
+                break;
+            }
+            default:
+            {
+                switch (object->getRender())
+                {
+                    case eRENDER_2D: objects2D.push_back(object); break;
+                    case eRENDER_3D: objects3D.push_back(object); break;
+                }
+                break;
             }
         }
     }
@@ -83,16 +94,26 @@ void Magic3D::Layer::removeObject(Object* object)
 {
     if (object)
     {
-        if (object->getType() == eOBJECT_LIGHT)
+        switch (object->getType())
         {
-            removeObjectFromList(object->getName(), &lights);
-        }
-        else
-        {
-            switch (object->getRender())
+            case eOBJECT_LIGHT:
             {
-                case eRENDER_2D: removeObjectFromList(object->getName(), &objects2D); break;
-                case eRENDER_3D: removeObjectFromList(object->getName(), &objects3D); break;
+                removeObjectFromList(object->getName(), &lights);
+                break;
+            }
+            case eOBJECT_CAMERA:
+            {
+                removeObjectFromList(object->getName(), &cameras);
+                break;
+            }
+            default:
+            {
+                switch (object->getRender())
+                {
+                    case eRENDER_2D: removeObjectFromList(object->getName(), &objects2D); break;
+                    case eRENDER_3D: removeObjectFromList(object->getName(), &objects3D); break;
+                }
+                break;
             }
         }
     }
@@ -157,9 +178,15 @@ void Magic3D::Layer::clearList(std::vector<Object*>* objects)
 
 void Magic3D::Layer::clear()
 {
+    clearList(&cameras);
     clearList(&lights);
     clearList(&objects2D);
     clearList(&objects3D);
+}
+
+std::vector<Magic3D::Object*>* Magic3D::Layer::getCameras()
+{
+    return &cameras;
 }
 
 std::vector<Magic3D::Object*>* Magic3D::Layer::getLights()
@@ -508,6 +535,17 @@ void Magic3D::Scene::updateVisibleObjects2D(Camera* camera, bool profile)
 
     if (!loading)
     {
+        std::list<Object*>::const_iterator it_li = lights.begin();
+        while (it_li != lights.end())
+        {
+            Light* light = static_cast<Light*>(*it_li++);
+            if (light->isFrustumLensFlare() && (light->isShowingFlare() || light->isShowingLens()))
+            {
+                Matrix4 viewMatrix = light->getMatrixFromParent();
+                objects2D.push_back(RenderObject(light, viewMatrix, viewMatrix));
+            }
+        }
+
         std::vector<Layer*>::const_iterator it_l = layers.begin();
         while (it_l != layers.end())
         {
@@ -550,18 +588,7 @@ void Magic3D::Scene::updateVisibleObjects2D(Camera* camera, bool profile)
                     }
                 }
             }
-        }
-
-        std::list<Object*>::const_iterator it_li = lights.begin();
-        while (it_li != lights.end())
-        {
-            Light* light = static_cast<Light*>(*it_li++);
-            if (light->isFrustumLensFlare() && (light->isShowingFlare() || light->isShowingLens()))
-            {
-                Matrix4 viewMatrix = light->getMatrixFromParent();
-                objects2D.push_back(RenderObject(light, viewMatrix, viewMatrix));
-            }
-        }
+        }        
     }
 
     if (profile)
@@ -801,7 +828,31 @@ void Magic3D::Scene::updateVisibleObjectsOctree(Camera* camera, bool reflectives
         return;
     }
 
+    Matrix4 model = Matrix4::identity();
+    Matrix4 modelView = Matrix4::identity();
+    camera->updateFrustum(model, modelView);
     updateVisibleObjectsFromOctreeNode(getOctree(), camera, reflectives, reflections, anyType);
+
+#ifdef _MGE_
+    std::vector<Layer*>::const_iterator it_l = layers.begin();
+    while (it_l != layers.end())
+    {
+        Layer* layer = *it_l++;
+
+        if (layer && layer->isVisible())
+        {
+            std::vector<Object*>* objects = layer->getCameras();
+
+            std::vector<Object*>::const_iterator it_o = objects->begin();
+            while (it_o != objects->end())
+            {
+                Object* object = *it_o++;
+                Matrix4 viewMatrix = object->getMatrixFromParent();
+                objects3D.push_back(RenderObject(object, viewMatrix, viewMatrix));
+            }
+        }
+    }
+#endif
 
     if (anyType)
     {
@@ -816,6 +867,7 @@ void Magic3D::Scene::updateVisibleObjectsOctree(Camera* camera, bool reflectives
                 objects3D.push_back(RenderObject(light, viewMatrix, viewMatrix));
             }
         }
+
         objects3D.sort(SortZOrder);
     }
     else
@@ -831,19 +883,30 @@ void Magic3D::Scene::updateVisibleObjectsOctree(Camera* camera, bool reflectives
     }
 }
 
-void Magic3D::Scene::updateVisibleObjectsFromOctreeNode(Octree* octree, Camera* camera, bool reflectives, bool reflections, bool anyType)
+bool Magic3D::Scene::updateVisibleObjectsFromOctreeNode(Octree* octree, Camera* camera, bool reflectives, bool reflections, bool anyType)
 {
-    Matrix4 model = Matrix4::identity();
-    Matrix4 modelView = Matrix4::identity();
-    camera->updateFrustum(model, modelView);
-
+    bool result = false;
     Box box = octree->getBoundingBox();
     Vector3 pos = box.getCenter();
-    bool inFrustum = camera->frustumBox(pos, box.getWidth(), box.getHeight(), box.getDepth(), true);
+    bool inFrustum = camera->frustumBox(pos, box.getWidth(), box.getHeight(), box.getDepth(), false);
 
     if (inFrustum)
     {
-        octree->setInFrustum(true);
+        bool tmpFrustum = false;
+        for (int flags = octree->getActiveNodes(), index = 0; flags > 0; flags >>= 1, index++)
+        {
+            if ((flags & 1) == 1)
+            {
+                bool tmpResult = updateVisibleObjectsFromOctreeNode(octree->getChild(index), camera, reflectives, reflections, anyType);
+                if (tmpResult)
+                {
+                    tmpFrustum = true;
+                }
+            }
+        }
+
+        result = octree->getObjects()->size() > 0 || tmpFrustum;
+        octree->setInFrustum(result);
         const std::list<Object*>* objects = octree->getObjects();
         std::list<Object*>::const_iterator it_o = objects->begin();
         while (it_o != objects->end())
@@ -860,7 +923,8 @@ void Magic3D::Scene::updateVisibleObjectsFromOctreeNode(Octree* octree, Camera* 
 
                 if (object && object->isVisible() && object->getType() != eOBJECT_CAMERA)
                 {
-                    model = object->getMatrixFromParent();
+                    Matrix4 model = object->getMatrixFromParent();
+                    Matrix4 modelView = Matrix4::identity();
 
                     bool add = false;
                     if (camera)
@@ -954,27 +1018,21 @@ void Magic3D::Scene::updateVisibleObjectsFromOctreeNode(Octree* octree, Camera* 
                     }
                 }
             }
-        }
-
-        for (int flags = octree->getActiveNodes(), index = 0; flags > 0; flags >>= 1, index++)
-        {
-            if ((flags & 1) == 1)
-            {
-                updateVisibleObjectsFromOctreeNode(octree->getChild(index), camera, reflectives, reflections, anyType);
-            }
-        }
+        }        
     }
     else
     {
         octree->resetChildFrustum();
     }
+
+    return result;
 }
 
 void Magic3D::Scene::updateFrustumCulling(Camera* camera2D, Camera* camera3D)
 {
     Magic3D::getInstance()->setTimeReference();
     updateVisibleObjects2D(camera2D);
-    updateVisibleObjectsOctree(camera3D);
+    updateVisibleObjectsOctree(camera3D);    
     frustumMS = Magic3D::getInstance()->getTimeSinceReference();
 }
 
@@ -1056,6 +1114,7 @@ bool Magic3D::Scene::update()
 
     Renderer* renderer = Renderer::getInstance();
 
+    Vector3 windowAspect = renderer->getWindow()->getWindowScreenAspect();
     if (showFPS)
     {
         if (!renderer->lblFPS)
@@ -1069,8 +1128,7 @@ bool Magic3D::Scene::update()
                     renderer->lblFPS->getMeshes()->at(0)->getMaterials()->at(0)->setColorDiffuse(ColorRGBA(1.0f, 1.0f, 1.0f, 1.0f));
                 }
                 renderer->lblFPS->getMeshes()->at(0)->setIlluminated(false);
-                renderer->lblFPS->setPosition(-594.0f, 2.0f);
-                //renderer->lblFPS->setPosition(-92.0f, 2.0f);
+                renderer->lblFPS->setPosition(Vector3(0.0f, 0.0f, 0.0f));
                 renderer->lblFPS->setRotationEuler(Vector3(0.0f, 180.0f, 0.0f));
                 renderer->lblFPS->setParent(Renderer::getInstance()->getCurrentViewPort()->getOrthographic());
             }
@@ -1078,11 +1136,12 @@ bool Magic3D::Scene::update()
 
         if (renderer->lblFPS)
         {
-            sprintf(profileText, "FPS.....: % 07d - Time....: % 01.6f - Time sin: % 01.6f", Magic3D::Magic3D::getInstance()->getFPS(), Magic3D::Magic3D::getInstance()->getTime(), Magic3D::Magic3D::getInstance()->getTimeSin());
-            //sprintf(profileText, "FPS: %4d", Magic3D::Magic3D::getInstance()->getFPS());
+            //sprintf(profileText, "FPS.....: % 07d - Time....: % 01.6f - Time sin: % 01.6f", Magic3D::Magic3D::getInstance()->getFPS(), Magic3D::Magic3D::getInstance()->getTime(), Magic3D::Magic3D::getInstance()->getTimeSin());
+            sprintf(profileText, "FPS: %4d", Magic3D::Magic3D::getInstance()->getFPS());
 
             renderer->lblFPS->setText(profileText);
-            renderer->lblFPS->update();
+            renderer->lblFPS->setPosition(Vector3(-renderer->lblFPS->getWidth() * 0.5f - 0.01f, 0.025f, 0.0f));
+            renderer->lblFPS->update();            
         }
     }
 
@@ -1099,7 +1158,6 @@ bool Magic3D::Scene::update()
                     renderer->lblINFO->getMeshes()->at(0)->getMaterials()->at(0)->setColorDiffuse(ColorRGBA(1.0f, 1.0f, 1.0f, 1.0f));
                 }
                 renderer->lblINFO->getMeshes()->at(0)->setIlluminated(false);
-                //renderer->lblINFO->setPosition(-254.0f, 24.0f);
                 renderer->lblINFO->setRotationEuler(Vector3(0.0f, 180.0f, 0.0f));
                 renderer->lblINFO->setParent(Renderer::getInstance()->getCurrentViewPort()->getOrthographic());
             }
@@ -1113,8 +1171,7 @@ bool Magic3D::Scene::update()
             bool simple = false;
             
             if (simple)
-            {
-                renderer->lblINFO->setPosition(-246.0f, 24.0f);
+            {                
                 sprintf(profileText,
                         "Physics MS:      %11.6f\n"\
                         "Update MS:       %11.6f\n"\
@@ -1131,7 +1188,6 @@ bool Magic3D::Scene::update()
             }
             else if (renderer->getWindow()->getHeight() >= 480)
             {
-                renderer->lblINFO->setPosition(-246.0f, 24.0f);
                 sprintf(profileText,
                         "Rendered:        %8d\n"\
                         "Objects:         %8d\n"\
@@ -1187,7 +1243,6 @@ bool Magic3D::Scene::update()
             }
             else
             {
-                renderer->lblINFO->setPosition(-477.0f, 24.0f);
                 sprintf(profileText,
                         "Rendered:        %8d  Render MS:       %11.6f\n"\
                         "Objects:         %8d      shadows      %11.6f\n"\
@@ -1227,7 +1282,8 @@ bool Magic3D::Scene::update()
             }
             
             renderer->lblINFO->setText(profileText);
-            renderer->lblINFO->update();
+            renderer->lblINFO->setPosition(Vector3(-renderer->lblINFO->getWidth() * 0.5f - 0.01f, renderer->lblINFO->getHeight() * 0.5f + 0.05f, 0.0f));
+            renderer->lblINFO->update();            
         }
     }
 
@@ -1255,7 +1311,7 @@ bool Magic3D::Scene::update()
         {
             sprintf(profileText, "x: %-4d - y: %-4d", w->getCursorX(), w->getCursorY());
             renderer->lblCURSOR->setText(profileText);
-            renderer->lblCURSOR->setPosition(-(w->getWidth() - 4.0f), w->getHeight() - 22.0f);
+            renderer->lblCURSOR->setPosition(Vector3(-windowAspect.getX() + renderer->lblCURSOR->getWidth() * 0.5f + 0.01f, windowAspect.getY() - renderer->lblCURSOR->getHeight() * 0.5f - 0.01f, 0.0f));
             renderer->lblCURSOR->update();
         }
     }
@@ -1272,7 +1328,6 @@ bool Magic3D::Scene::update()
                 lblLoading->getMeshes()->at(0)->getMaterials()->clear();
                 lblLoading->getMeshes()->at(0)->addMaterial(ResourceManager::getMaterials()->get(M3D_DEFAULT_MATERIAL_LOADING_FONT));
                 lblLoading->getMeshes()->at(0)->setIlluminated(false);
-                lblLoading->setPosition(0.0f, 0.0f);
                 lblLoading->setRotationEuler(Vector3(0.0f, 180.0f, 0.0f));
                 lblLoading->setText("Loading...");
                 lblLoading->setParent(Renderer::getInstance()->getCurrentViewPort()->getOrthographic());
@@ -1287,9 +1342,8 @@ bool Magic3D::Scene::update()
                 sptLoading = new Sprite("m3d_scene_spt_loading");
                 sptLoading->addMaterial(ResourceManager::getMaterials()->get(M3D_DEFAULT_MATERIAL_LOADING_SPRITE));
                 sptLoading->getMeshes()->at(0)->setIlluminated(false);
-                sptLoading->setPosition(0.0f, 0.0f);
                 sptLoading->setRotationEuler(Vector3(0.0f, 180.0f, 0.0f));
-                sptLoading->setSize(32.0f, 32.0f);
+                sptLoading->setSize(0.05f, 0.05f);
                 sptLoading->setParent(Renderer::getInstance()->getCurrentViewPort()->getOrthographic());
             }
         }
@@ -1299,12 +1353,12 @@ bool Magic3D::Scene::update()
         if (w && lblLoading && sptLoading)
         {
             lblLoading->setText("Loading...");
-            lblLoading->setPosition(-125.0f, w->getHeight() - 22.0f);
+            lblLoading->setPosition(Vector3(-sptLoading->getWidth() -sptLoading->getWidth() * 0.5f - lblLoading->getWidth() * 0.5f + 0.005f, windowAspect.getY() - lblLoading->getHeight() * 0.5f - 0.01f, 0.0f));
             lblLoading->update();
 
-            sptLoading->setPosition(-34.0f, w->getHeight() - 34.0f);
+            sptLoading->setPosition(Vector3(-sptLoading->getWidth() * 0.5f - 0.01f, windowAspect.getY() - sptLoading->getHeight() * 0.5f - 0.01f, 0.0f));
 
-            timeLoading += Magic3D::getInstance()->getElapsedTime();
+            timeLoading += Magic3D::getInstance()->getElapsedTimeReal();
 
             if (timeLoading >= 0.016f )
             {
@@ -1336,6 +1390,8 @@ bool Magic3D::Scene::update()
 
             if (layer)
             {
+                update = updateObjects(layer->getCameras());
+                result = result && update;
                 update = updateObjects(layer->getObjects2D());
                 result = result && update;
                 update = updateObjects(layer->getLights());
@@ -1405,7 +1461,12 @@ void Magic3D::Scene::removeObject(Layer* layer, Object* object)
 {
     if (layer && object)
     {
+        //Log::logFormat(eLOG_RENDERER, "Removed from scene: %s", object->getName().c_str());
         layer->removeObject(object);
+        if (object->getType() == eOBJECT_LIGHT)
+        {
+            lights.clear();
+        }
         if (object->getOctree())
         {
             object->getOctree()->remove(object);
@@ -1993,9 +2054,24 @@ Magic3D::XMLElement* Magic3D::Scene::save(XMLElement* root)
             attribute->LinkEndChild( attribute->GetDocument()->NewText( layer->isVisible() ? "1" : "0" ));
             layerXML->LinkEndChild(attribute);
 
-            std::vector<Object*>* objects = layer->getObjects2D();
-
+            std::vector<Object*>* objects = layer->getCameras();
             std::vector<Object*>::const_iterator it_o = objects->begin();
+
+            while (it_o != objects->end())
+            {
+                Object* object = *it_o++;
+
+                XMLElement* objectXML = layerXML->GetDocument()->NewElement( M3D_OBJECT_XML );
+                objectXML->SetAttribute(M3D_SCENE_XML_MESHES, (int)object->getMeshes()->size());
+                layerXML->LinkEndChild( objectXML );
+
+                object->save(objectXML);
+            }
+
+
+            objects = layer->getObjects2D();
+
+            it_o = objects->begin();
             while (it_o != objects->end())
             {
                 Object* object = *it_o++;

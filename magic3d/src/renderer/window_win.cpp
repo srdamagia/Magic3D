@@ -31,7 +31,8 @@ LRESULT	CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM); // Declaration For WndProc
 
 Magic3D::WindowWin::WindowWin()
 {
-    title  = std::wstring(L"Magic3D");
+    std::string t = Magic3D::getInstance()->getConfiguration().TITLE;
+    title = std::wstring(t.begin(), t.end());
     width  = Magic3D::getInstance()->getConfiguration().WINDOW_WIDTH;
     height = Magic3D::getInstance()->getConfiguration().WINDOW_HEIGHT;
     cursorX = 0;
@@ -41,6 +42,7 @@ Magic3D::WindowWin::WindowWin()
     bits   = 32;
 
     fullscreen = Magic3D::getInstance()->getConfiguration().FULLSCREEN;
+    cursor     = Magic3D::getInstance()->getConfiguration().CURSOR;
     active     = false;
     needUpdateView = false;
 
@@ -78,7 +80,7 @@ bool Magic3D::WindowWin::finish()
     if (fullscreen)
     {
         ChangeDisplaySettings(NULL, 0);
-        ShowCursor(false);
+        ShowCursor(cursor);
     }
 
     if (hRC)
@@ -156,7 +158,7 @@ Magic3D::WindowWin* Magic3D::WindowWin::getInstance()
     return instance;
 }
 
-/* This Code Creates Our Window.  Parameters Are:                *
+/* This Code Creates Our Window.  Parameters Are:                       *
  * title          - Title To Appear At The Top Of The Window            *
  * width          - Width Of The GL Window Or Fullscreen Mode           *
  * height         - Height Of The GL Window Or Fullscreen Mode          *
@@ -169,10 +171,18 @@ bool Magic3D::WindowWin::create()
     DWORD        dwExStyle;
     DWORD        dwStyle;
     RECT         WindowRect;
-    WindowRect.left   = (long)0;
-    WindowRect.right  = (long)width;
-    WindowRect.top    = (long)0;
-    WindowRect.bottom = (long)height;
+
+    //GetClientRect( GetDesktopWindow(), &WindowRect ) ;
+
+    int xPos = GetSystemMetrics(SM_CXSCREEN) / 2;
+    int yPos = GetSystemMetrics(SM_CYSCREEN) / 2;
+
+    int halfW = width / 2;
+    int halfH = height / 2;
+    WindowRect.left   = (long)(xPos - halfW);
+    WindowRect.right  = (long)(xPos + halfW);
+    WindowRect.top    = (long)(yPos - halfH);
+    WindowRect.bottom = (long)(yPos + halfH);
 
     hInstance        = GetModuleHandle(NULL);
     wc.style         = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
@@ -215,8 +225,7 @@ bool Magic3D::WindowWin::create()
     if (fullscreen)
     {
         dwExStyle = WS_EX_APPWINDOW;
-        dwStyle   = WS_POPUP;
-        ShowCursor(false);
+        dwStyle   = WS_POPUP;        
     }
     else
     {
@@ -230,9 +239,9 @@ bool Magic3D::WindowWin::create()
     LONG rh = WindowRect.bottom-WindowRect.top;
 
 #ifdef UNICODE
-    if (!(hWnd=CreateWindowEx(dwExStyle, (WCHAR*)"OpenGL", title.c_str(), dwStyle | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0, 0, rw, rh, NULL, NULL, hInstance, NULL)))
+    if (!(hWnd=CreateWindowEx(dwExStyle, (WCHAR*)"OpenGL", title.c_str(), dwStyle | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, WindowRect.left, WindowRect.top, rw, rh, NULL, NULL, hInstance, NULL)))
 #else
-    if (!(hWnd=CreateWindowEx(dwExStyle, "OpenGL", title.c_str(), dwStyle | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0, 0, rw, rh, NULL, NULL, hInstance, NULL)))
+    if (!(hWnd=CreateWindowEx(dwExStyle, "OpenGL", title.c_str(), dwStyle | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, WindowRect.left, WindowRect.top, rw, rh, NULL, NULL, hInstance, NULL)))
 #endif
     {
         finish();
@@ -297,6 +306,7 @@ bool Magic3D::WindowWin::create()
         return false;
     }
 
+    ShowCursor(cursor);
     ShowWindow(hWnd, SW_SHOW);
     SetForegroundWindow(hWnd);
     SetFocus(hWnd);
@@ -318,10 +328,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             {
                 Magic3D::WindowWin::getInstance()->setActive(true);
             }
-            /*else
-        {
-        Magic3D::WindowWin::getInstance()->setActive(false);
-        }*/
 
             return 0;
         }

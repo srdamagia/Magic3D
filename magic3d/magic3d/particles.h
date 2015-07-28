@@ -209,6 +209,7 @@ public:
     void addMaterial(Material* material);
 
     virtual const Box& getBoundingBox();
+    virtual Box getBoundingBoxAlignedAxis();
     virtual Matrix4 getMatrixFromParent();
 
     const Vector3& getWorldPosition();

@@ -63,6 +63,16 @@ public:
     int distance(lua_State *lua);
     int normalized(lua_State *lua);
 
+    int angle(lua_State *lua);
+    int slerp(lua_State *lua);
+
+    int getEulerRight(lua_State *lua);
+    int getEulerUp(lua_State *lua);
+    int getEulerFront(lua_State *lua);
+    int getEulerLeft(lua_State *lua);
+    int getEulerDown(lua_State *lua);
+    int getEulerBack(lua_State *lua);
+
     Vector3& getValue();
 
     virtual std::string toString();

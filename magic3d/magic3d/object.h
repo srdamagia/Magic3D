@@ -122,8 +122,6 @@ private:
 
     float zOrderFactor;
 
-    RENDER render;
-
     int collisionMesh;
     int flag;
 
@@ -147,7 +145,7 @@ private:
     bool parentRotation;
     bool parentScale;
 
-    void init(RENDER render, std::string name);
+    void init(std::string name);
     void updateAxisAngleFromRotation();
 
 protected:
@@ -171,7 +169,6 @@ public:
     virtual bool update();
     virtual bool updateMeshes();
 
-    virtual RENDER getRender();
     const std::string& getName();
     bool setName(std::string name);
 
@@ -244,7 +241,7 @@ public:
     virtual Quaternion getRotation();
     Quaternion getRotationFromParent();
 
-    virtual void lookAt(Vector3 position, Vector3 up);
+    virtual void lookAt(Vector3 position, Vector3 up, float factor);
 
     void rotate(Vector3 rotation);
 
