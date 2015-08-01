@@ -1,7 +1,7 @@
 #include <magic3d/magic3d.h>
 
 #define DEFAULT_SCENE "main"
-static int stopLoading = false;
+static int stopLoading = true;
 
 class Event : public Magic3D::EventListener_Keyboard
 {
@@ -30,11 +30,35 @@ public:
 
 int main(int argc, char *argv[])
 {
-    if (Magic3D::Magic3D::start(""))
+    std::string applicationPath = argv[0];
+    size_t pos = applicationPath.find_last_of('/');
+    if (pos == std::string::npos)
     {
+        pos = applicationPath.find_last_of('\\');
+    }
+    if (pos == std::string::npos)
+    {
+        applicationPath.clear();
+    }
+    else
+    {
+        applicationPath = applicationPath.substr(0, pos + 1);
+        pos = applicationPath.find('\\');
+        while (pos != applicationPath.npos)
+        {
+            applicationPath.replace(pos, 1, "/");
+            pos = applicationPath.find('\\');
+        }
+    }
+    if (Magic3D::Magic3D::start(applicationPath))
+    {        
         Magic3D::Input::getInstance()->addEventListener(new Event());
         //Magic3D::Renderer::getInstance()->createWindow(false, true, 1280, 1024);
         Magic3D::Renderer::getInstance()->createWindow();
+
+        //Magic3D::ResourceManager::getInstance()->setPath(applicationPath + "data", false);
+        Magic3D::ResourceManager::getInstance()->setPath(applicationPath + "data.magic3d", true);
+        Magic3D::ResourceManager::getInstance()->setUserPath(applicationPath);
 
         Magic3D::Magic3D::play();
 

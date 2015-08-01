@@ -29,7 +29,25 @@ subject to the following restrictions:
 namespace Magic3D
 {
 
-class File
+class DataBuffer
+{
+public:
+    virtual size_t read(void *buffer, size_t size) = 0;
+    virtual size_t write(const void *buffer, size_t size) = 0;
+
+    virtual bool seeki(long offset, int origin) = 0;
+    virtual bool seeko(long offset, int origin) = 0;
+    virtual long telli() = 0;
+    virtual long tello() = 0;
+    virtual long sizei() = 0;
+    virtual long sizeo() = 0;
+    virtual bool flush() = 0;
+    virtual bool eof() = 0;
+    virtual bool put(char c) = 0;
+    virtual int get() = 0;
+};
+
+class File : public DataBuffer
 {
 protected:
     FILE *file;
@@ -74,22 +92,22 @@ public:
         return (bool)(iErr == 0);
     }
 
-    virtual size_t read(void *buffer, size_t size, size_t count)
+    virtual size_t read(void *buffer, size_t size)
     {
         size_t result = 0;
         if (file)
         {
-            result = fread(buffer, size, count, file);
+            result = fread(buffer, 1, size, file);
         }
         return result;
     }
 
-    virtual size_t write(const void *buffer, size_t size, size_t count)
+    virtual size_t write(const void *buffer, size_t size)
     {
         size_t result = 0;
         if (file)
         {
-            result = fwrite(buffer, size, count, file);
+            result = fwrite(buffer, 1, size, file);
         }
         return result;
     }
@@ -103,6 +121,8 @@ public:
         }
         return result;
     }
+    virtual bool seeki(long offset, int origin) {return seek(offset, origin);}
+    virtual bool seeko(long offset, int origin) {return seek(offset, origin);}
 
     virtual long tell()
     {
@@ -113,6 +133,9 @@ public:
         }
         return result;
     }
+    virtual long telli() {return tell();}
+    virtual long tello() {return tell();}
+
 
     virtual long size()
     {
@@ -127,6 +150,8 @@ public:
         }
         return result;
     }
+    virtual long sizei() {return size();}
+    virtual long sizeo() {return size();}
 
     virtual bool flush()
     {
@@ -158,7 +183,7 @@ public:
         return result;
     }
 
-    virtual bool putC(unsigned char c)
+    virtual bool put(char c)
     {
         bool result = false;
         if (file)
@@ -168,9 +193,9 @@ public:
         return result;
     }
 
-    virtual long getC()
+    virtual int get()
     {
-        long result = EOF;
+        int result = EOF;
         if (file)
         {
             result = getc(file);
@@ -181,6 +206,106 @@ public:
     const std::string& getFileName()
     {
         return fileName;
+    }
+};
+
+class Memory : public DataBuffer
+{
+protected:
+    std::stringstream buffer;
+
+public:
+    Memory()
+    {
+
+    }
+
+    virtual ~Memory()
+    {
+
+    }
+
+    virtual size_t read(void *buffer, size_t size)
+    {
+        this->buffer.read((char*)buffer, size);
+        return size;
+    }
+
+    virtual size_t write(const void *buffer, size_t size)
+    {
+        this->buffer.write((const char*)buffer, size);
+        return size;
+    }
+
+    virtual bool seeki(long offset, int origin)
+    {
+        this->buffer.seekg(offset, (std::ios_base::seekdir)origin);
+        return true;
+    }
+
+    virtual bool seeko(long offset, int origin)
+    {
+        this->buffer.seekp(offset, (std::ios_base::seekdir)origin);
+        return true;
+    }
+
+    virtual long telli()
+    {
+        return buffer.tellg();
+    }
+
+    virtual long tello()
+    {
+        return buffer.tellp();
+    }
+
+    virtual long sizei()
+    {
+        long result = -1L;
+        long pos;
+        pos = telli();
+        seeki(0, buffer.end);
+        result = telli();
+        seeki(pos, buffer.beg);
+        return result;
+    }
+
+    virtual long sizeo()
+    {
+        long result = -1L;
+        long pos;
+        pos = tello();
+        seeko(0, buffer.end);
+        result = tello();
+        seeko(pos, buffer.beg);
+        return result;
+    }
+
+    virtual bool flush()
+    {
+        buffer.flush();
+        return true;
+    }
+
+    virtual bool eof()
+    {
+        return buffer.eof();
+    }
+
+    virtual bool put(char c)
+    {
+        buffer.put(c);
+        return true;
+    }
+
+    virtual int get()
+    {
+        return buffer.get();
+    }
+
+    virtual std::stringstream::__stringbuf_type* getBuffer()
+    {
+        return buffer.rdbuf();
     }
 };
 

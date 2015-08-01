@@ -87,7 +87,7 @@ public:
     void add(Object* item, bool update = false);
     void remove(Object* item);
     void clear();
-    void teste(bool main = true);
+    void print(bool main = true);
 
     int getNodesCount();
     int getRenderedNodes();

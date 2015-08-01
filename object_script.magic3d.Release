@@ -196,6 +196,11 @@ INPUT(
 ./build/trees.o
 ./build/uncompr.o
 ./build/zutil.o
+./build/ioapi.o
+./build/iowin32.o
+./build/mztools.o
+./build/unzip.o
+./build/zip.o
 ./build/example.o
 ./build/png.o
 ./build/pngerror.o
@@ -257,6 +262,7 @@ INPUT(
 ./build/mesh.o
 ./build/object.o
 ./build/octree.o
+./build/package.o
 ./build/particles.o
 ./build/scene.o
 ./build/sprite.o

@@ -1374,7 +1374,20 @@ void Magic3D::Particles::load(std::string fileName)
     std::string path = ResourceManager::getInstance()->getPath() + M3D_PATH_PARTICLES + fileName.c_str();
     XMLDocument* doc = new XMLDocument();
 
-    if (doc->LoadFile(path.c_str()) == XML_SUCCESS)
+    bool result = false;
+    if (ResourceManager::getInstance()->getPackage())
+    {
+        Memory mem;
+        result = ResourceManager::getInstance()->unpack(path, &mem);
+        std::string str = mem.getBuffer()->str();
+        result = result && doc->Parse(str.c_str(), str.size()) == XML_SUCCESS;
+    }
+    else
+    {
+        result = doc->LoadFile(path.c_str()) == XML_SUCCESS;
+    }
+
+    if (result)
     {
         XMLElement* pElem = doc->FirstChildElement();
 

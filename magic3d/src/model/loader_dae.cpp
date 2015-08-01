@@ -77,7 +77,20 @@ bool Magic3D::LoaderDAE::load(Model* model)
             model->load(getModelInfo());
         }
 
-        if (!getModelInfo() && doc->LoadFile(dae.c_str()) == XML_SUCCESS)
+        bool result = false;
+        if (ResourceManager::getInstance()->getPackage())
+        {
+            Memory mem;
+            result = ResourceManager::getInstance()->unpack(dae, &mem);
+            std::string str = mem.getBuffer()->str();
+            result = result && doc->Parse(str.c_str(), str.size()) == XML_SUCCESS;
+        }
+        else
+        {
+            result = doc->LoadFile(dae.c_str()) == XML_SUCCESS;
+        }
+
+        if (!getModelInfo() && result)
         {
             rootXML = doc->FirstChildElement("COLLADA");
             // should always have a valid root but handle gracefully if it does

@@ -24,8 +24,75 @@ subject to the following restrictions:
 #include <magic3d/magic3d.h>
 #include <magic3d/sound/sound_ogg.h>
 
+size_t vorbis_read(void* data_ptr, size_t byteSize, size_t sizeToRead, void* data_src)
+{
+    Magic3D::Memory* vorbisData = static_cast<Magic3D::Memory*>(data_src);
+    if (vorbisData == NULL)
+    {
+        return -1;
+    }
+
+    size_t actualSizeToRead = vorbisData->sizei() - vorbisData->telli();
+    size_t spaceToEOF       = actualSizeToRead;
+
+    if ((sizeToRead * byteSize) < spaceToEOF)
+    {
+        actualSizeToRead = (sizeToRead * byteSize);
+    }
+    else
+    {
+        actualSizeToRead = spaceToEOF;
+    }
+
+    if (actualSizeToRead)
+    {
+        vorbisData->read(data_ptr, actualSizeToRead);
+    }
+
+    return actualSizeToRead;
+}
+
+int vorbis_seek(void* data_src, ogg_int64_t offset, int origin)
+{
+    Magic3D::Memory* vorbisData = static_cast<Magic3D::Memory*>(data_src);
+    if (vorbisData == NULL)
+    {
+        return -1;
+    }
+
+    vorbisData->seeki(offset, origin);
+
+    return 0;
+}
+
+int vorbis_close(void* data_src)
+{
+    Magic3D::Memory* vorbisData = static_cast<Magic3D::Memory*>(data_src);
+
+    if (vorbisData != NULL)
+    {
+        delete vorbisData;
+        return 0;
+    }
+
+    return EOF;
+}
+
+long vorbis_tell(void* data_src)
+{
+    Magic3D::Memory* vorbisData = static_cast<Magic3D::Memory*>(data_src);
+    if (vorbisData == NULL)
+    {
+        return -1;
+    }
+
+    return vorbisData->telli();
+}
+
+//************************************************************************************
 Magic3D::SoundOGG::SoundOGG(const SoundOGG& sound, std::string name) : Sound(sound, name)
 {
+    this->memoryFile = NULL;
     this->psVorbisInfo = NULL;
     this->vorbisComment = NULL;
     this->pDecodeBuffer = NULL;
@@ -62,6 +129,7 @@ Magic3D::SoundOGG::SoundOGG(const SoundOGG& sound, std::string name) : Sound(sou
 
 Magic3D::SoundOGG::SoundOGG(std::string name) : Sound(name)
 {
+    memoryFile = NULL;
     memset(uiBuffers, 0, sizeof(uiBuffers));
     uiSource               = 0;
     uiBuffer               = 0;
@@ -102,116 +170,135 @@ void Magic3D::SoundOGG::load()
     Log::logFormat(eLOG_PLAINTEXT, "Start Loading Sound: %s", getFileName().c_str());
 
     std::string path = ResourceManager::getInstance()->getPath() + M3D_PATH_SOUND + getFileName();
-    // Open the OggVorbis file
-    FILE* pOggVorbisFile = fopen(path.c_str(), "rb");
-    if (pOggVorbisFile)
-    {
-        // Create an OggVorbis file stream
-        if (ov_open(pOggVorbisFile, &sOggVorbisFile, NULL, 0) == 0)
-        {
-            // Get some information about the file (Channels, Format, and Frequency)
-            psVorbisInfo = ov_info(&sOggVorbisFile, -1);
-            vorbisComment = ov_comment(&sOggVorbisFile, -1);
-            if (psVorbisInfo)
-            {
-                ulFrequency = psVorbisInfo->rate;
-                ulChannels = psVorbisInfo->channels;
 
-                switch (psVorbisInfo->channels)
+    int ov_ret = 0;
+    if (ResourceManager::getInstance()->getPackage())
+    {
+        memoryFile = new Memory();
+        ResourceManager::getInstance()->unpack(path, memoryFile);
+
+        oggCallbacks.read_func = vorbis_read;
+        oggCallbacks.close_func = vorbis_close;
+        oggCallbacks.seek_func = vorbis_seek;
+        oggCallbacks.tell_func = vorbis_tell;
+
+        ov_ret = ov_open_callbacks(memoryFile, &sOggVorbisFile, NULL, 0, oggCallbacks);
+    }
+    else
+    {
+        // Open the OggVorbis file
+        FILE* pOggVorbisFile = fopen(path.c_str(), "rb");
+        if (pOggVorbisFile)
+        {
+            ov_ret = ov_open(pOggVorbisFile, &sOggVorbisFile, NULL, 0);
+        }
+        else
+        {
+            Log::logFormat(eLOG_FAILURE, "Could not find: %s", path.c_str());
+        }
+    }
+
+    // Create an OggVorbis file stream
+    if (ov_ret == 0)
+    {
+        // Get some information about the file (Channels, Format, and Frequency)
+        psVorbisInfo = ov_info(&sOggVorbisFile, -1);
+        vorbisComment = ov_comment(&sOggVorbisFile, -1);
+        if (psVorbisInfo)
+        {
+            ulFrequency = psVorbisInfo->rate;
+            ulChannels = psVorbisInfo->channels;
+
+            switch (psVorbisInfo->channels)
+            {
+                case 1:
                 {
-                    case 1:
-                    {
-                        ulFormat = AL_FORMAT_MONO16;
-                        // Set BufferSize to 250ms (Frequency * 2 (16bit) divided by 4 (quarter of a second))
-                        ulBufferSize = ulFrequency >> 1;
-                        // IMPORTANT : The Buffer Size must be an exact multiple of the BlockAlignment ...
-                        ulBufferSize -= (ulBufferSize % 2);
-                        break;
-                    }
-                    case 2:
-                    {
-                        ulFormat = AL_FORMAT_STEREO16;
-                        // Set BufferSize to 250ms (Frequency * 4 (16bit stereo) divided by 4 (quarter of a second))
-                        ulBufferSize = ulFrequency;
-                        // IMPORTANT : The Buffer Size must be an exact multiple of the BlockAlignment ...
-                        ulBufferSize -= (ulBufferSize % 4);
-                        break;
-                    }
-                    case 4:
-                    {
-                        ulFormat = alGetEnumValue("AL_FORMAT_QUAD16");
-                        // Set BufferSize to 250ms (Frequency * 8 (16bit 4-channel) divided by 4 (quarter of a second))
-                        ulBufferSize = ulFrequency * 2;
-                        // IMPORTANT : The Buffer Size must be an exact multiple of the BlockAlignment ...
-                        ulBufferSize -= (ulBufferSize % 8);
-                        break;
-                    }
-                    case 6:
-                    {
-                        ulFormat = alGetEnumValue("AL_FORMAT_51CHN16");
-                        // Set BufferSize to 250ms (Frequency * 12 (16bit 6-channel) divided by 4 (quarter of a second))
-                        ulBufferSize = ulFrequency * 3;
-                        // IMPORTANT : The Buffer Size must be an exact multiple of the BlockAlignment ...
-                        ulBufferSize -= (ulBufferSize % 12);
-                        break;
-                    }
+                    ulFormat = AL_FORMAT_MONO16;
+                    // Set BufferSize to 250ms (Frequency * 2 (16bit) divided by 4 (quarter of a second))
+                    ulBufferSize = ulFrequency >> 1;
+                    // IMPORTANT : The Buffer Size must be an exact multiple of the BlockAlignment ...
+                    ulBufferSize -= (ulBufferSize % 2);
+                    break;
+                }
+                case 2:
+                {
+                    ulFormat = AL_FORMAT_STEREO16;
+                    // Set BufferSize to 250ms (Frequency * 4 (16bit stereo) divided by 4 (quarter of a second))
+                    ulBufferSize = ulFrequency;
+                    // IMPORTANT : The Buffer Size must be an exact multiple of the BlockAlignment ...
+                    ulBufferSize -= (ulBufferSize % 4);
+                    break;
+                }
+                case 4:
+                {
+                    ulFormat = alGetEnumValue("AL_FORMAT_QUAD16");
+                    // Set BufferSize to 250ms (Frequency * 8 (16bit 4-channel) divided by 4 (quarter of a second))
+                    ulBufferSize = ulFrequency * 2;
+                    // IMPORTANT : The Buffer Size must be an exact multiple of the BlockAlignment ...
+                    ulBufferSize -= (ulBufferSize % 8);
+                    break;
+                }
+                case 6:
+                {
+                    ulFormat = alGetEnumValue("AL_FORMAT_51CHN16");
+                    // Set BufferSize to 250ms (Frequency * 12 (16bit 6-channel) divided by 4 (quarter of a second))
+                    ulBufferSize = ulFrequency * 3;
+                    // IMPORTANT : The Buffer Size must be an exact multiple of the BlockAlignment ...
+                    ulBufferSize -= (ulBufferSize % 12);
+                    break;
                 }
             }
+        }
 
-            if (ulFormat != 0)
+        if (ulFormat != 0)
+        {
+            // Allocate a buffer to be used to store decoded data for all Buffers
+            //ulBufferSize = 4096 * 8;
+            pDecodeBuffer = new char[ulBufferSize];
+            if (pDecodeBuffer)
             {
-                // Allocate a buffer to be used to store decoded data for all Buffers
-                //ulBufferSize = 4096 * 8;
-                pDecodeBuffer = new char[ulBufferSize];
-                if (pDecodeBuffer)
-                {
-                    // Generate some AL Buffers for streaming
-                    alGenBuffers( M3D_SOUND_NUMBUFFERS, uiBuffers );
-                    // Generate a Source to playback the Buffers
-                    alGenSources( 1, &uiSource );
+                // Generate some AL Buffers for streaming
+                alGenBuffers( M3D_SOUND_NUMBUFFERS, uiBuffers );
+                // Generate a Source to playback the Buffers
+                alGenSources( 1, &uiSource );
 
-                    alDistanceModel(AL_LINEAR_DISTANCE);
-                    alSource3f(uiSource, AL_POSITION,           0.0f, 0.0f, 0.0f);
-                    alSource3f(uiSource, AL_VELOCITY,           0.0f, 0.0f, 0.0f);
-                    alSource3f(uiSource, AL_DIRECTION,          0.0f, 0.0f, 0.0f);
-                    alSourcef (uiSource, AL_ROLLOFF_FACTOR,     1.0f);
-                    alSourcef (uiSource, AL_MAX_DISTANCE,       getDistance());
-                    alSourcef (uiSource, AL_REFERENCE_DISTANCE, 1.0f);
-                    alSourcef (uiSource, AL_PITCH,              getPitch());
-                    alSourcef (uiSource, AL_GAIN,               getGain());
+                alDistanceModel(AL_LINEAR_DISTANCE);
+                alSource3f(uiSource, AL_POSITION,           0.0f, 0.0f, 0.0f);
+                alSource3f(uiSource, AL_VELOCITY,           0.0f, 0.0f, 0.0f);
+                alSource3f(uiSource, AL_DIRECTION,          0.0f, 0.0f, 0.0f);
+                alSourcef (uiSource, AL_ROLLOFF_FACTOR,     1.0f);
+                alSourcef (uiSource, AL_MAX_DISTANCE,       getDistance());
+                alSourcef (uiSource, AL_REFERENCE_DISTANCE, 1.0f);
+                alSourcef (uiSource, AL_PITCH,              getPitch());
+                alSourcef (uiSource, AL_GAIN,               getGain());
 
-                    Log::logFormat(eLOG_RENDERER, "Version:         %d", psVorbisInfo->version);
-                    Log::logFormat(eLOG_RENDERER, "Channels:        %d", psVorbisInfo->channels);
-                    Log::logFormat(eLOG_RENDERER, "Rate (hz):       %d", psVorbisInfo->rate);
-                    Log::logFormat(eLOG_RENDERER, "Bitrate upper:   %d", psVorbisInfo->bitrate_upper);
-                    Log::logFormat(eLOG_RENDERER, "Bitrate nominal: %d", psVorbisInfo->bitrate_nominal);
-                    Log::logFormat(eLOG_RENDERER, "Bitrate lower:   %d", psVorbisInfo->bitrate_lower);
-                    Log::logFormat(eLOG_RENDERER, "Bitrate window:  %d", psVorbisInfo->bitrate_window);
-                    Log::logFormat(eLOG_RENDERER, "Vendor:          %s", vorbisComment->vendor);
-                    for(int i = 0; i < vorbisComment->comments; i++) {
-                        Log::log(eLOG_RENDERER, vorbisComment->user_comments[i]);
-                    }
-                    loaded = true;
+                Log::logFormat(eLOG_RENDERER, "Version:         %d", psVorbisInfo->version);
+                Log::logFormat(eLOG_RENDERER, "Channels:        %d", psVorbisInfo->channels);
+                Log::logFormat(eLOG_RENDERER, "Rate (hz):       %d", psVorbisInfo->rate);
+                Log::logFormat(eLOG_RENDERER, "Bitrate upper:   %d", psVorbisInfo->bitrate_upper);
+                Log::logFormat(eLOG_RENDERER, "Bitrate nominal: %d", psVorbisInfo->bitrate_nominal);
+                Log::logFormat(eLOG_RENDERER, "Bitrate lower:   %d", psVorbisInfo->bitrate_lower);
+                Log::logFormat(eLOG_RENDERER, "Bitrate window:  %d", psVorbisInfo->bitrate_window);
+                Log::logFormat(eLOG_RENDERER, "Vendor:          %s", vorbisComment->vendor);
+                for(int i = 0; i < vorbisComment->comments; i++) {
+                    Log::log(eLOG_RENDERER, vorbisComment->user_comments[i]);
                 }
-                else
-                {
-                    Log::log(eLOG_FAILURE, "Failed to allocate memory for decoded OggVorbis data");
-                    ov_clear(&sOggVorbisFile);
-                }
+                loaded = true;
             }
             else
             {
-                Log::log(eLOG_FAILURE, "Failed to find format information, or unsupported format");
+                Log::log(eLOG_FAILURE, "Failed to allocate memory for decoded OggVorbis data");
+                ov_clear(&sOggVorbisFile);
             }
         }
         else
         {
-            Log::logFormat(eLOG_FAILURE, "Could not open: %s", path.c_str());
+            Log::log(eLOG_FAILURE, "Failed to find format information, or unsupported format");
         }
     }
     else
     {
-        Log::logFormat(eLOG_FAILURE, "Could not find: %s", path.c_str());
+        Log::logFormat(eLOG_FAILURE, "Could not open: %s", path.c_str());
     }
     Log::logFormat(eLOG_SUCCESS, "Finish Loading Sound: %s", getFileName().c_str());
 }
@@ -232,7 +319,10 @@ void Magic3D::SoundOGG::release()
     }    
 
     // Close OggVorbis stream
-    ov_clear(&sOggVorbisFile);
+    if (loaded)
+    {
+        ov_clear(&sOggVorbisFile);
+    }
     //if (pOggVorbisFile) {
     //    fclose(pOggVorbisFile);
     //}

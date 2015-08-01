@@ -73,8 +73,8 @@ public:
     PVR();
     virtual ~PVR();
 
-    virtual bool decode(File* file);
-    Texture* getTexture(File* file, TEXTURE type, std::string name, bool mipmap, bool clamp);
+    virtual bool decode(DataBuffer* file);
+    Texture* getTexture(DataBuffer* file, TEXTURE type, std::string name, bool mipmap, bool clamp);
 };
 }
 

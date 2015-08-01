@@ -117,7 +117,20 @@ void Magic3D::Texture::loadSprite()
 
         XMLDocument* doc = new XMLDocument();
 
-        if (doc->LoadFile(fileName.c_str()) == XML_SUCCESS)
+        bool result = false;
+        if (ResourceManager::getInstance()->getPackage())
+        {
+            Memory mem;
+            result = ResourceManager::getInstance()->unpack(fileName, &mem);
+            std::string str = mem.getBuffer()->str();
+            result = result && doc->Parse(str.c_str(), str.size()) == XML_SUCCESS;
+        }
+        else
+        {
+            result = doc->LoadFile(fileName.c_str()) == XML_SUCCESS;
+        }
+
+        if (result)
         {
             XMLElement* root = doc->FirstChildElement();
 
@@ -160,18 +173,44 @@ Magic3D::Texture* Magic3D::Texture::load(TEXTURE type, std::string name, std::st
 
     std::string fileName = ResourceManager::getTextures()->getPath(type, file);
 
-    File* io = new File();
+    DataBuffer* io;
+    bool ready = false;
+
+    if (ResourceManager::getInstance()->getPackage())
+    {
+        io = new Memory();
+#ifdef MAGIC3D_IOS
+        std::string tmpName = fileName + ".pvr";
+        ready = ResourceManager::getInstance()->unpack(fileName, io);
+        if (ready)
+        {
+            fileName = tmpName;
+        }
+        else
+#endif
+        {
+            ready = ResourceManager::getInstance()->unpack(fileName, io);
+        }
+    }
+    else
+    {
+        io = new File();
 
 #ifdef MAGIC3D_IOS
-    std::string tmpName = fileName + ".pvr";
-    if (io->open(tmpName.c_str(), "rb"))
-    {
-        fileName = tmpName;
-        io->close();
-    }
+        std::string tmpName = fileName + ".pvr";
+        ready = io->open(tmpName.c_str(), "rb");
+        if (ready)
+        {
+            fileName = tmpName;
+        }
+        else
 #endif
+        {
+            ready = static_cast<File*>(io)->open(fileName.c_str(), "rb");
+        }
+    }
 
-    if (io->open(fileName.c_str(), "rb"))
+    if (ready)
     {
         Image* image = NULL;
 
@@ -211,7 +250,10 @@ Magic3D::Texture* Magic3D::Texture::load(TEXTURE type, std::string name, std::st
             }
         }
         
-        io->close();
+        if (!ResourceManager::getInstance()->getPackage())
+        {
+            static_cast<File*>(io)->close();
+        }
     }
 
     if (created)

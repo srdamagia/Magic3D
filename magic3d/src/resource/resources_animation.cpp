@@ -118,7 +118,19 @@ bool Magic3D::AnimationSequences::load()
         std::string fileName = getAnimationFile();
 
         XMLDocument* doc = new XMLDocument();
-        result = doc->LoadFile(fileName.c_str()) == XML_SUCCESS;
+
+        if (ResourceManager::getInstance()->getPackage())
+        {
+            Memory mem;
+            result = ResourceManager::getInstance()->unpack(fileName, &mem);
+            std::string str = mem.getBuffer()->str();
+            result = result && doc->Parse(str.c_str(), str.size()) == XML_SUCCESS;
+        }
+        else
+        {
+            result = doc->LoadFile(fileName.c_str()) == XML_SUCCESS;
+        }
+
         if (result)
         {
             XMLElement* root = doc->FirstChildElement();

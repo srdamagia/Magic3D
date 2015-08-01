@@ -249,6 +249,17 @@ void Magic3D::Image::transfer(Image& from)
     from.dib = NULL;
 }
 
+bool Magic3D::Image::decode(FILE* file)
+{
+    File f(file);
+    return decode(&f);
+}
+
+bool Magic3D::Image::decode(DataBuffer* file)
+{
+    return file != NULL;
+}
+
 byte* Magic3D::Image::getPixels()
 {
     byte* result = NULL;

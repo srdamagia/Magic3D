@@ -368,6 +368,22 @@ bool Magic3D::Config::isEmpty()
     return config.empty();
 }
 
+std::string Magic3D::Config::encrypt(std::string msg)
+{
+    const std::string key = MAGIC3D_PASSWORD;
+
+    for (std::string::size_type i = 0; i < msg.size(); ++i)
+    {
+        msg[i] ^= key[i % key.size()];
+    }
+    return msg;
+}
+
+std::string Magic3D::Config::decrypt(std::string const& msg)
+{
+    return encrypt(msg);
+}
+
 bool Magic3D::Config::save()
 {
     bool result = false;
@@ -385,7 +401,16 @@ bool Magic3D::Config::save()
 
         save(root);
 
-        result = doc.SaveFile((ResourceManager::getInstance()->getUserPath() + CONFIG_FILE).c_str()) == XML_SUCCESS;
+        //result = doc.SaveFile((ResourceManager::getInstance()->getUserPath() + CONFIG_FILE).c_str()) == XML_SUCCESS;
+
+        std::ofstream configFile;
+        configFile.open ((ResourceManager::getInstance()->getUserPath() + CONFIG_FILE).c_str(), std::ios::out | std::ios::binary);
+
+        XMLPrinter printer;
+        doc.Print(&printer);
+        std::string mStr = encrypt(printer.CStr());
+        configFile.write(mStr.c_str(), mStr.size());
+        configFile.close();
     }
     return result;
 }
@@ -394,7 +419,15 @@ bool Magic3D::Config::load()
 {
     XMLDocument* doc = new XMLDocument();
 
-    bool result = doc->LoadFile((ResourceManager::getInstance()->getUserPath() + CONFIG_FILE).c_str()) == XML_SUCCESS;
+    std::ifstream configFile;
+    configFile.open ((ResourceManager::getInstance()->getUserPath() + CONFIG_FILE).c_str(), std::ios::binary);
+
+    std::stringstream mStr;
+    mStr << configFile.rdbuf();
+    configFile.close();
+
+    //bool result = doc->LoadFile((ResourceManager::getInstance()->getUserPath() + CONFIG_FILE).c_str()) == XML_SUCCESS;
+    bool result = doc->Parse(decrypt(mStr.str()).c_str()) == XML_SUCCESS;
     if (result)
     {
         XMLElement* pElem = doc->FirstChildElement();

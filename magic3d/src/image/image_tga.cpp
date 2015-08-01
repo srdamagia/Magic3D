@@ -34,12 +34,12 @@ Magic3D::TGA::~TGA()
 
 }
 
-bool Magic3D::TGA::decode(File *file)
+bool Magic3D::TGA::decode(DataBuffer* file)
 {
     bool result = false;
     if (file)
     {
-        if (file->read(&header, sizeof(header), 1) == 0)
+        if (file->read(&header, sizeof(header)) == 0)
         {
             Log::log(eLOG_FAILURE, "Not a TGA");
         }
@@ -73,7 +73,7 @@ bool Magic3D::TGA::decode(File *file)
 
         if (header.idLength > 0)
         {
-            file->seek(header.idLength, SEEK_CUR);
+            file->seeki(header.idLength, SEEK_CUR);
         }
 
         create(header.width, header.height, header.bpp);
@@ -83,7 +83,7 @@ bool Magic3D::TGA::decode(File *file)
             if (header.cmapType != 0)
             {
                 ColorRGBpack pal[256];
-                file->read(pal, header.cmapLength * sizeof(ColorRGBpack), 1);
+                file->read(pal, header.cmapLength * sizeof(ColorRGBpack));
                 for (int i = 0; i < header.cmapLength; i++)
                 {
                     setPaletteColor((byte)i, pal[i].r, pal[i].g, pal[i].b);
@@ -138,13 +138,13 @@ bool Magic3D::TGA::decode(File *file)
     return result;
 }
 
-void Magic3D::TGA::expandCompressedLine(byte* dest, File *file, int width)
+void Magic3D::TGA::expandCompressedLine(byte* dest, DataBuffer* file, int width)
 {
     byte rle;
     size_t size = header.bpp == 32 ? 4 : 3;
     for (int x = 0; x < width; )
     {
-        file->read(&rle, 1, 1);
+        file->read(&rle, 1);
         if (rle & 128)
         {
             rle -= 127;
@@ -158,7 +158,7 @@ void Magic3D::TGA::expandCompressedLine(byte* dest, File *file, int width)
                 case 32:
                 {
                     ColorRGBApack color;
-                    file->read(&color, size, 1);
+                    file->read(&color, size);
                     for (int ix = 0; ix < rle; ix++)
                     {
                         ColorRGBApack pixel;
@@ -194,7 +194,7 @@ void Magic3D::TGA::expandCompressedLine(byte* dest, File *file, int width)
                 case 16:
                 {
                     word pixel;
-                    file->read(&pixel, 2, 1);
+                    file->read(&pixel, 2);
                     ColorRGBpack triple;
                     triple.r = (byte)(( pixel & 0x1F ) * 8);
                     triple.g = (byte)(( pixel >> 2 ) & 0x0F8);
@@ -207,7 +207,7 @@ void Magic3D::TGA::expandCompressedLine(byte* dest, File *file, int width)
                 case 8:
                 {
                     byte pixel;
-                    file->read(&pixel, 1, 1);
+                    file->read(&pixel, 1);
                     for (int ix = 0; ix < rle; ix++)
                     {
                         dest[ix] = pixel;
@@ -233,11 +233,11 @@ void Magic3D::TGA::expandCompressedLine(byte* dest, File *file, int width)
     }
 }
 
-void Magic3D::TGA::expandUncompressedLine(byte* dest, File *file, int width)
+void Magic3D::TGA::expandUncompressedLine(byte* dest, DataBuffer* file, int width)
 {
     switch (header.bpp)
     {
-        case 8:	file->read(dest, width, 1); break;
+        case 8:	file->read(dest, width); break;
         case 15:
         case 16:
         {
@@ -245,7 +245,7 @@ void Magic3D::TGA::expandUncompressedLine(byte* dest, File *file, int width)
             word pixel;
             for (int x = 0; x < width; x++)
             {
-                file->read(&pixel, 2, 1);
+                file->read(&pixel, 2);
                 *dst++ = (byte)(( pixel & 0x1F ) * 8);   // blue
                 *dst++ = (byte)(( pixel >> 2 ) & 0x0F8); // green
                 *dst++ = (byte)(( pixel >> 7 ) & 0x0F8); // red
@@ -260,7 +260,7 @@ void Magic3D::TGA::expandUncompressedLine(byte* dest, File *file, int width)
             for (int x = 0; x < width; x++)
             {
                 ColorRGBApack pixel;
-                file->read(&pixel, size, 1);
+                file->read(&pixel, size);
                 *dst++ = pixel.b;
                 *dst++ = pixel.g;
                 *dst++ = pixel.r;

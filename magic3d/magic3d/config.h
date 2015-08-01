@@ -111,6 +111,9 @@ private:
     Config();
     virtual ~Config();
 
+    std::string encrypt(std::string msg);
+    std::string decrypt(std::string const& msg);
+
 public:
     static bool start();
     static bool finish();

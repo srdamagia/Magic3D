@@ -358,7 +358,7 @@ void Magic3D::Octree::clear()
     }
 }
 
-void Magic3D::Octree::teste(bool main)
+void Magic3D::Octree::print(bool main)
 {
     std::list<Object*>::const_iterator it_o = objects.begin();
     while (it_o != objects.end())
@@ -378,7 +378,7 @@ void Magic3D::Octree::teste(bool main)
     {
         if (childs[i])
         {
-            childs[i]->teste(false);
+            childs[i]->print(false);
         }
     }
 

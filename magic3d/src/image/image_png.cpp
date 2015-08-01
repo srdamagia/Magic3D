@@ -33,7 +33,7 @@ Magic3D::PNG::~PNG()
 
 }
 
-bool Magic3D::PNG::decode(File *file)
+bool Magic3D::PNG::decode(DataBuffer* file)
 {
     bool result = false;
 
@@ -42,7 +42,7 @@ bool Magic3D::PNG::decode(File *file)
         png_byte header[8];
 
         //read the header
-        file->read(header, 1, 8);
+        file->read(header, 8);
 
         //test if png
         int is_png = !png_sig_cmp(header, 0, 8);

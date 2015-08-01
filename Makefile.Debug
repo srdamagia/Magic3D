@@ -14,7 +14,7 @@ CXX           = g++
 DEFINES       = -DUNICODE -DMAGIC3D_LOG -DMAGIC3D_MEMORY -DQT_GUI_LIB -DQT_CORE_LIB -DQT_NEEDS_QMAIN
 CFLAGS        = -pipe -fno-keep-inline-dllexport -g -Wall -Wextra $(DEFINES)
 CXXFLAGS      = -pipe -fno-keep-inline-dllexport -g -frtti -Wall -Wextra $(DEFINES)
-INCPATH       = -I. -I'magic3d' -I'memory_manager' -I'bullet' -I'libvorbis' -I'libvorbis/lib' -I'libogg' -I'libtheora' -I'zlib' -I'tinyxml2' -I'vectormath/cpp' -I'lua' -I'lpng' -I'C:/Qt/Qt5.4.0/5.4/mingw491_32/include' -I'C:/Qt/Qt5.4.0/5.4/mingw491_32/include/QtGui' -I'C:/Qt/Qt5.4.0/5.4/mingw491_32/include/QtCore' -I'build' -I'C:/Qt/Qt5.4.0/5.4/mingw491_32/mkspecs/win32-g++'
+INCPATH       = -I. -I'magic3d' -I'memory_manager' -I'bullet' -I'libvorbis' -I'libvorbis/lib' -I'libogg' -I'libtheora' -I'zlib' -I'minizip' -I'tinyxml2' -I'vectormath/cpp' -I'lua' -I'lpng' -I'C:/Qt/Qt5.4.0/5.4/mingw491_32/include' -I'C:/Qt/Qt5.4.0/5.4/mingw491_32/include/QtGui' -I'C:/Qt/Qt5.4.0/5.4/mingw491_32/include/QtCore' -I'build' -I'C:/Qt/Qt5.4.0/5.4/mingw491_32/mkspecs/win32-g++'
 LINKER      =        g++
 LFLAGS        =        -Wl,-subsystem,windows
 LIBS        =        -lglu32 -lgdi32 -luser32 -LC:/Qt/Qt5.4.0/5.4/mingw491_32/lib -lqtmaind -LC:\mingw491\mingw32\lib -LC:\Utils\icu32_53_1_mingw482\lib -LC:\utils\postgresql\pgsql\lib -LC:\utils\mysql\mysql\lib -LC:\opensll\lib -lshell32 -LC:\Qt\Qt5.4.0\5.4\mingw491_32/lib -mwindows -lmingw32 -lopengl32 -lOpenAL32 -lQt5Guid -lQt5Cored ./build/icons_res.o 
@@ -240,6 +240,11 @@ SOURCES       = memory_manager/mmgr.cpp \
 		zlib/trees.c \
 		zlib/uncompr.c \
 		zlib/zutil.c \
+		minizip/ioapi.c \
+		minizip/iowin32.c \
+		minizip/mztools.c \
+		minizip/unzip.c \
+		minizip/zip.c \
 		lpng/example.c \
 		lpng/png.c \
 		lpng/pngerror.c \
@@ -301,6 +306,7 @@ SOURCES       = memory_manager/mmgr.cpp \
 		magic3d/src/mesh.cpp \
 		magic3d/src/object.cpp \
 		magic3d/src/octree.cpp \
+		magic3d/src/package.cpp \
 		magic3d/src/particles.cpp \
 		magic3d/src/scene.cpp \
 		magic3d/src/sprite.cpp \
@@ -553,6 +559,11 @@ OBJECTS       = build/mmgr.o \
 		build/trees.o \
 		build/uncompr.o \
 		build/zutil.o \
+		build/ioapi.o \
+		build/iowin32.o \
+		build/mztools.o \
+		build/unzip.o \
+		build/zip.o \
 		build/example.o \
 		build/png.o \
 		build/pngerror.o \
@@ -614,6 +625,7 @@ OBJECTS       = build/mmgr.o \
 		build/mesh.o \
 		build/object.o \
 		build/octree.o \
+		build/package.o \
 		build/particles.o \
 		build/scene.o \
 		build/sprite.o \
@@ -950,6 +962,12 @@ DIST          = bin/config.xml \
 		zlib/zconf.h \
 		zlib/zlib.h \
 		zlib/zutil.h \
+		minizip/crypt.h \
+		minizip/ioapi.h \
+		minizip/iowin32.h \
+		minizip/mztools.h \
+		minizip/unzip.h \
+		minizip/zip.h \
 		vectormath/scalar/cpp/boolInVec.h \
 		vectormath/scalar/cpp/floatInVec.h \
 		vectormath/scalar/cpp/mat_aos.h \
@@ -1004,6 +1022,7 @@ DIST          = bin/config.xml \
 		magic3d/magic3d/mesh.h \
 		magic3d/magic3d/object.h \
 		magic3d/magic3d/octree.h \
+		magic3d/magic3d/package.h \
 		magic3d/magic3d/particles.h \
 		magic3d/magic3d/scene.h \
 		magic3d/magic3d/sprite.h \
@@ -1259,6 +1278,11 @@ DIST          = bin/config.xml \
 		zlib/trees.c \
 		zlib/uncompr.c \
 		zlib/zutil.c \
+		minizip/ioapi.c \
+		minizip/iowin32.c \
+		minizip/mztools.c \
+		minizip/unzip.c \
+		minizip/zip.c \
 		lpng/example.c \
 		lpng/png.c \
 		lpng/pngerror.c \
@@ -1320,6 +1344,7 @@ DIST          = bin/config.xml \
 		magic3d/src/mesh.cpp \
 		magic3d/src/object.cpp \
 		magic3d/src/octree.cpp \
+		magic3d/src/package.cpp \
 		magic3d/src/particles.cpp \
 		magic3d/src/scene.cpp \
 		magic3d/src/sprite.cpp \
@@ -1418,8 +1443,8 @@ dist:
 clean: compiler_clean 
 	-$(DEL_FILE) build/mmgr.o build/btAxisSweep3.o build/btBroadphaseProxy.o build/btCollisionAlgorithm.o build/btDbvt.o build/btDbvtBroadphase.o build/btDispatcher.o build/btMultiSapBroadphase.o build/btOverlappingPairCache.o build/btQuantizedBvh.o build/btSimpleBroadphase.o build/btActivatingCollisionAlgorithm.o build/btBox2dBox2dCollisionAlgorithm.o build/btBoxBoxCollisionAlgorithm.o build/btBoxBoxDetector.o build/btCollisionDispatcher.o build/btCollisionObject.o build/btCollisionWorld.o build/btCompoundCollisionAlgorithm.o build/btCompoundCompoundCollisionAlgorithm.o build/btConvex2dConvex2dAlgorithm.o build/btConvexConcaveCollisionAlgorithm.o build/btConvexConvexAlgorithm.o build/btConvexPlaneCollisionAlgorithm.o build/btDefaultCollisionConfiguration.o build/btEmptyCollisionAlgorithm.o build/btGhostObject.o build/btHashedSimplePairCache.o build/btInternalEdgeUtility.o build/btManifoldResult.o build/btSimulationIslandManager.o build/btSphereBoxCollisionAlgorithm.o build/btSphereSphereCollisionAlgorithm.o build/btSphereTriangleCollisionAlgorithm.o build/btUnionFind.o build/SphereTriangleDetector.o build/btBox2dShape.o build/btBoxShape.o build/btBvhTriangleMeshShape.o build/btCapsuleShape.o build/btCollisionShape.o build/btCompoundShape.o build/btConcaveShape.o build/btConeShape.o build/btConvex2dShape.o build/btConvexHullShape.o build/btConvexInternalShape.o build/btConvexPointCloudShape.o build/btConvexPolyhedron.o build/btConvexShape.o build/btConvexTriangleMeshShape.o build/btCylinderShape.o build/btEmptyShape.o build/btHeightfieldTerrainShape.o build/btMinkowskiSumShape.o build/btMultimaterialTriangleMeshShape.o build/btMultiSphereShape.o build/btOptimizedBvh.o build/btPolyhedralConvexShape.o build/btScaledBvhTriangleMeshShape.o build/btShapeHull.o build/btSphereShape.o build/btStaticPlaneShape.o build/btStridingMeshInterface.o build/btTetrahedronShape.o build/btTriangleBuffer.o build/btTriangleCallback.o build/btTriangleIndexVertexArray.o build/btTriangleIndexVertexMaterialArray.o build/btTriangleMesh.o
 	-$(DEL_FILE) build/btTriangleMeshShape.o build/btUniformScalingShape.o build/btContactProcessing.o build/btGenericPoolAllocator.o build/btGImpactBvh.o build/btGImpactCollisionAlgorithm.o build/btGImpactQuantizedBvh.o build/btGImpactShape.o build/btTriangleShapeEx.o build/gim_box_set.o build/gim_contact.o build/gim_memory.o build/gim_tri_collision.o build/btContinuousConvexCollision.o build/btConvexCast.o build/btGjkConvexCast.o build/btGjkEpa2.o build/btGjkEpaPenetrationDepthSolver.o build/btGjkPairDetector.o build/btMinkowskiPenetrationDepthSolver.o build/btPersistentManifold.o build/btPolyhedralContactClipping.o build/btRaycastCallback.o build/btSubSimplexConvexCast.o build/btVoronoiSimplexSolver.o build/btKinematicCharacterController.o build/btConeTwistConstraint.o build/btContactConstraint.o build/btFixedConstraint.o build/btGearConstraint.o build/btGeneric6DofConstraint.o build/btGeneric6DofSpringConstraint.o build/btHinge2Constraint.o build/btHingeConstraint.o build/btPoint2PointConstraint.o build/btSequentialImpulseConstraintSolver.o build/btSliderConstraint.o build/btSolve2LinearConstraint.o build/btTypedConstraint.o build/btUniversalConstraint.o build/btDiscreteDynamicsWorld.o build/btRigidBody.o build/btSimpleDynamicsWorld.o build/Bullet-C-API.o build/btRaycastVehicle.o build/btWheelInfo.o build/btDefaultSoftBodySolver.o build/btSoftBody.o build/btSoftBodyConcaveCollisionAlgorithm.o build/btSoftBodyHelpers.o build/btSoftBodyRigidBodyCollisionConfiguration.o build/btSoftRigidCollisionAlgorithm.o build/btSoftRigidDynamicsWorld.o build/btSoftSoftCollisionAlgorithm.o build/btAlignedAllocator.o build/btConvexHull.o build/btConvexHullComputer.o build/btGeometryUtil.o build/btPolarDecomposition.o build/btQuickprof.o build/btSerializer.o build/btVector3.o build/analysis.o build/bitrate.o build/block.o build/codebook.o build/envelope.o build/floor0.o build/floor1.o build/info.o build/lpc.o build/lsp.o build/mapping0.o build/mdct.o build/psy.o build/registry.o build/res0.o build/sharedbook.o build/smallft.o
-	-$(DEL_FILE) build/synthesis.o build/vorbisenc.o build/vorbisfile.o build/window.o build/bitwise.o build/framing.o build/analyze.o build/apiwrapper.o build/bitpack.o build/cpu.o build/decapiwrapper.o build/decinfo.o build/decode.o build/dequant.o build/encapiwrapper.o build/encfrag.o build/encinfo.o build/encode.o build/enquant.o build/fdct.o build/fragment.o build/huffdec.o build/huffenc.o build/idct.o build/infot.o build/internal.o build/mathops.o build/mcenc.o build/quant.o build/rate.o build/state.o build/tokenize.o build/tinyxml2.o build/adler32.o build/compress.o build/crc32.o build/deflate.o build/gzclose.o build/gzlib.o build/gzread.o build/gzwrite.o build/infback.o build/inffast.o build/inflate.o build/inftrees.o build/trees.o build/uncompr.o build/zutil.o build/example.o build/png.o build/pngerror.o build/pngget.o build/pngmem.o build/pngpread.o build/pngread.o build/pngrio.o build/pngrtran.o build/pngrutil.o build/pngset.o build/pngtrans.o build/pngwio.o build/pngwrite.o build/pngwtran.o build/pngwutil.o build/lapi.o build/lauxlib.o build/lbaselib.o build/lbitlib.o build/lcode.o build/lcorolib.o build/lctype.o build/ldblib.o build/ldebug.o build/ldo.o build/ldump.o build/lfunc.o build/lgc.o build/linit.o build/liolib.o build/llex.o build/lmathlib.o build/lmem.o build/loadlib.o build/lobject.o build/lopcodes.o build/loslib.o build/lparser.o build/lstate.o build/lstring.o build/lstrlib.o build/ltable.o build/ltablib.o build/ltm.o build/lundump.o build/lutf8lib.o build/lvm.o build/lzio.o build/camera.o build/config.o build/eventlistener.o build/input.o build/light.o build/log.o build/magic3d.o build/material.o build/math.o build/mesh.o build/object.o build/octree.o build/particles.o build/scene.o build/sprite.o build/timer.o build/xml.o build/gui.o build/guibutton.o build/guilabel.o build/guiwindow.o build/joystick.o build/image.o build/image_png.o build/image_tga.o build/animation.o build/loader.o build/loader_dae.o build/model.o build/skeleton.o build/renderer.o build/window_internal.o
-	-$(DEL_FILE) build/window_win.o build/window_x.o build/renderer_fixedfunction.o build/renderer_opengl.o build/renderer_shaders.o build/resourcemngr.o build/resources_animation.o build/resources_font.o build/resources_material.o build/resources_model.o build/resources_object.o build/resources_shader.o build/resources_texture.o build/sound.o build/sound_ogg.o build/script.o build/script_basic.o build/script_color.o build/script_input.o build/script_magic3d.o build/script_object.o build/script_vector3.o build/tween.o build/tween_alpha.o build/tween_delay.o build/tween_goto.o build/tween_lookat.o build/tween_rotate.o build/tween_scale.o build/tween_translate.o build/physics.o build/physics_constraint.o build/physics_object.o build/image_pvr.o build/main.o
+	-$(DEL_FILE) build/synthesis.o build/vorbisenc.o build/vorbisfile.o build/window.o build/bitwise.o build/framing.o build/analyze.o build/apiwrapper.o build/bitpack.o build/cpu.o build/decapiwrapper.o build/decinfo.o build/decode.o build/dequant.o build/encapiwrapper.o build/encfrag.o build/encinfo.o build/encode.o build/enquant.o build/fdct.o build/fragment.o build/huffdec.o build/huffenc.o build/idct.o build/infot.o build/internal.o build/mathops.o build/mcenc.o build/quant.o build/rate.o build/state.o build/tokenize.o build/tinyxml2.o build/adler32.o build/compress.o build/crc32.o build/deflate.o build/gzclose.o build/gzlib.o build/gzread.o build/gzwrite.o build/infback.o build/inffast.o build/inflate.o build/inftrees.o build/trees.o build/uncompr.o build/zutil.o build/ioapi.o build/iowin32.o build/mztools.o build/unzip.o build/zip.o build/example.o build/png.o build/pngerror.o build/pngget.o build/pngmem.o build/pngpread.o build/pngread.o build/pngrio.o build/pngrtran.o build/pngrutil.o build/pngset.o build/pngtrans.o build/pngwio.o build/pngwrite.o build/pngwtran.o build/pngwutil.o build/lapi.o build/lauxlib.o build/lbaselib.o build/lbitlib.o build/lcode.o build/lcorolib.o build/lctype.o build/ldblib.o build/ldebug.o build/ldo.o build/ldump.o build/lfunc.o build/lgc.o build/linit.o build/liolib.o build/llex.o build/lmathlib.o build/lmem.o build/loadlib.o build/lobject.o build/lopcodes.o build/loslib.o build/lparser.o build/lstate.o build/lstring.o build/lstrlib.o build/ltable.o build/ltablib.o build/ltm.o build/lundump.o build/lutf8lib.o build/lvm.o build/lzio.o build/camera.o build/config.o build/eventlistener.o build/input.o build/light.o build/log.o build/magic3d.o build/material.o build/math.o build/mesh.o build/object.o build/octree.o build/package.o build/particles.o build/scene.o build/sprite.o build/timer.o build/xml.o build/gui.o build/guibutton.o build/guilabel.o build/guiwindow.o build/joystick.o build/image.o build/image_png.o build/image_tga.o build/animation.o build/loader.o build/loader_dae.o
+	-$(DEL_FILE) build/model.o build/skeleton.o build/renderer.o build/window_internal.o build/window_win.o build/window_x.o build/renderer_fixedfunction.o build/renderer_opengl.o build/renderer_shaders.o build/resourcemngr.o build/resources_animation.o build/resources_font.o build/resources_material.o build/resources_model.o build/resources_object.o build/resources_shader.o build/resources_texture.o build/sound.o build/sound_ogg.o build/script.o build/script_basic.o build/script_color.o build/script_input.o build/script_magic3d.o build/script_object.o build/script_vector3.o build/tween.o build/tween_alpha.o build/tween_delay.o build/tween_goto.o build/tween_lookat.o build/tween_rotate.o build/tween_scale.o build/tween_translate.o build/physics.o build/physics_constraint.o build/physics_object.o build/image_pvr.o build/main.o
 	-$(DEL_FILE) ./build/icons_res.o
 
 distclean: clean 
@@ -5376,6 +5401,37 @@ build/zutil.o: zlib/zutil.c zlib/zutil.h \
 		zlib/gzguts.h
 	$(CC) -c $(CFLAGS) $(INCPATH) -o build/zutil.o zlib/zutil.c
 
+build/ioapi.o: minizip/ioapi.c minizip/ioapi.h \
+		zlib/zlib.h \
+		zlib/zconf.h
+	$(CC) -c $(CFLAGS) $(INCPATH) -o build/ioapi.o minizip/ioapi.c
+
+build/iowin32.o: minizip/iowin32.c zlib/zlib.h \
+		zlib/zconf.h \
+		minizip/ioapi.h \
+		minizip/iowin32.h
+	$(CC) -c $(CFLAGS) $(INCPATH) -o build/iowin32.o minizip/iowin32.c
+
+build/mztools.o: minizip/mztools.c zlib/zlib.h \
+		zlib/zconf.h \
+		minizip/unzip.h \
+		minizip/ioapi.h
+	$(CC) -c $(CFLAGS) $(INCPATH) -o build/mztools.o minizip/mztools.c
+
+build/unzip.o: minizip/unzip.c zlib/zlib.h \
+		zlib/zconf.h \
+		minizip/unzip.h \
+		minizip/ioapi.h \
+		minizip/crypt.h
+	$(CC) -c $(CFLAGS) $(INCPATH) -o build/unzip.o minizip/unzip.c
+
+build/zip.o: minizip/zip.c zlib/zlib.h \
+		zlib/zconf.h \
+		minizip/zip.h \
+		minizip/ioapi.h \
+		minizip/crypt.h
+	$(CC) -c $(CFLAGS) $(INCPATH) -o build/zip.o minizip/zip.c
+
 build/example.o: lpng/example.c lpng/png.h \
 		lpng/pnglibconf.h \
 		lpng/pngconf.h \
@@ -7819,6 +7875,190 @@ build/octree.o: magic3d/src/octree.cpp magic3d/magic3d/renderer/renderer.h \
 		magic3d/magic3d/octree.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/octree.o magic3d/src/octree.cpp
 
+build/package.o: magic3d/src/package.cpp magic3d/magic3d/package.h \
+		magic3d/magic3d/type.h \
+		tinyxml2/tinyxml2.h \
+		bullet/btBulletDynamicsCommon.h \
+		bullet/btBulletCollisionCommon.h \
+		bullet/BulletCollision/CollisionDispatch/btCollisionWorld.h \
+		bullet/LinearMath/btVector3.h \
+		bullet/LinearMath/btScalar.h \
+		bullet/LinearMath/btMinMax.h \
+		bullet/LinearMath/btAlignedAllocator.h \
+		bullet/LinearMath/btTransform.h \
+		bullet/LinearMath/btMatrix3x3.h \
+		bullet/LinearMath/btQuaternion.h \
+		bullet/LinearMath/btQuadWord.h \
+		bullet/BulletCollision/CollisionDispatch/btCollisionObject.h \
+		bullet/LinearMath/btMotionState.h \
+		bullet/LinearMath/btAlignedObjectArray.h \
+		bullet/BulletCollision/CollisionDispatch/btCollisionDispatcher.h \
+		bullet/BulletCollision/BroadphaseCollision/btDispatcher.h \
+		bullet/BulletCollision/NarrowPhaseCollision/btPersistentManifold.h \
+		bullet/BulletCollision/NarrowPhaseCollision/btManifoldPoint.h \
+		bullet/LinearMath/btTransformUtil.h \
+		bullet/BulletCollision/CollisionDispatch/btManifoldResult.h \
+		bullet/BulletCollision/NarrowPhaseCollision/btDiscreteCollisionDetectorInterface.h \
+		bullet/BulletCollision/CollisionDispatch/btCollisionObjectWrapper.h \
+		bullet/BulletCollision/BroadphaseCollision/btBroadphaseProxy.h \
+		bullet/BulletCollision/CollisionDispatch/btCollisionCreateFunc.h \
+		bullet/BulletCollision/BroadphaseCollision/btOverlappingPairCache.h \
+		bullet/BulletCollision/BroadphaseCollision/btBroadphaseInterface.h \
+		bullet/BulletCollision/BroadphaseCollision/btOverlappingPairCallback.h \
+		bullet/BulletCollision/CollisionShapes/btBoxShape.h \
+		bullet/BulletCollision/CollisionShapes/btPolyhedralConvexShape.h \
+		bullet/BulletCollision/CollisionShapes/btConvexInternalShape.h \
+		bullet/BulletCollision/CollisionShapes/btConvexShape.h \
+		bullet/BulletCollision/CollisionShapes/btCollisionShape.h \
+		bullet/BulletCollision/CollisionShapes/btCollisionMargin.h \
+		bullet/LinearMath/btAabbUtil2.h \
+		bullet/BulletCollision/CollisionShapes/btSphereShape.h \
+		bullet/BulletCollision/CollisionShapes/btCapsuleShape.h \
+		bullet/BulletCollision/CollisionShapes/btCylinderShape.h \
+		bullet/BulletCollision/CollisionShapes/btConeShape.h \
+		bullet/BulletCollision/CollisionShapes/btStaticPlaneShape.h \
+		bullet/BulletCollision/CollisionShapes/btConcaveShape.h \
+		bullet/BulletCollision/CollisionShapes/btTriangleCallback.h \
+		bullet/BulletCollision/CollisionShapes/btConvexHullShape.h \
+		bullet/BulletCollision/CollisionShapes/btTriangleMesh.h \
+		bullet/BulletCollision/CollisionShapes/btTriangleIndexVertexArray.h \
+		bullet/BulletCollision/CollisionShapes/btStridingMeshInterface.h \
+		bullet/BulletCollision/CollisionShapes/btConvexTriangleMeshShape.h \
+		bullet/BulletCollision/CollisionShapes/btBvhTriangleMeshShape.h \
+		bullet/BulletCollision/CollisionShapes/btTriangleMeshShape.h \
+		bullet/BulletCollision/CollisionShapes/btOptimizedBvh.h \
+		bullet/BulletCollision/BroadphaseCollision/btQuantizedBvh.h \
+		bullet/BulletCollision/CollisionShapes/btTriangleInfoMap.h \
+		bullet/LinearMath/btHashMap.h \
+		bullet/LinearMath/btSerializer.h \
+		bullet/BulletCollision/CollisionShapes/btScaledBvhTriangleMeshShape.h \
+		bullet/BulletCollision/CollisionShapes/btCompoundShape.h \
+		bullet/BulletCollision/CollisionShapes/btTetrahedronShape.h \
+		bullet/BulletCollision/CollisionShapes/btEmptyShape.h \
+		bullet/BulletCollision/CollisionShapes/btMultiSphereShape.h \
+		bullet/BulletCollision/CollisionShapes/btUniformScalingShape.h \
+		bullet/BulletCollision/CollisionDispatch/btSphereSphereCollisionAlgorithm.h \
+		bullet/BulletCollision/CollisionDispatch/btActivatingCollisionAlgorithm.h \
+		bullet/BulletCollision/BroadphaseCollision/btCollisionAlgorithm.h \
+		bullet/BulletCollision/CollisionDispatch/btDefaultCollisionConfiguration.h \
+		bullet/BulletCollision/CollisionDispatch/btCollisionConfiguration.h \
+		bullet/BulletCollision/BroadphaseCollision/btSimpleBroadphase.h \
+		bullet/BulletCollision/BroadphaseCollision/btAxisSweep3.h \
+		bullet/BulletCollision/BroadphaseCollision/btDbvtBroadphase.h \
+		bullet/BulletCollision/BroadphaseCollision/btDbvt.h \
+		bullet/LinearMath/btQuickprof.h \
+		bullet/BulletCollision/BroadphaseCollision/btMultiSapBroadphase.h \
+		bullet/LinearMath/btDefaultMotionState.h \
+		bullet/LinearMath/btIDebugDraw.h \
+		bullet/BulletDynamics/Dynamics/btDiscreteDynamicsWorld.h \
+		bullet/BulletDynamics/Dynamics/btDynamicsWorld.h \
+		bullet/BulletDynamics/ConstraintSolver/btContactSolverInfo.h \
+		bullet/BulletDynamics/Dynamics/btSimpleDynamicsWorld.h \
+		bullet/BulletDynamics/Dynamics/btRigidBody.h \
+		bullet/BulletDynamics/ConstraintSolver/btPoint2PointConstraint.h \
+		bullet/BulletDynamics/ConstraintSolver/btJacobianEntry.h \
+		bullet/BulletDynamics/ConstraintSolver/btTypedConstraint.h \
+		bullet/BulletDynamics/ConstraintSolver/btSolverConstraint.h \
+		bullet/BulletDynamics/ConstraintSolver/btSolverBody.h \
+		bullet/BulletDynamics/ConstraintSolver/btHingeConstraint.h \
+		bullet/BulletDynamics/ConstraintSolver/btConeTwistConstraint.h \
+		bullet/BulletDynamics/ConstraintSolver/btGeneric6DofConstraint.h \
+		bullet/BulletDynamics/ConstraintSolver/btSliderConstraint.h \
+		bullet/BulletDynamics/ConstraintSolver/btGeneric6DofSpringConstraint.h \
+		bullet/BulletDynamics/ConstraintSolver/btUniversalConstraint.h \
+		bullet/BulletDynamics/ConstraintSolver/btHinge2Constraint.h \
+		bullet/BulletDynamics/ConstraintSolver/btGearConstraint.h \
+		bullet/BulletDynamics/ConstraintSolver/btFixedConstraint.h \
+		bullet/BulletDynamics/ConstraintSolver/btSequentialImpulseConstraintSolver.h \
+		bullet/BulletDynamics/ConstraintSolver/btConstraintSolver.h \
+		bullet/BulletDynamics/Vehicle/btRaycastVehicle.h \
+		bullet/BulletDynamics/Vehicle/btVehicleRaycaster.h \
+		bullet/BulletDynamics/Vehicle/btWheelInfo.h \
+		bullet/BulletDynamics/Dynamics/btActionInterface.h \
+		libvorbis/vorbis/vorbisfile.h \
+		libvorbis/vorbis/codec.h \
+		libogg/ogg/ogg.h \
+		libogg/ogg/os_types.h \
+		memory_manager/mmgr.h \
+		memory_manager/nommgr.h \
+		minizip/zip.h \
+		zlib/zlib.h \
+		zlib/zconf.h \
+		minizip/ioapi.h \
+		minizip/unzip.h \
+		minizip/iowin32.h \
+		magic3d/magic3d/file.h \
+		magic3d/magic3d/magic3d.h \
+		magic3d/magic3d/timer.h \
+		magic3d/magic3d/physics/physics.h \
+		magic3d/magic3d/math.h \
+		vectormath/cpp/vectormath_aos.h \
+		vectormath/spu/cpp/vectormath_aos.h \
+		vectormath/spu/cpp/floatInVec.h \
+		vectormath/spu/cpp/boolInVec.h \
+		vectormath/spu/cpp/vecidx_aos.h \
+		vectormath/spu/cpp/vec_aos.h \
+		vectormath/spu/cpp/quat_aos.h \
+		vectormath/spu/cpp/mat_aos.h \
+		vectormath/ppu/cpp/vectormath_aos.h \
+		vectormath/SSE/cpp/vectormath_aos.h \
+		vectormath/ios/vectormath_aos.h \
+		vectormath/scalar/cpp/vectormath_aos.h \
+		magic3d/magic3d/config.h \
+		magic3d/magic3d/xml.h \
+		magic3d/magic3d/log.h \
+		magic3d/magic3d/eventlistener.h \
+		magic3d/magic3d/input_define.h \
+		magic3d/magic3d/input.h \
+		magic3d/magic3d/scene.h \
+		magic3d/magic3d/octree.h \
+		magic3d/magic3d/object.h \
+		magic3d/magic3d/mesh.h \
+		magic3d/magic3d/material.h \
+		magic3d/magic3d/resource/resources_shader.h \
+		magic3d/magic3d/resource/resources.h \
+		magic3d/magic3d/physics/physics_object.h \
+		magic3d/magic3d/physics/physics_constraint.h \
+		magic3d/magic3d/model/skeleton.h \
+		magic3d/magic3d/gui/guilabel.h \
+		magic3d/magic3d/gui/gui.h \
+		magic3d/magic3d/sprite.h \
+		magic3d/magic3d/gui/joystick.h \
+		magic3d/magic3d/model/model.h \
+		magic3d/magic3d/model/animation.h \
+		magic3d/magic3d/model/loader.h \
+		magic3d/magic3d/image/image.h \
+		magic3d/magic3d/resource/resourcemngr.h \
+		magic3d/magic3d/camera.h \
+		magic3d/magic3d/renderer/window.h \
+		magic3d/magic3d/particles.h \
+		magic3d/magic3d/light.h \
+		magic3d/magic3d/gui/guiwindow.h \
+		magic3d/magic3d/gui/guibutton.h \
+		magic3d/magic3d/sound/sound.h \
+		magic3d/magic3d/resource/resources_object.h \
+		magic3d/magic3d/resource/resources_model.h \
+		magic3d/magic3d/resource/resources_texture.h \
+		magic3d/magic3d/resource/resources_material.h \
+		magic3d/magic3d/resource/resources_animation.h \
+		magic3d/magic3d/resource/resources_font.h \
+		magic3d/magic3d/renderer/renderer.h \
+		magic3d/magic3d/script/script.h \
+		lua/lua.h \
+		lua/luaconf.h \
+		lua/lauxlib.h \
+		lua/lualib.h \
+		magic3d/magic3d/tween/tweens.h \
+		magic3d/magic3d/tween/tween_alpha.h \
+		magic3d/magic3d/tween/tween.h \
+		magic3d/magic3d/tween/tween_delay.h \
+		magic3d/magic3d/tween/tween_translate.h \
+		magic3d/magic3d/tween/tween_rotate.h \
+		magic3d/magic3d/tween/tween_scale.h \
+		magic3d/magic3d/tween/tween_goto.h \
+		magic3d/magic3d/tween/tween_lookat.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/package.o magic3d/src/package.cpp
+
 build/particles.o: magic3d/src/particles.cpp magic3d/magic3d/magic3d.h \
 		magic3d/magic3d/timer.h \
 		magic3d/magic3d/physics/physics.h \
@@ -8170,7 +8410,14 @@ build/scene.o: magic3d/src/scene.cpp magic3d/magic3d/magic3d.h \
 		magic3d/magic3d/tween/tween_rotate.h \
 		magic3d/magic3d/tween/tween_scale.h \
 		magic3d/magic3d/tween/tween_goto.h \
-		magic3d/magic3d/tween/tween_lookat.h
+		magic3d/magic3d/tween/tween_lookat.h \
+		magic3d/magic3d/package.h \
+		minizip/zip.h \
+		zlib/zlib.h \
+		zlib/zconf.h \
+		minizip/ioapi.h \
+		minizip/unzip.h \
+		minizip/iowin32.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/scene.o magic3d/src/scene.cpp
 
 build/sprite.o: magic3d/src/sprite.cpp magic3d/magic3d/magic3d.h \
@@ -12133,7 +12380,14 @@ build/resourcemngr.o: magic3d/src/resource/resourcemngr.cpp magic3d/magic3d/magi
 		magic3d/magic3d/tween/tween_rotate.h \
 		magic3d/magic3d/tween/tween_scale.h \
 		magic3d/magic3d/tween/tween_goto.h \
-		magic3d/magic3d/tween/tween_lookat.h
+		magic3d/magic3d/tween/tween_lookat.h \
+		magic3d/magic3d/package.h \
+		minizip/zip.h \
+		zlib/zlib.h \
+		zlib/zconf.h \
+		minizip/ioapi.h \
+		minizip/unzip.h \
+		minizip/iowin32.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/resourcemngr.o magic3d/src/resource/resourcemngr.cpp
 
 build/resources_animation.o: magic3d/src/resource/resources_animation.cpp magic3d/magic3d/magic3d.h \
@@ -13917,7 +14171,14 @@ build/script.o: magic3d/src/script/script.cpp magic3d/magic3d/script/script_magi
 		magic3d/magic3d/tween/tween_rotate.h \
 		magic3d/magic3d/tween/tween_scale.h \
 		magic3d/magic3d/tween/tween_goto.h \
-		magic3d/magic3d/tween/tween_lookat.h
+		magic3d/magic3d/tween/tween_lookat.h \
+		magic3d/magic3d/package.h \
+		minizip/zip.h \
+		zlib/zlib.h \
+		zlib/zconf.h \
+		minizip/ioapi.h \
+		minizip/unzip.h \
+		minizip/iowin32.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/script.o magic3d/src/script/script.cpp
 
 build/script_basic.o: magic3d/src/script/script_basic.cpp magic3d/magic3d/script/script_basic.h \

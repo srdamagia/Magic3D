@@ -25,17 +25,19 @@ subject to the following restrictions:
 #define MAGIC3D_SOUND_OGG_H
 
 #include <magic3d/sound/sound.h>
+#include <magic3d/file.h>
 
 namespace Magic3D
 {
-
 class SoundOGG : public Sound
 {
+    Memory*         memoryFile;
     vorbis_info*    psVorbisInfo;
     vorbis_comment* vorbisComment;
     char*           pDecodeBuffer;
 
     OggVorbis_File  sOggVorbisFile;
+    ov_callbacks    oggCallbacks;
 
     unsigned long   ulFrequency;
     unsigned long   ulFormat;

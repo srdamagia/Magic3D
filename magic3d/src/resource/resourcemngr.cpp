@@ -23,6 +23,7 @@ subject to the following restrictions:
 
 #include <magic3d/magic3d.h>
 #include <magic3d/resource/resourcemngr.h>
+#include <magic3d/package.h>
 
 Magic3D::ResourceManager* Magic3D::ResourceManager::instance = NULL;
 
@@ -30,6 +31,7 @@ Magic3D::ResourceManager* Magic3D::ResourceManager::instance = NULL;
 
 Magic3D::ResourceManager::ResourceManager()
 {
+    package = NULL;
     path = "data/";
 
     objects = new ResourcesObject();
@@ -43,6 +45,12 @@ Magic3D::ResourceManager::ResourceManager()
 
 Magic3D::ResourceManager::~ResourceManager()
 {
+    if (package)
+    {
+        delete package;
+        package = NULL;
+    }
+
     clear(true);
 
     delete objects;
@@ -64,6 +72,10 @@ void Magic3D::ResourceManager::clear(bool all)
         viewports->at(i)->setOrthographic(NULL);
     }
 
+    if (package && !all)
+    {
+        package->open();
+    }
     objects->clear(all);
     models->clear(all);
     materials->clear(true);
@@ -73,6 +85,10 @@ void Magic3D::ResourceManager::clear(bool all)
     materials->clear(all);
     animations->clear(all);
     fonts->clear(all);
+    if (package && package->isOpen() && !all)
+    {
+        package->close();
+    }
 }
 
 bool Magic3D::ResourceManager::start()
@@ -157,15 +173,34 @@ Magic3D::ResourcesFont* Magic3D::ResourceManager::getFonts()
     return instance->fonts;
 }
 
-void Magic3D::ResourceManager::setPath(std::string path)
+void Magic3D::ResourceManager::setPath(std::string path, bool dataFile)
 {
     std::string ending = "/";
     this->path = path;
-    if (path.compare (path.length() - ending.length(), ending.length(), ending) != 0)
+
+    if (dataFile)
     {
-        this->path += ending;
+        this->path.clear();
+        if (package)
+        {
+            delete package;
+            package = NULL;
+        }
+        package = new Package();
+        package->setPackage(path);
+    }
+    else
+    {
+        if (path.compare (path.length() - ending.length(), ending.length(), ending) != 0)
+        {
+            this->path += ending;
+        }
     }
 
+    if (package)
+    {
+        package->open();
+    }
     objects->setPath(&this->path);
     models->setPath(&this->path);
     textures->setPath(&this->path);
@@ -173,11 +208,48 @@ void Magic3D::ResourceManager::setPath(std::string path)
     materials->setPath(&this->path);
     animations->setPath(&this->path);
     fonts->setPath(&this->path);    
+    if (package && package->isOpen())
+    {
+        package->close();
+    }
 }
 
 std::string Magic3D::ResourceManager::getPath()
 {
     return path;
+}
+
+Magic3D::Package* Magic3D::ResourceManager::getPackage()
+{
+    return package;
+}
+
+bool Magic3D::ResourceManager::unpack(std::string fileName, DataBuffer* buffer)
+{
+    bool result = false;
+    bool opened = false;
+    if (package)
+    {
+        if (package->isOpen())
+        {
+            opened = true;
+        }
+        else
+        {
+            package->open();
+        }
+
+        if (package->isOpen())
+        {
+            result = package->unpack(fileName, buffer);
+        }
+
+        if (!opened && package->isOpen())
+        {
+            package->close();
+        }
+    }
+    return result;
 }
 
 void Magic3D::ResourceManager::setUserPath(std::string path)

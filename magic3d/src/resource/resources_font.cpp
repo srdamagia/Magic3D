@@ -112,7 +112,19 @@ void Magic3D::Font::load()
     XMLDocument* doc = new XMLDocument();
 
     std::string fileName = ResourceManager::getFonts()->getPath(name + ".fnt");
-    bool result = doc->LoadFile(fileName.c_str()) == XML_SUCCESS;
+
+    bool result = false;
+    if (ResourceManager::getInstance()->getPackage())
+    {
+        Memory mem;
+        result = ResourceManager::getInstance()->unpack(fileName, &mem);
+        std::string str = mem.getBuffer()->str();
+        result = result && doc->Parse(str.c_str(), str.size()) == XML_SUCCESS;
+    }
+    else
+    {
+        result = doc->LoadFile(fileName.c_str()) == XML_SUCCESS;
+    }
     if (result)
     {
         XMLElement* root = doc->FirstChildElement();

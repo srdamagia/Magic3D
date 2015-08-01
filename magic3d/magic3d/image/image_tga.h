@@ -66,13 +66,13 @@ class TGA : public Image
 
 private:
     TGAHeader header;
-    void expandCompressedLine(byte* dest, File *file, int width);
-    void expandUncompressedLine(byte* dest, File *file, int width);
+    void expandCompressedLine(byte* dest, DataBuffer *file, int width);
+    void expandUncompressedLine(byte* dest, DataBuffer *file, int width);
 public:
     TGA();
     virtual ~TGA();
 
-    virtual bool decode(File* file);
+    virtual bool decode(DataBuffer* file);
 };
 }
 

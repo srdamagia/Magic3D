@@ -58,8 +58,8 @@ public:
     ColorRGBApack getPixelColor(byte* pColorData);
     bool mirror();
     void transfer(Image &from);
-    virtual bool decode(FILE* file) { File f(file); return decode(&f); }
-    virtual bool decode(File* file) {return file != NULL;}
+    virtual bool decode(FILE* file);
+    virtual bool decode(DataBuffer* file);
 
     byte* getPixels();
     long getPixelsSize();

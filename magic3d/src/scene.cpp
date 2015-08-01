@@ -22,6 +22,7 @@ subject to the following restrictions:
 */
 
 #include <magic3d/magic3d.h>
+#include <magic3d/package.h>
 
 Magic3D::Scene* Magic3D::Scene::instance = NULL;
 
@@ -1946,7 +1947,7 @@ bool Magic3D::Scene::load(std::string mge, bool additive)
     bool result = false;
     if (!mge.empty())
     {
-        doc = new XMLDocument();
+        doc = new tinyxml2::XMLDocument();
 
         std::string fileName = mge.rfind(M3D_SCENE_FILE) != std::string::npos ? mge.c_str() : std::string(mge + M3D_SCENE_FILE).c_str();
         if (!additive)
@@ -1954,7 +1955,20 @@ bool Magic3D::Scene::load(std::string mge, bool additive)
             script = fileName.substr(0, fileName.find(M3D_SCENE_FILE));
         }
 
-        if (doc->LoadFile(std::string(ResourceManager::getInstance()->getPath() + fileName).c_str()) == XML_SUCCESS)
+        bool ready = false;
+        if (ResourceManager::getInstance()->getPackage())
+        {
+            Memory mem;
+            ready = ResourceManager::getInstance()->unpack(fileName, &mem);
+            std::string str = mem.getBuffer()->str();
+            ready = ready && doc->Parse(str.c_str(), str.size()) == XML_SUCCESS;
+        }
+        else
+        {
+            ready = doc->LoadFile(std::string(ResourceManager::getInstance()->getPath() + fileName).c_str()) == XML_SUCCESS;
+        }
+
+        if (ready)
         {
             Log::logFormat(eLOG_RENDERER, "Start loading scene: %s", fileName.c_str());
             XMLElement* root = doc->FirstChildElement();
@@ -1962,13 +1976,13 @@ bool Magic3D::Scene::load(std::string mge, bool additive)
             if (root)
             {
 #ifndef MAGIC3D_IOS
-                XMLElement* pElem = root->FirstChildElement("Project")->FirstChildElement("data");
+                /*XMLElement* pElem = root->FirstChildElement("Project")->FirstChildElement("data");
 
                 if (pElem)
                 {
-                    ResourceManager::getInstance()->setPath(Magic3D::getApplicationPath() + std::string(pElem->GetText()));
+                    ResourceManager::getInstance()->setPath(Magic3D::getApplicationPath() + std::string(pElem->GetText()), false);
                     ResourceManager::getInstance()->setUserPath(Magic3D::getApplicationPath() + std::string(pElem->GetText()));
-                }
+                }*/
 #endif
                 load(root);
             }
@@ -2172,6 +2186,10 @@ Magic3D::XMLElement* Magic3D::Scene::load(XMLElement* root)
             layerXML = sceneXML->FirstChildElement(M3D_SCENE_XML_LAYER);
             setCurrentLayerXML(false);
 
+            if (ResourceManager::getInstance()->getPackage())
+            {
+                ResourceManager::getInstance()->getPackage()->open();
+            }
             load();
         }
         else
@@ -2475,6 +2493,11 @@ bool Magic3D::Scene::load()
 
             result = true;
             loading = false;
+
+            if (ResourceManager::getInstance()->getPackage())
+            {
+                ResourceManager::getInstance()->getPackage()->close();
+            }
 
             Log::log(eLOG_SUCCESS, "Scene loaded!");
         }

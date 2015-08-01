@@ -2893,16 +2893,33 @@ bool Magic3D::RendererOpenGL_Shaders::updateShader(Shader* shader)
         shader->defines++;
     }
 
-    std::ifstream tdd(definesDefaultShader.c_str());
-
     std::stringstream shaderVertex;
-    std::ifstream tdv(vertDefaultShader.c_str());
-    std::ifstream tv(vertShaderPathname.c_str());
+    if (ResourceManager::getInstance()->getPackage())
+    {
+        Memory tdd;
+        Memory tdv;
+        Memory tv;
 
-    shaderVertex << te.rdbuf();
-    shaderVertex << tdd.rdbuf();
-    shaderVertex << tdv.rdbuf();
-    shaderVertex << tv.rdbuf();
+        ResourceManager::getInstance()->unpack(definesDefaultShader, &tdd);
+        ResourceManager::getInstance()->unpack(vertDefaultShader, &tdv);
+        ResourceManager::getInstance()->unpack(vertShaderPathname, &tv);
+
+        shaderVertex << te.rdbuf();
+        shaderVertex << tdd.getBuffer();
+        shaderVertex << tdv.getBuffer();
+        shaderVertex << tv.getBuffer();
+    }
+    else
+    {
+        std::ifstream tdd(definesDefaultShader.c_str());
+        std::ifstream tdv(vertDefaultShader.c_str());
+        std::ifstream tv(vertShaderPathname.c_str());
+
+        shaderVertex << te.rdbuf();
+        shaderVertex << tdd.rdbuf();
+        shaderVertex << tdv.rdbuf();
+        shaderVertex << tv.rdbuf();
+    }
 
     if (!compileShader(&vertShader, eSHADER_TYPE_VERTEX, shaderVertex.str().c_str())) {
         compiled = false;
@@ -2913,16 +2930,34 @@ bool Magic3D::RendererOpenGL_Shaders::updateShader(Shader* shader)
     fragShaderPathname = ResourceManager::getShaders()->getPath(shader->getName() + M3D_FRAGMENT_SHADER_FILE);
 
     te.rdbuf()->pubseekpos(0, te.in);
-    tdd.rdbuf()->pubseekpos(0, tdd.in);
 
     std::stringstream shaderFragment;
-    std::ifstream tdf(fragDefaultShader.c_str());
-    std::ifstream tf(fragShaderPathname.c_str());
+    if (ResourceManager::getInstance()->getPackage())
+    {
+        Memory tdd;
+        Memory tdv;
+        Memory tv;
 
-    shaderFragment << te.rdbuf();
-    shaderFragment << tdd.rdbuf();
-    shaderFragment << tdf.rdbuf();
-    shaderFragment << tf.rdbuf();
+        ResourceManager::getInstance()->unpack(definesDefaultShader, &tdd);
+        ResourceManager::getInstance()->unpack(fragDefaultShader, &tdv);
+        ResourceManager::getInstance()->unpack(fragShaderPathname, &tv);
+
+        shaderFragment << te.rdbuf();
+        shaderFragment << tdd.getBuffer();
+        shaderFragment << tdv.getBuffer();
+        shaderFragment << tv.getBuffer();
+    }
+    else
+    {
+        std::ifstream tdd(definesDefaultShader.c_str());
+        std::ifstream tdf(fragDefaultShader.c_str());
+        std::ifstream tf(fragShaderPathname.c_str());
+
+        shaderFragment << te.rdbuf();
+        shaderFragment << tdd.rdbuf();
+        shaderFragment << tdf.rdbuf();
+        shaderFragment << tf.rdbuf();
+    }
 
     if (!compileShader(&fragShader, eSHADER_TYPE_FRAGMENT, shaderFragment.str().c_str())) {
         compiled = false;

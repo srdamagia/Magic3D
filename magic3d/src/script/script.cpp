@@ -24,6 +24,7 @@ subject to the following restrictions:
 #include <magic3d/script/script_magic3d.h>
 #include <magic3d/script/script_input.h>
 #include <magic3d/magic3d.h>
+#include <magic3d/package.h>
 
 Magic3D::Script* Magic3D::Script::instance = NULL;
 lua_State* Magic3D::Script::lua = NULL;
@@ -72,7 +73,6 @@ Magic3D::Script::Script()
 
 Magic3D::Script::~Script()
 {
-    Scene::getInstance()->getOctree()->teste();
     stop();
 
     if (m3d)
@@ -168,6 +168,10 @@ void Magic3D::Script::play(bool startScript)
     ScriptClass<ScriptMagic3D>::push(lua, m3d);
     lua_setglobal(lua, "magic3d");
 
+    if (ResourceManager::getInstance()->getPackage())
+    {
+        ResourceManager::getInstance()->getPackage()->open();
+    }
     playing = reload();
 
     if (playing && startScript)
@@ -180,6 +184,10 @@ void Magic3D::Script::play(bool startScript)
         {
             stop(false);
         }
+    }
+    if (ResourceManager::getInstance()->getPackage())
+    {
+        ResourceManager::getInstance()->getPackage()->close();
     }
     elapsed = 0.0f;
 }
@@ -487,7 +495,22 @@ bool Magic3D::Script::load(std::string script)
 {
     bool result = true;
 
-    if (luaL_dofile (lua, script.c_str()) != 0)
+    bool ready = false;
+    if (ResourceManager::getInstance()->getPackage())
+    {
+        Memory mem;
+        ready = ResourceManager::getInstance()->unpack(script, &mem);
+        std::stringstream str;
+        str << mem.getBuffer();
+
+        ready = luaL_dostring (lua, str.str().c_str()) == 0;
+    }
+    else
+    {
+        ready = luaL_dofile (lua, script.c_str()) == 0;
+    }
+
+    if (!ready)
     {
         hasErrors = true;
         result = false;
@@ -547,8 +570,17 @@ bool Magic3D::Script::loadObject(std::string name)
     script << name;
     script << "\"); ";
 
-    std::ifstream t(info.script.c_str());
-    script << t.rdbuf();
+    if (ResourceManager::getInstance()->getPackage())
+    {
+        Memory mem;
+        ResourceManager::getInstance()->unpack(info.script, &mem);
+        script << mem.getBuffer();
+    }
+    else
+    {
+        std::ifstream t(info.script.c_str());
+        script << t.rdbuf();
+    }
 
     script << " end;";
 
@@ -570,6 +602,7 @@ bool Magic3D::Script::loadObjects()
     bool needClear = !objects.empty();
 
     bool loaded = !needClear;
+
     while (playing && !objects.empty())
     {
         Object* object = (*objects.begin()).second;
@@ -628,7 +661,6 @@ bool Magic3D::Script::reload()
     std::string main(M3D_SCRIPT_MAIN);
     std::map<std::string, ScriptInfo>::iterator it = scripts.begin();
 
-
     while (it != scripts.end())
     {
         std::string name = (*it).first;
@@ -647,7 +679,7 @@ bool Magic3D::Script::reload()
         {
             break;
         }
-    }
+    }    
 
     return result;
 }

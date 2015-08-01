@@ -50,10 +50,13 @@ namespace Magic3D
 #define M3D_PATH_PARTICLES "particles/"
 #define M3D_PATH_SCRIPT "script/"
 
+class Package;
+class DataBuffer;
 class Object;
 class ResourceManager
 {
 private:
+    Package* package;
     ResourcesObject* objects;
     ResourcesModel* models;
     ResourcesTexture* textures;
@@ -85,8 +88,11 @@ public:
     static ResourcesAnimation* getAnimations();
     static ResourcesFont* getFonts();
 
-    void setPath(std::string path);
+    void setPath(std::string path, bool dataFile);
     std::string getPath();
+
+    Package* getPackage();
+    bool unpack(std::string fileName, DataBuffer* buffer);
 
     void setUserPath(std::string path);
     std::string getUserPath();

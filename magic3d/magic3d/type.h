@@ -76,4 +76,6 @@ typedef unsigned int vindex;
 #define MAGIC3D_OES
 #endif
 
+#define MAGIC3D_PASSWORD "magic3d"
+
 #endif // MAGIC3D_TYPE_H

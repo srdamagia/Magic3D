@@ -138,12 +138,11 @@ void main()
     }
 #endif
 
+    gl_FragColor.rgb = finalColor.rgb;
+    gl_FragColor.a = 1.0;
 #ifdef GLOW
-        vec4 glow = useTexture_Depth > 0 ? texture2D(texture_1, uvs.xy) : vec4(0.0, 0.0, 0.0, 1.0);    
-        gl_FragColor = clamp((glow + finalColor) - (glow * finalColor), 0.0, 1.0);
-        gl_FragColor.a = 1.0;
-#else    
-        gl_FragColor.rgb = finalColor.rgb;
-        gl_FragColor.a = 1.0;
+    vec4 glow = useTexture_Depth > 0 ? texture2D(texture_1, uvs.xy) : vec4(0.0, 0.0, 0.0, 1.0);
+    gl_FragColor = clamp((glow + finalColor) - (glow * finalColor), 0.0, 1.0);
+    gl_FragColor.a = 1.0;
 #endif
 }

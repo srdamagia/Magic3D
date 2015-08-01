@@ -32,7 +32,7 @@ void main()
 
             if (type == 0)
             {
-                float t = sin(constant);
+                float t = sin(frequency == 0.0 ? 1.0 : constant);
                 finalPos += vec3(sin(rx) * r * radians(wave) * t, sin(ry) * r * radians(wave) * t, 0.0); 
             }
             else if (type == 1)

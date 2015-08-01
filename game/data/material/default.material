@@ -7,7 +7,7 @@
     <color_specular r="0" g="0" b="0" a="1"/>
     <shininess>64</shininess>
     <alpha_test>0</alpha_test>
-    <shader>bump</shader>
+    <shader>default</shader>
     <blend>0</blend>
     <Texture0 name="placeholder_texture" file="placeholder.png" mipmap="1" clamp="1" type="0"/>
     <Variables/>

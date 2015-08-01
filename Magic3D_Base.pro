@@ -5,6 +5,7 @@ THEORA         = $$MAGIC3D/libtheora        #1.1.1
 MEMORY_MANAGER = $$MAGIC3D/memory_manager
 TINYXML        = $$MAGIC3D/tinyxml2
 ZLIB           = $$MAGIC3D/zlib             #1.2.8
+MINIZIP        = $$MAGIC3D/minizip          #1.1
 VECTORMATH     = $$MAGIC3D/vectormath
 PNG            = $$MAGIC3D/lpng             #1.6.16
 LUA            = $$MAGIC3D/lua              #5.3.0
@@ -18,6 +19,7 @@ INCLUDEPATH += \
     $$OGG \
     $$THEORA \
     $$ZLIB \
+    $$MINIZIP \
     $$TINYXML \
     $$VECTORMATH/cpp \
     $$LUA
@@ -136,6 +138,17 @@ SOURCES += \
 
 HEADERS += \
     $$ZLIB_INCLUDE/*.h \
+#********************************************************************************
+
+#MINIZIP ***************************************************************************
+MINIZIP_SOURCE  = $$MINIZIP
+MINIZIP_INCLUDE = $$MINIZIP
+
+SOURCES += \
+    $$MINIZIP_SOURCE/*.c \
+
+HEADERS += \
+    $$MINIZIP_INCLUDE/*.h \
 #********************************************************************************
 
 #VECTORMATH *********************************************************************

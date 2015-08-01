@@ -34,7 +34,7 @@ Magic3D::PVR::~PVR()
 
 }
 
-bool Magic3D::PVR::decode(File *file)
+bool Magic3D::PVR::decode(DataBuffer* file)
 {
     if (file)
     {
@@ -43,7 +43,7 @@ bool Magic3D::PVR::decode(File *file)
     return false;
 }
 
-Magic3D::Texture* Magic3D::PVR::getTexture(File* file, TEXTURE type, std::string name, bool mipmap, bool clamp)
+Magic3D::Texture* Magic3D::PVR::getTexture(DataBuffer* file, TEXTURE type, std::string name, bool mipmap, bool clamp)
 {
 #ifdef MAGIC3D_IOS
     if (file)
