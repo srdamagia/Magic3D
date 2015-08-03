@@ -24,36 +24,6 @@ subject to the following restrictions:
 #ifndef MAGIC3D_PACKAGE_H
 #define MAGIC3D_PACKAGE_H
 
-#include "type.h"
-/*#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include <errno.h>
-#include <fcntl.h>
-
-#ifdef unix
-# include <unistd.h>
-# include <utime.h>
-# include <sys/types.h>
-# include <sys/stat.h>
-#else
-# include <direct.h>
-# include <io.h>
-#endif*/
-
-extern "C" {
-#include <zip.h>
-#include <unzip.h>
-}
-
-#ifdef _WIN32
-    #define USEWIN32IOAPI
-    #include "iowin32.h"
-#endif
-
-namespace Magic3D
-{
 #ifndef _WIN32
     #ifndef __USE_FILE_OFFSET64
         #define __USE_FILE_OFFSET64
@@ -69,6 +39,30 @@ namespace Magic3D
     #endif
 #endif
 
+#include "type.h"
+
+#if defined(unix) || defined(__APPLE__)
+/*# include <unistd.h>
+# include <utime.h>
+# include <sys/types.h>*/
+# include <sys/stat.h>
+/*#else
+# include <direct.h>
+# include <io.h>*/
+#endif
+
+extern "C" {
+#include <zip.h>
+#include <unzip.h>
+}
+
+#ifdef _WIN32
+    #define USEWIN32IOAPI
+    #include "iowin32.h"
+#endif
+
+namespace Magic3D
+{
 #define WRITEBUFFERSIZE (16384)
 #define MAXFILENAME (256)
 

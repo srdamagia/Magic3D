@@ -124,7 +124,7 @@ void Magic3D::Package::pack(std::string filesPath, void(*callBack)(std::string, 
         fill_win32_filefunc64A(&ffunc);
         zf = zipOpen2_64(packFileName.c_str(), overwrite ? 0 : 2, NULL, &ffunc);
 #else
-        zf = zipOpen64(fileName.c_str(), overwrite ? 0 : 2);
+        zf = zipOpen64(packFileName.c_str(), overwrite ? 0 : 2);
 #        endif
 
         if (zf == NULL)
@@ -207,9 +207,9 @@ void Magic3D::Package::pack(std::string filesPath, void(*callBack)(std::string, 
                 do
                 {
                     err = ZIP_OK;
-                    size_read = (int)fread(buf,1,size_buf,fin);
+                    size_read = (int)fread(buf, 1, size_buf, fin);
                     if (size_read < size_buf)
-                        if (feof(fin)==0)
+                        if (feof(fin) == 0)
                     {
                         Log::logFormat(eLOG_FAILURE, "Error in reading %s.", fullFileName.c_str());
                         err = ZIP_ERRNO;
@@ -217,14 +217,14 @@ void Magic3D::Package::pack(std::string filesPath, void(*callBack)(std::string, 
 
                     if (size_read > 0)
                     {
-                        err = zipWriteInFileInZip (zf,buf,size_read);
+                        err = zipWriteInFileInZip (zf, buf, size_read);
                         if (err < 0)
                         {
                             Log::logFormat(eLOG_FAILURE, "Error in writing %s in the package file.", fileNameInPack.c_str());
                         }
 
                     }
-                } while ((err == ZIP_OK) && (size_read>0));
+                } while ((err == ZIP_OK) && (size_read > 0));
             }
 
             if (fin)
@@ -396,7 +396,7 @@ uLong Magic3D::Package::filetime(std::string& f, tm_zip* tmzip, uLong* dt)
     return ret;
 }
 #else
-#ifdef unix
+#if defined(unix) || defined(__APPLE__)
 uLong Magic3D::Package::filetime(std::string& f, tm_zip* tmzip, uLong* dt)
 {
     int ret = 0;
@@ -404,30 +404,24 @@ uLong Magic3D::Package::filetime(std::string& f, tm_zip* tmzip, uLong* dt)
     struct tm* filedate;
     time_t tm_t = 0;
 
-    if (strcmp(f, "-") != 0)
+    std::string name = f;
+
+    if (name.find_last_of('/') == name.size() - 1)
     {
-        char name[MAXFILENAME + 1];
-        int len = strlen(f);
-        if (len > MAXFILENAME)
-        {
-           len = MAXFILENAME;
-        }
-
-        strncpy(name, f, MAXFILENAME - 1);
-        /* strncpy doesnt append the trailing NULL, of the string is too long. */
-        name[ MAXFILENAME ] = '\0';
-
-        if (name[len - 1] == '/')
-        {
-            name[len - 1] = '\0';
-        }
-        /* not all systems allow stat'ing a file with / appended */
-        if (stat(name, &s)==0)
-        {
-            tm_t = s.st_mtime;
-            ret = 1;
-        }
+        name = name.substr(0, name.size() - 2);
     }
+    /* not all systems allow stat'ing a file with / appended */
+    if (stat(name.c_str(), &s)==0)
+    {
+        tm_t = s.st_mtime;
+        ret = 1;
+    }
+
+    if (dt)
+    {
+
+    }
+
     filedate = localtime(&tm_t);
 
     tmzip->tm_sec  = filedate->tm_sec;
