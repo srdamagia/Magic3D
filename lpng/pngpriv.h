@@ -107,6 +107,7 @@
  * this in $(CC), e.g. "CC=gcc -mfpu=neon", but people who build libpng rarely
  * do this.
  */
+#define PNG_ARM_NEON_OPT 0
 #ifndef PNG_ARM_NEON_OPT
    /* ARM NEON optimizations are being controlled by the compiler settings,
     * typically the target FPU.  If the FPU has been set to NEON (-mfpu=neon

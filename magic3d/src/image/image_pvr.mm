@@ -43,20 +43,20 @@ bool Magic3D::PVR::decode(DataBuffer* file)
     return false;
 }
 
-Magic3D::Texture* Magic3D::PVR::getTexture(DataBuffer* file, TEXTURE type, std::string name, bool mipmap, bool clamp)
+Magic3D::Texture* Magic3D::PVR::getTexture(DataBuffer* file, TEXTURE type, std::string name, std::string fileName, bool mipmap, bool clamp)
 {
 #ifdef MAGIC3D_IOS
     if (file)
     {
         // Get the file size
-        file->seek(0, SEEK_END);
-        dibSize = file->tell();
-        file->seek(0, SEEK_SET);
+        file->seeki(0, SEEK_END);
+        dibSize = file->telli();
+        file->seeki(0, SEEK_SET);
 
         // read the data, append a 0 byte as the data might represent a string
         dib = new byte[dibSize + 1];
         dib[dibSize] = '\0';
-        size_t bytesRead = file->read(dib, 1, dibSize);
+        size_t bytesRead = file->read(dib, dibSize);
 
         if (bytesRead != dibSize)
         {
@@ -132,7 +132,7 @@ Magic3D::Texture* Magic3D::PVR::getTexture(DataBuffer* file, TEXTURE type, std::
                     }
                     default:
                     {
-                        Log::logFormat(eLOG_FAILURE, "%s - Pixel type not supported.", file->getFileName().c_str());
+                        Log::logFormat(eLOG_FAILURE, "%s - Pixel type not supported.", fileName.c_str());
                         break;
                     }
                 }
@@ -185,7 +185,7 @@ Magic3D::Texture* Magic3D::PVR::getTexture(DataBuffer* file, TEXTURE type, std::
                             {
                                 glCompressedTexImage2D(GL_TEXTURE_2D, level, textureFormat, sizeX, sizeY, 0, compressedSize, data);
                             }
-                            check_gl_error()
+                            check_gl_error();
 
                             totalSize += compressedSize;
                             data += compressedSize;
@@ -194,7 +194,7 @@ Magic3D::Texture* Magic3D::PVR::getTexture(DataBuffer* file, TEXTURE type, std::
                     
                     if (!errors && totalSize <= dibSize)
                     {
-                        texture = new Texture(name, textureName, type, pvrHeader->width, pvrHeader->height, mipmap && !alpha, clamp, file->getFileName());
+                        texture = new Texture(name, textureName, type, pvrHeader->width, pvrHeader->height, mipmap && !alpha, clamp, fileName);
                     }
 
                     glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

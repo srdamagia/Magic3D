@@ -32,6 +32,8 @@ namespace Magic3D
 class DataBuffer
 {
 public:
+    DataBuffer(){};
+    virtual ~DataBuffer(){};
     virtual size_t read(void *buffer, size_t size) = 0;
     virtual size_t write(const void *buffer, size_t size) = 0;
 

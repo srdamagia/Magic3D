@@ -7,6 +7,22 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		00048ABC1B729AE900FA6622 /* octree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00048ABA1B729AE900FA6622 /* octree.cpp */; };
+		00048ABD1B729AE900FA6622 /* package.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00048ABB1B729AE900FA6622 /* package.cpp */; };
+		00048ACE1B729B4700FA6622 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 00048AC01B729B4700FA6622 /* Default-568h@2x.png */; };
+		00048ACF1B729B4700FA6622 /* Default-iPhone6.png in Resources */ = {isa = PBXBuildFile; fileRef = 00048AC11B729B4700FA6622 /* Default-iPhone6.png */; };
+		00048AD01B729B4700FA6622 /* Default-iPhone6Plus.png in Resources */ = {isa = PBXBuildFile; fileRef = 00048AC21B729B4700FA6622 /* Default-iPhone6Plus.png */; };
+		00048AD11B729B4700FA6622 /* Default-Landscape@2x~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = 00048AC31B729B4700FA6622 /* Default-Landscape@2x~ipad.png */; };
+		00048AD21B729B4700FA6622 /* Default-Landscape~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = 00048AC41B729B4700FA6622 /* Default-Landscape~ipad.png */; };
+		00048AD31B729B4700FA6622 /* Default-Portrait@2x~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = 00048AC51B729B4700FA6622 /* Default-Portrait@2x~ipad.png */; };
+		00048AD41B729B4700FA6622 /* Default-Portrait~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = 00048AC61B729B4700FA6622 /* Default-Portrait~ipad.png */; };
+		00048AD51B729B4700FA6622 /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 00048AC71B729B4700FA6622 /* Default.png */; };
+		00048AD61B729B4700FA6622 /* Default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 00048AC81B729B4700FA6622 /* Default@2x.png */; };
+		00048AD71B729B4700FA6622 /* l_1024x748.png in Resources */ = {isa = PBXBuildFile; fileRef = 00048AC91B729B4700FA6622 /* l_1024x748.png */; };
+		00048AD81B729B4700FA6622 /* l_2048x1496.png in Resources */ = {isa = PBXBuildFile; fileRef = 00048ACA1B729B4700FA6622 /* l_2048x1496.png */; };
+		00048AD91B729B4700FA6622 /* l_2208x1242.png in Resources */ = {isa = PBXBuildFile; fileRef = 00048ACB1B729B4700FA6622 /* l_2208x1242.png */; };
+		00048ADA1B729B4700FA6622 /* p_768x1004.png in Resources */ = {isa = PBXBuildFile; fileRef = 00048ACC1B729B4700FA6622 /* p_768x1004.png */; };
+		00048ADB1B729B4700FA6622 /* p_1536x2008.png in Resources */ = {isa = PBXBuildFile; fileRef = 00048ACD1B729B4700FA6622 /* p_1536x2008.png */; };
 		00347E711A23C45700201ADE /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00347E701A23C45700201ADE /* CoreMotion.framework */; };
 		003A2FE91AB3752D00E711FC /* btAxisSweep3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 003A2AD31AB3752A00E711FC /* btAxisSweep3.cpp */; };
 		003A2FEA1AB3752D00E711FC /* btBroadphaseProxy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 003A2AD61AB3752A00E711FC /* btBroadphaseProxy.cpp */; };
@@ -369,6 +385,24 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		00048ABA1B729AE900FA6622 /* octree.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = octree.cpp; sourceTree = "<group>"; };
+		00048ABB1B729AE900FA6622 /* package.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = package.cpp; sourceTree = "<group>"; };
+		00048ABE1B729AFD00FA6622 /* octree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = octree.h; sourceTree = "<group>"; };
+		00048ABF1B729AFD00FA6622 /* package.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = package.h; sourceTree = "<group>"; };
+		00048AC01B729B4700FA6622 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
+		00048AC11B729B4700FA6622 /* Default-iPhone6.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-iPhone6.png"; sourceTree = "<group>"; };
+		00048AC21B729B4700FA6622 /* Default-iPhone6Plus.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-iPhone6Plus.png"; sourceTree = "<group>"; };
+		00048AC31B729B4700FA6622 /* Default-Landscape@2x~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-Landscape@2x~ipad.png"; sourceTree = "<group>"; };
+		00048AC41B729B4700FA6622 /* Default-Landscape~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-Landscape~ipad.png"; sourceTree = "<group>"; };
+		00048AC51B729B4700FA6622 /* Default-Portrait@2x~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-Portrait@2x~ipad.png"; sourceTree = "<group>"; };
+		00048AC61B729B4700FA6622 /* Default-Portrait~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-Portrait~ipad.png"; sourceTree = "<group>"; };
+		00048AC71B729B4700FA6622 /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Default.png; sourceTree = "<group>"; };
+		00048AC81B729B4700FA6622 /* Default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default@2x.png"; sourceTree = "<group>"; };
+		00048AC91B729B4700FA6622 /* l_1024x748.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = l_1024x748.png; sourceTree = "<group>"; };
+		00048ACA1B729B4700FA6622 /* l_2048x1496.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = l_2048x1496.png; sourceTree = "<group>"; };
+		00048ACB1B729B4700FA6622 /* l_2208x1242.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = l_2208x1242.png; sourceTree = "<group>"; };
+		00048ACC1B729B4700FA6622 /* p_768x1004.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = p_768x1004.png; sourceTree = "<group>"; };
+		00048ACD1B729B4700FA6622 /* p_1536x2008.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = p_1536x2008.png; sourceTree = "<group>"; };
 		00347E701A23C45700201ADE /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
 		003A2ACE1AB3752A00E711FC /* btBulletCollisionCommon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btBulletCollisionCommon.h; sourceTree = "<group>"; };
 		003A2ACF1AB3752A00E711FC /* btBulletDynamicsCommon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btBulletDynamicsCommon.h; sourceTree = "<group>"; };
@@ -1253,8 +1287,6 @@
 		005F40B319B6469700D806B5 /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
 		00789C7719AE6611008E43CA /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = template/Images.xcassets; sourceTree = "<group>"; };
 		00789D5319AE7127008E43CA /* data */ = {isa = PBXFileReference; lastKnownFileType = folder; name = data; path = ../../game/data; sourceTree = SOURCE_ROOT; };
-		009B0657198C06090050D403 /* Default-Landscape@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-Landscape@2x.png"; sourceTree = "<group>"; };
-		009B0658198C06090050D403 /* Default-Portrait@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-Portrait@2x.png"; sourceTree = "<group>"; };
 		009B0662198C1DCE0050D403 /* icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon.png; sourceTree = "<group>"; };
 		00E19AAF16D72C370097F880 /* template.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = template.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AF1ED8A814CA7019008CC20D /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = System/Library/Frameworks/OpenAL.framework; sourceTree = SDKROOT; };
@@ -2227,6 +2259,8 @@
 		003A2E0E1AB3752B00E711FC /* magic3d */ = {
 			isa = PBXGroup;
 			children = (
+				00048ABE1B729AFD00FA6622 /* octree.h */,
+				00048ABF1B729AFD00FA6622 /* package.h */,
 				003A2E0F1AB3752B00E711FC /* camera.h */,
 				003A2E101AB3752B00E711FC /* config.h */,
 				003A2E111AB3752B00E711FC /* eventlistener.h */,
@@ -2386,6 +2420,8 @@
 		003A2E611AB3752B00E711FC /* src */ = {
 			isa = PBXGroup;
 			children = (
+				00048ABA1B729AE900FA6622 /* octree.cpp */,
+				00048ABB1B729AE900FA6622 /* package.cpp */,
 				003A2E621AB3752B00E711FC /* camera.cpp */,
 				003A2E631AB3752B00E711FC /* config.cpp */,
 				003A2E641AB3752B00E711FC /* eventlistener.cpp */,
@@ -2832,9 +2868,21 @@
 		009B0656198C06090050D403 /* images */ = {
 			isa = PBXGroup;
 			children = (
+				00048AC01B729B4700FA6622 /* Default-568h@2x.png */,
+				00048AC11B729B4700FA6622 /* Default-iPhone6.png */,
+				00048AC21B729B4700FA6622 /* Default-iPhone6Plus.png */,
+				00048AC31B729B4700FA6622 /* Default-Landscape@2x~ipad.png */,
+				00048AC41B729B4700FA6622 /* Default-Landscape~ipad.png */,
+				00048AC51B729B4700FA6622 /* Default-Portrait@2x~ipad.png */,
+				00048AC61B729B4700FA6622 /* Default-Portrait~ipad.png */,
+				00048AC71B729B4700FA6622 /* Default.png */,
+				00048AC81B729B4700FA6622 /* Default@2x.png */,
+				00048AC91B729B4700FA6622 /* l_1024x748.png */,
+				00048ACA1B729B4700FA6622 /* l_2048x1496.png */,
+				00048ACB1B729B4700FA6622 /* l_2208x1242.png */,
+				00048ACC1B729B4700FA6622 /* p_768x1004.png */,
+				00048ACD1B729B4700FA6622 /* p_1536x2008.png */,
 				009B0662198C1DCE0050D403 /* icon.png */,
-				009B0657198C06090050D403 /* Default-Landscape@2x.png */,
-				009B0658198C06090050D403 /* Default-Portrait@2x.png */,
 			);
 			path = images;
 			sourceTree = "<group>";
@@ -2927,7 +2975,7 @@
 		AFB27EB714C885FB002E6362 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0510;
+				LastUpgradeCheck = 0640;
 				ORGANIZATIONNAME = MagicTech;
 				TargetAttributes = {
 					00E1996B16D72C370097F880 = {
@@ -2958,10 +3006,24 @@
 			buildActionMask = 2147483647;
 			files = (
 				00789C7819AE6611008E43CA /* Images.xcassets in Resources */,
+				00048AD01B729B4700FA6622 /* Default-iPhone6Plus.png in Resources */,
+				00048ADB1B729B4700FA6622 /* p_1536x2008.png in Resources */,
 				003A31A01AB3752D00E711FC /* magic3d.png in Resources */,
 				00789D5419AE7127008E43CA /* data in Resources */,
+				00048ADA1B729B4700FA6622 /* p_768x1004.png in Resources */,
+				00048AD21B729B4700FA6622 /* Default-Landscape~ipad.png in Resources */,
+				00048AD31B729B4700FA6622 /* Default-Portrait@2x~ipad.png in Resources */,
 				00E19AAA16D72C370097F880 /* InfoPlist.strings in Resources */,
+				00048AD91B729B4700FA6622 /* l_2208x1242.png in Resources */,
+				00048AD81B729B4700FA6622 /* l_2048x1496.png in Resources */,
+				00048AD51B729B4700FA6622 /* Default.png in Resources */,
+				00048AD11B729B4700FA6622 /* Default-Landscape@2x~ipad.png in Resources */,
 				003A31291AB3752D00E711FC /* License.txt in Resources */,
+				00048ACF1B729B4700FA6622 /* Default-iPhone6.png in Resources */,
+				00048ACE1B729B4700FA6622 /* Default-568h@2x.png in Resources */,
+				00048AD71B729B4700FA6622 /* l_1024x748.png in Resources */,
+				00048AD61B729B4700FA6622 /* Default@2x.png in Resources */,
+				00048AD41B729B4700FA6622 /* Default-Portrait~ipad.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3018,6 +3080,7 @@
 				003A30E41AB3752D00E711FC /* fdct.c in Sources */,
 				003A2FF91AB3752D00E711FC /* btCollisionObject.cpp in Sources */,
 				003A315C1AB3752D00E711FC /* lutf8lib.c in Sources */,
+				00048ABD1B729AE900FA6622 /* package.cpp in Sources */,
 				003A322C1AB3752D00E711FC /* matrix_impl.cpp in Sources */,
 				003A2FF01AB3752D00E711FC /* btOverlappingPairCache.cpp in Sources */,
 				003A315D1AB3752D00E711FC /* lvm.c in Sources */,
@@ -3074,6 +3137,7 @@
 				003A31211AB3752D00E711FC /* smallft.c in Sources */,
 				003A30011AB3752D00E711FC /* btDefaultCollisionConfiguration.cpp in Sources */,
 				003A303B1AB3752D00E711FC /* gim_memory.cpp in Sources */,
+				00048ABC1B729AE900FA6622 /* octree.cpp in Sources */,
 				003A31941AB3752D00E711FC /* sound_ogg.cpp in Sources */,
 				003A319E1AB3752D00E711FC /* tween_translate.cpp in Sources */,
 				003A305B1AB3752D00E711FC /* btRigidBody.cpp in Sources */,
@@ -3413,6 +3477,7 @@
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
 				MAGIC3D = "$(SRCROOT)/../../../magic3d";
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";

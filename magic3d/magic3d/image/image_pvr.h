@@ -74,7 +74,7 @@ public:
     virtual ~PVR();
 
     virtual bool decode(DataBuffer* file);
-    Texture* getTexture(DataBuffer* file, TEXTURE type, std::string name, bool mipmap, bool clamp);
+    Texture* getTexture(DataBuffer* file, TEXTURE type, std::string name, std::string fileName, bool mipmap, bool clamp);
 };
 }
 

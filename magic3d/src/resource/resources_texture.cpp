@@ -68,7 +68,12 @@ const std::string& Magic3D::Texture::getName()
 
 std::string Magic3D::Texture::getSpriteFile()
 {
-    std::string fileName = ResourceManager::getTextures()->getPath(type, file) + M3D_SPRITE_FILE;
+    std::string fileName = ResourceManager::getTextures()->getPath(type, file);
+    if (fileName.find(".pvr") == fileName.size() - 4)
+    {
+        fileName = fileName.substr(0, fileName.size() - 4);
+    }
+    fileName += M3D_SPRITE_FILE;
     return fileName;
 }
 
@@ -198,7 +203,7 @@ Magic3D::Texture* Magic3D::Texture::load(TEXTURE type, std::string name, std::st
 
 #ifdef MAGIC3D_IOS
         std::string tmpName = fileName + ".pvr";
-        ready = io->open(tmpName.c_str(), "rb");
+        ready = static_cast<File*>(io)->open(tmpName.c_str(), "rb");
         if (ready)
         {
             fileName = tmpName;
@@ -222,7 +227,7 @@ Magic3D::Texture* Magic3D::Texture::load(TEXTURE type, std::string name, std::st
         {
             image = new PVR();
 
-            texture = static_cast<PVR*>(image)->getTexture(io, type, name, mipmap, clamp);
+            texture = static_cast<PVR*>(image)->getTexture(io, type, name, file, mipmap, clamp);
             
             created = true;
             delete image;

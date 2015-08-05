@@ -550,8 +550,6 @@ void Magic3D::RendererOpenGL_Shaders::renderScreen(Camera* camera)
 {
     if (materialScreen && materialScreen->getShader())
     {
-        blurTexture(fbo_glow, 5.0, 0.5f, true);
-
         GLSLShader* glsl = static_cast<GLSLShader*>(materialScreen->getShader());
         OpenGL_FBO* fboOGL = static_cast<OpenGL_FBO*>(fbo_screen);
         OpenGL_FBO* fboGlow = static_cast<OpenGL_FBO*>(fbo_glow);
@@ -1066,6 +1064,8 @@ bool Magic3D::RendererOpenGL_Shaders::renderGlow(Scene* scene, Camera *camera, V
         glow = false;
 
         toTexture = false;
+        
+        blurTexture(fbo_glow, 5.0, 0.5f, true);
     }
 
     return result;
