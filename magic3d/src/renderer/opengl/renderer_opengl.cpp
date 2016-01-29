@@ -327,6 +327,18 @@ Magic3D::Renderer_OpenGL::Renderer_OpenGL() : Renderer()
     fboViewPort = new ViewPort(Vector4(0.0f, 0.0f, 1.0f, 1.0f), 0, 0);
     screenViewPort = new ViewPort(Vector4(0.0f, 0.0f, 1.0f, 1.0f), 0, 0);
 
+    /*shadowBias.setCol0(Vector4(0.5f, 0.0f, 0.0f, 0.5f));
+    shadowBias.setCol1(Vector4(0.0f, 0.5f, 0.0f, 0.5f));
+    shadowBias.setCol2(Vector4(0.0f, 0.0f, 0.5f, 0.5f));
+    shadowBias.setCol3(Vector4(0.0f, 0.0f, 0.0f, 1.0f));*/
+
+    shadowBias.setRow(0, Vector4(0.5f,  0.f,  0.0f, 0.0f));
+    shadowBias.setRow(1, Vector4(0.0f,  0.5f, 0.0f, 0.0f));
+    shadowBias.setRow(2, Vector4(0.0f,  0.f,  1.0f, 0.0f));
+    shadowBias.setRow(3, Vector4(0.5f,  0.5f, 0.5f, 1.0f));
+
+    shadowBias = transpose(shadowBias);
+
     water = Vector4(0.0f, 0.0f, 0.0f, 0.0f);
 
     toTexture = false;
@@ -1138,17 +1150,22 @@ unsigned int Magic3D::Renderer_OpenGL::createTexture(Image* image, bool mipmap, 
             glGenerateMipmap(GL_TEXTURE_2D);
             check_gl_error();
 
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
             check_gl_error();
         }
         else
         {
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
             check_gl_error();
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
             check_gl_error();
         }
         //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+        GLfloat fLargest;
+        glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &fLargest);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, fLargest);
 
         if (clamp)
         {
@@ -1212,7 +1229,7 @@ void Magic3D::Renderer_OpenGL::blurTexture(FBO* fbo, int amount, float strength,
     }
 }
 
-Magic3D::RENDER_ID Magic3D::Renderer_OpenGL::createVBO(void* vertices, int vcount, void* triangles, int tcount)
+Magic3D::RENDER_ID Magic3D::Renderer_OpenGL::createVBO(void* vertices, int vcount, void* indexes, int icount)
 {
     RENDER_ID result;
     result.id = 0;
@@ -1254,45 +1271,49 @@ Magic3D::RENDER_ID Magic3D::Renderer_OpenGL::createVBO(void* vertices, int vcoun
         glEnableVertexAttribArray(eVERTEX_BONES);
         check_gl_error();
 
+        int inc = sizeof(Vertex3D);
+        int incVec3 = sizeof(Vector3);
+        int incVec4 = sizeof(Vector4);
+        int incTex = sizeof(Texture2D);
         int stride = 0;
 
-        glVertexAttribPointer(eVERTEX_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), reinterpret_cast<void*>(stride));
+        glVertexAttribPointer(eVERTEX_POSITION, 3, GL_FLOAT, GL_FALSE, inc, reinterpret_cast<void*>(stride));
         check_gl_error();
-        stride += sizeof(Vector3);
+        stride += incVec3;
 
-        glVertexAttribPointer (eVERTEX_NORMAL, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), reinterpret_cast<void*>(stride));
+        glVertexAttribPointer (eVERTEX_NORMAL, 3, GL_FLOAT, GL_FALSE, inc, reinterpret_cast<void*>(stride));
         check_gl_error();
-        stride += sizeof(Vector3);
+        stride += incVec3;
 
-        glVertexAttribPointer (eVERTEX_TANGENT, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), reinterpret_cast<void*>(stride));
+        glVertexAttribPointer (eVERTEX_TANGENT, 3, GL_FLOAT, GL_FALSE, inc, reinterpret_cast<void*>(stride));
         check_gl_error();
-        stride += sizeof(Vector3);
+        stride += incVec3;
 
-        glVertexAttribPointer(eVERTEX_COLOR, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), reinterpret_cast<void*>(stride));
+        glVertexAttribPointer(eVERTEX_COLOR, 4, GL_FLOAT, GL_FALSE, inc, reinterpret_cast<void*>(stride));
         check_gl_error();
-        stride += sizeof(Vector4);
+        stride += incVec4;
 
-        glVertexAttribPointer(eVERTEX_UV0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), reinterpret_cast<void*>(stride));
+        glVertexAttribPointer(eVERTEX_UV0, 2, GL_FLOAT, GL_FALSE, inc, reinterpret_cast<void*>(stride));
         check_gl_error();
-        stride += sizeof(Texture2D);
+        stride += incTex;
 
-        glVertexAttribPointer(eVERTEX_UV1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), reinterpret_cast<void*>(stride));
+        glVertexAttribPointer(eVERTEX_UV1, 2, GL_FLOAT, GL_FALSE, inc, reinterpret_cast<void*>(stride));
         check_gl_error();
-        stride += sizeof(Texture2D);
+        stride += incTex;
 
-        glVertexAttribPointer(eVERTEX_WEIGHTS, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), reinterpret_cast<void*>(stride));
+        glVertexAttribPointer(eVERTEX_WEIGHTS, 4, GL_FLOAT, GL_FALSE, inc, reinterpret_cast<void*>(stride));
         check_gl_error();
-        stride += sizeof(Vector4);
+        stride += incVec4;
 
-        glVertexAttribPointer(eVERTEX_BONES, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), reinterpret_cast<void*>(stride));
+        glVertexAttribPointer(eVERTEX_BONES, 4, GL_FLOAT, GL_FALSE, inc, reinterpret_cast<void*>(stride));
         check_gl_error();
-        stride += sizeof(Vector4);
+        stride += incVec4;
 
         glGenBuffers(1, &result.index);
         check_gl_error();
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, result.index);
         check_gl_error();
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, tcount, triangles, GL_STATIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, icount, indexes, GL_STATIC_DRAW);
         check_gl_error();
         glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &result.indexSize);
         check_gl_error();
@@ -1339,10 +1360,10 @@ bool Magic3D::Renderer_OpenGL::createVBO(MeshData* data)
         int vcount = sizeof(Vertex3D) * data->getVertices()->size();
         void* vertices = &data->getVertices()->front();
 
-        int tcount = sizeof(vindex) * data->getTrianglesCount() * 3;
-        void* triangles = &data->getTriangles()->front();
+        int icount = sizeof(vindex) * data->getIndexesCount();
+        void* indexes = &data->getIndexes()->front();
 
-        data->setRenderID(createVBO(vertices, vcount, triangles, tcount));
+        data->setRenderID(createVBO(vertices, vcount, indexes, icount));
 
         result = true;
     }
@@ -1357,8 +1378,8 @@ bool Magic3D::Renderer_OpenGL::updateVBO(MeshData* data)
         int vcount = sizeof(Vertex3D) * data->getVertices()->size();
         void* vertices = &data->getVertices()->front();
 
-        int tcount = sizeof(vindex) * data->getTrianglesCount() * 3;
-        void* triangles = &data->getTriangles()->front();
+        int icount = sizeof(vindex) * data->getIndexesCount();
+        void* indexes = &data->getIndexes()->front();
 
         glBindBuffer(GL_ARRAY_BUFFER, data->getRenderID().data);
         check_gl_error();
@@ -1367,12 +1388,30 @@ bool Magic3D::Renderer_OpenGL::updateVBO(MeshData* data)
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, data->getRenderID().index);
         check_gl_error();
-        glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, tcount, triangles);
+        glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, icount, indexes);
         check_gl_error();
 
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         check_gl_error();
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+        check_gl_error();
+
+        result = true;
+    }
+    return result;
+}
+
+bool Magic3D::Renderer_OpenGL::updateVBOVertices(uint id, float* data, int size)
+{
+    bool result = false;
+    if (data && id > 0)
+    {
+        glBindBuffer(GL_ARRAY_BUFFER, id);
+        check_gl_error();
+        glBufferSubData(GL_ARRAY_BUFFER, 0, size, data);
+        check_gl_error();
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
         check_gl_error();
 
         result = true;
@@ -1399,18 +1438,18 @@ Magic3D::RENDER_ID Magic3D::Renderer_OpenGL::copyVBO(const RENDER_ID& id)
 
         unmapVBO();
 
-        vindex* triangles = NULL;
-        vindex* tmpTriangles = mapTriangles(id.index);
+        vindex* indexes = NULL;
+        vindex* tmpIndexes = mapIndexes(id.index);
 
-        triangles = new vindex[id.indexSize];
-        memcpy(triangles, tmpTriangles, id.indexSize);
+        indexes = new vindex[id.indexSize];
+        memcpy(indexes, tmpIndexes, id.indexSize);
 
-        unmapTriangles();
+        unmapIndexes();
 
-        result = createVBO(vertices, id.dataSize, triangles, id.indexSize);
+        result = createVBO(vertices, id.dataSize, indexes, id.indexSize);
 
         delete[] vertices;
-        delete[] triangles;
+        delete[] indexes;
     }
 
     return result;
@@ -1456,7 +1495,7 @@ bool Magic3D::Renderer_OpenGL::unmapVBO()
     return result;
 }
 
-vindex* Magic3D::Renderer_OpenGL::mapTriangles(uint id)
+vindex* Magic3D::Renderer_OpenGL::mapIndexes(uint id)
 {
     vindex* result = NULL;
     if (extVBO)
@@ -1476,7 +1515,7 @@ vindex* Magic3D::Renderer_OpenGL::mapTriangles(uint id)
     return result;
 }
 
-bool Magic3D::Renderer_OpenGL::unmapTriangles()
+bool Magic3D::Renderer_OpenGL::unmapIndexes()
 {
     bool result = false;
     if (extVBO)

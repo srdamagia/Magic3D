@@ -754,6 +754,10 @@ void Magic3D::Scene::updateVisibleObjects3D(Camera* camera, bool reflectives, bo
                                         {
                                             this->reflectives.push_back(RenderObject(object, modelView, model));
                                         }
+                                        else if (object->getMeshes()->size() > 1)
+                                        {
+                                            this->reflections.push_back(RenderObject(object, modelView, model));
+                                        }
                                     }
                                     else
                                     {
@@ -983,6 +987,10 @@ bool Magic3D::Scene::updateVisibleObjectsFromOctreeNode(Octree* octree, Camera* 
                                         if (reflectives)
                                         {
                                             this->reflectives.push_back(RenderObject(object, modelView, model));
+                                        }
+                                        else if (object->getMeshes()->size() > 1)
+                                        {
+                                            this->reflections.push_back(RenderObject(object, modelView, model));
                                         }
                                     }
                                     else
@@ -2183,6 +2191,7 @@ Magic3D::XMLElement* Magic3D::Scene::load(XMLElement* root)
             parents.clear();
             instances.clear();
             spawns.clear();
+            vegetations.clear();
             layerXML = sceneXML->FirstChildElement(M3D_SCENE_XML_LAYER);
             setCurrentLayerXML(false);
 
@@ -2305,9 +2314,9 @@ bool Magic3D::Scene::load()
                         }
                         case eOBJECT_LIGHT:      object = mngr->addLight(objName, created); break;
                         case eOBJECT_PARTICLES:  object = mngr->addParticles(objName, created); break;
-                        case eOBJECT_TERRAIN:    break;
-                        case eOBJECT_WATER:      break;
-                        case eOBJECT_VEGETATION: break;
+                        case eOBJECT_TERRAIN:    object = mngr->addTerrain(objName, created); break;
+                        case eOBJECT_WATER:      object = mngr->addWater(objName, created); break;
+                        case eOBJECT_VEGETATION: object = mngr->addVegetation(objName, created); break;
                         case eOBJECT_GUI_LABEL:  object = mngr->addGUILabel(objName, M3D_DEFAULT_FONT_SIZE, created); break;
                         case eOBJECT_GUI_WINDOW: object = mngr->addGUIWindow(objName, created); break;
                         case eOBJECT_GUI_BUTTON: object = mngr->addGUIButton(objName, created); break;
@@ -2364,6 +2373,14 @@ bool Magic3D::Scene::load()
                             }
                             instances[object->getName()] = instanceName;
                         }
+
+                        if (object->getType() == eOBJECT_VEGETATION)
+                        {
+                            XMLElement* xmlVegetation = objectXML->FirstChildElement(M3D_VEGETATION_XML);
+                            std::string terrain = loadString(xmlVegetation, M3D_VEGETATION_XML_TERRAIN);
+
+                            vegetations[object->getName()] = terrain;
+                        }
                     }
                 }
             }
@@ -2418,6 +2435,21 @@ bool Magic3D::Scene::load()
             static_cast<ObjectInstance*>(obj)->setInstance(instance);
 
             instances.erase(instances.begin());
+
+            update();
+
+            result = true;
+        }
+        if (!vegetations.empty())
+        {
+            Object* obj = ResourceManager::getObjects()->get((*vegetations.begin()).first);
+
+            if (obj && obj->getType() == eOBJECT_VEGETATION)
+            {
+                static_cast<Vegetation*>(obj)->generateVegetation();
+            }
+
+            vegetations.erase(vegetations.begin());
 
             update();
 

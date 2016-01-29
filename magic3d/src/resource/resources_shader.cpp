@@ -230,4 +230,7 @@ void Magic3D::ResourcesShader::addDefault()
     load(M3D_DEFAULT_SHADER_PARTICLES, created);
     load(M3D_DEFAULT_SHADER_BUMP, created);
     load(M3D_DEFAULT_SHADER_TOON, created);
+    load(M3D_DEFAULT_SHADER_VEGETATION, created);
+    load(M3D_DEFAULT_SHADER_WATER, created);
+    load(M3D_DEFAULT_SHADER_TERRAIN, created);
 }

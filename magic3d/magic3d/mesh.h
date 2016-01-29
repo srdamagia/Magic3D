@@ -73,7 +73,7 @@ class MeshData
 {
 private:
     std::vector<Vertex3D> vertices;
-    std::vector<TriangleIndexes> triangles;
+    std::vector<vindex> indexes;
     std::vector<LineIndexes> lines;
     std::vector<vindex> points;
 
@@ -111,16 +111,18 @@ public:
 
     std::vector<Vertex3D>* getVertices();
 
-    std::vector<TriangleIndexes>* getTriangles();
+    std::vector<vindex>* getIndexes();
     std::vector<LineIndexes>* getLines();
     std::vector<vindex>* getPoints();
 
     int getVerticesCount();
+    int getIndexesCount();
     int getTrianglesCount();
     int getLinesCount();
     int getPointsCount();
 
     void addVertex(Vertex3D vertex);
+    void addIndex(vindex index);
     void addTriangle(TriangleIndexes triangle);
     void updateTangent(vindex index0, vindex index1, vindex index2);
     int addQuad(float x, float y, float width, float height, AXIS axis, bool inverse);
@@ -147,16 +149,21 @@ public:
     const RENDER_ID& getRenderID();
     bool isVBO();
     void createVbo();
+    void deleteVbo();
 
     float* mapBuffer();
     void unmapBuffer();
 
-    vindex* mapTriangles();
-    void unmapTriangles();
+    vindex* mapIndexes();
+    void unmapIndexes();
 
     virtual const Box& getBoundingBox();
 
     void clear();
+
+    static void createPlaneStrip(std::vector<vindex>* indexes, std::vector<LineIndexes>* lines, int length, int width);
+    static void updatePlaneStripNormals(float* vertices, int vcount, vindex* indexes, int icount);
+    static void updateTangent(float* vertices, int vcount, vindex index0, vindex index1, vindex index2);
 };
 
 class Mesh : public Xml

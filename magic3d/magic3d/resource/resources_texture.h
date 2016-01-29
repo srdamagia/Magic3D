@@ -42,6 +42,24 @@ namespace Magic3D
 #define M3D_DEFAULT_PROGRESS_NAME "loading_progress"
 #define M3D_DEFAULT_PROGRESS "progress.png"
 
+#define M3D_DEFAULT_TRUNKS_NAME "trunks"
+#define M3D_DEFAULT_TRUNKS "trunks.png"
+
+#define M3D_DEFAULT_TWIGS_NAME "twigs"
+#define M3D_DEFAULT_TWIGS "twigs.png"
+
+#define M3D_DEFAULT_GRASS_NAME "grass"
+#define M3D_DEFAULT_GRASS "grass.png"
+
+#define M3D_DEFAULT_WATER_NAME "water"
+#define M3D_DEFAULT_WATER "water.png"
+
+#define M3D_DEFAULT_WATER_NORMAL_NAME "water_normal"
+#define M3D_DEFAULT_WATER_NORMAL "water_normal.png"
+
+#define M3D_DEFAULT_TERRAIN_NAME "terrain"
+#define M3D_DEFAULT_TERRAIN "terrain.png"
+
 #define M3D_PATH_TEXTURE "texture/"
 #define M3D_PATH_GUI "gui/"
 

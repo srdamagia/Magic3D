@@ -47,7 +47,7 @@ void updateShadow()
 #ifdef SHADOWS
     if (useTexture_Shadows > 0)
     {
-        vertexShadow = bias * (matrixShadows * vec4(vertexModelPosition, 1.0));
+        vertexShadow = bias * matrixShadows * matrixModel * vec4(vertexModelPosition, 1.0);
 
         vec3 N = vertexNormal.xyz;
         vec3 L = lightShadow.position.w == 0.0 ? lightShadow.direction.xyz : -normalize(vertexPosition.xyz - lightShadow.position.xyz);
@@ -165,7 +165,7 @@ void updateVars()
 
 void updateTransform()
 {
-    vertexModelPosition = vec4(matrixModel * vec4(vertexModelPosition,  1.0)).xyz;
+    /*vertexModelPosition = vec4(matrixModel * vec4(vertexModelPosition,  1.0)).xyz;
     vertexModelNormal   = vec4(matrixModel * vec4(vertexModelNormal,    0.0)).xyz;
     #ifndef VERTEX_LIGHTS
     vertexModelTangent  = vec4(matrixModel * vec4(vertexModelTangent,   0.0)).xyz;
@@ -175,6 +175,12 @@ void updateTransform()
     vertexNormal   = normalize(matrixView * vec4(vertexModelNormal,   0.0));
     #ifndef VERTEX_LIGHTS
     vertexTangent  = normalize(matrixView * vec4(vertexModelTangent,  0.0));
+    #endif*/
+
+    vertexPosition = matrixModelView           * vec4(vertexModelPosition, 1.0);
+    vertexNormal   = normalize(matrixModelView * vec4(vertexModelNormal,   0.0));
+    #ifndef VERTEX_LIGHTS
+    vertexTangent  = normalize(matrixModelView * vec4(vertexModelTangent,  0.0));
     #endif
 
     uvs.xy = uv_0;

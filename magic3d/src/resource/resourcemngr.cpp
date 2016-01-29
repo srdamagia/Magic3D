@@ -396,6 +396,45 @@ Magic3D::Model* Magic3D::ResourceManager::addModel(std::string name, bool& creat
     return model;
 }
 
+Magic3D::Terrain* Magic3D::ResourceManager::addTerrain(std::string name, bool& created)
+{
+    Terrain* terrain = (Terrain*)objects->get(name);
+    created = !terrain;
+    if (!terrain)
+    {
+        terrain = new Terrain(name);
+        objects->add(terrain);
+    }
+
+    return terrain;
+}
+
+Magic3D::Water* Magic3D::ResourceManager::addWater(std::string name, bool& created)
+{
+    Water* water = (Water*)objects->get(name);
+    created = !water;
+    if (!water)
+    {
+        water = new Water(name);
+        objects->add(water);
+    }
+
+    return water;
+}
+
+Magic3D::Vegetation* Magic3D::ResourceManager::addVegetation(std::string name, bool& created)
+{
+    Vegetation* vegetation = (Vegetation*)objects->get(name);
+    created = !vegetation;
+    if (!vegetation)
+    {
+        vegetation = new Vegetation(name);
+        objects->add(vegetation);
+    }
+
+    return vegetation;
+}
+
 Magic3D::ObjectInstance* Magic3D::ResourceManager::addInstance(std::string name, bool& created)
 {
     ObjectInstance* instance = (ObjectInstance*)objects->get(name);

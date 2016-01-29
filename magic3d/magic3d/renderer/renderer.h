@@ -129,7 +129,7 @@ protected:
     MeshData* debugPoints[2];
     std::vector<PlaneVertex> posteffectsVertices;
     std::vector<vindex> posteffectsTriangles;
-    std::vector<vindex> posteffectsLines;
+    std::vector<LineIndexes> posteffectsLines;
 
     static Renderer* instance;
     Window* window;
@@ -301,14 +301,15 @@ public:
     float getScreenAspectX(bool invert);
     float getScreenAspectY(bool invert);
 
-    virtual RENDER_ID createVBO(void* vertices, int vcount, void* triangles, int tcount) = 0;
+    virtual RENDER_ID createVBO(void* vertices, int vcount, void* indexes, int icount) = 0;
     virtual bool createVBO(MeshData* data) = 0;
     virtual bool updateVBO(MeshData* data) = 0;
+    virtual bool updateVBOVertices(uint id, float* data, int size) = 0;
     virtual RENDER_ID copyVBO(const RENDER_ID& id) = 0;
     virtual float* mapVBO(uint id) = 0;
     virtual bool unmapVBO() = 0;
-    virtual vindex* mapTriangles(uint id) = 0;
-    virtual bool unmapTriangles() = 0;
+    virtual vindex* mapIndexes(uint id) = 0;
+    virtual bool unmapIndexes() = 0;
     virtual void deleteVBO(RENDER_ID id) = 0;
 
     virtual void setShaderDefault(Shader* shader) = 0;

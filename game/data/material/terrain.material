@@ -1,0 +1,26 @@
+<?0.9.0?>
+<MGE>
+    <!-- MGE Material -->
+    <color_ambient r="0.50196081" g="0.50196081" b="0.50196081" a="1"/>
+    <color_diffuse r="1" g="1" b="1" a="1"/>
+    <color_emission r="0" g="0" b="0" a="1"/>
+    <color_specular r="0" g="0" b="0" a="1"/>
+    <shininess>1</shininess>
+    <alpha_test>0</alpha_test>
+    <shader>terrain</shader>
+    <blend>0</blend>
+    <Texture0 name="terrain" file="terrain.png" mipmap="1" clamp="1" type="0"/>
+    <Variables>
+        <heights_0 x="-0.5" y="0" z="0" w="0"/>
+        <heights_1 x="0.5" y="0" z="0" w="0"/>
+        <heights_2 x="10" y="0" z="0" w="0"/>
+        <heights_3 x="15" y="0" z="0" w="0"/>
+        <heights_4 x="30" y="0" z="0" w="0"/>
+        <heights_5 x="60" y="0" z="0" w="0"/>
+        <heights_6 x="80" y="0" z="0" w="0"/>
+        <heights_7 x="100" y="0" z="0" w="0"/>
+        <heights_8 x="200" y="0" z="0" w="0"/>
+        <mouse x="0" y="0" z="0" w="0"/>
+        <radius x="0" y="0" z="0" w="0"/>
+    </Variables>
+</MGE>

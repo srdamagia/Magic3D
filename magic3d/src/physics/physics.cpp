@@ -367,35 +367,94 @@ void Magic3D::Physics::add(PhysicsObject* physicsObject)
                     {
                         s = new btTriangleMesh();
                         float* buffer = mesh->mapBuffer();
-                        vindex* triangles = mesh->mapTriangles();
+                        vindex* triangles = mesh->mapIndexes();
                         int inc = sizeof(Vertex3D) / sizeof(float);
-                        int tri = sizeof(TriangleIndexes) / sizeof(vindex);
-                        int size = mesh->getTrianglesCount();
-                        for (int i = 0; i < size; i++)
+
+                        if (mesh->getType() == eMESH_TRIANGLES_STRIP)
                         {
-                            vindex* t = triangles + i * tri;
+                            int size = mesh->getIndexesCount();
 
-                            float* v1 = buffer + *t * inc; t++;
-                            float* v2 = buffer + *t * inc; t++;
-                            float* v3 = buffer + *t * inc; t++;
+                            vindex* q0 = NULL;
+                            vindex* q1 = NULL;
+                            vindex* q2 = NULL;
 
-                            float &x1 = *v1; v1++;
-                            float &y1 = *v1; v1++;
-                            float &z1 = *v1; v1++;
+                            for (vindex i = 1; i < size; i++)
+                            {
+                                if (i % 2 == 0)
+                                {
+                                    for (int a = 0; a < 2; a++)
+                                    {
+                                        if (a == 1)
+                                        {
+                                            if (i + 1 >= size)
+                                            {
+                                                continue;
+                                            }
+                                            q0 = triangles + i;
+                                            q1 = triangles + (i - 1);
+                                            q2 = triangles + (i + 1);
+                                        }
+                                        else
+                                        {
+                                            q0 = triangles + (i - 2);
+                                            q1 = triangles + (i - 1);
+                                            q2 = triangles + i;
+                                        }
 
-                            float &x2 = *v2; v2++;
-                            float &y2 = *v2; v2++;
-                            float &z2 = *v2; v2++;
+                                        if (q0 != q1 && q0 != q2 && q1 != q2)
+                                        {
+                                            float* v1 = buffer + *q0 * inc;
+                                            float* v2 = buffer + *q1 * inc;
+                                            float* v3 = buffer + *q2 * inc;
 
-                            float &x3 = *v3; v3++;
-                            float &y3 = *v3; v3++;
-                            float &z3 = *v3; v3++;
+                                            float &x1 = *v1; v1++;
+                                            float &y1 = *v1; v1++;
+                                            float &z1 = *v1; v1++;
+
+                                            float &x2 = *v2; v2++;
+                                            float &y2 = *v2; v2++;
+                                            float &z2 = *v2; v2++;
+
+                                            float &x3 = *v3; v3++;
+                                            float &y3 = *v3; v3++;
+                                            float &z3 = *v3; v3++;
+
+                                            s->addTriangle(btVector3(x1, y1, z1), btVector3(x2, y2, z2), btVector3(x3, y3, z3));
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            int tri = sizeof(TriangleIndexes) / sizeof(vindex);
+                            int size = mesh->getIndexesCount() / tri;
+                            for (int i = 0; i < size; i++)
+                            {
+                                vindex* t = triangles + i * tri;
+
+                                float* v1 = buffer + *t * inc; t++;
+                                float* v2 = buffer + *t * inc; t++;
+                                float* v3 = buffer + *t * inc; t++;
+
+                                float &x1 = *v1; v1++;
+                                float &y1 = *v1; v1++;
+                                float &z1 = *v1; v1++;
+
+                                float &x2 = *v2; v2++;
+                                float &y2 = *v2; v2++;
+                                float &z2 = *v2; v2++;
+
+                                float &x3 = *v3; v3++;
+                                float &y3 = *v3; v3++;
+                                float &z3 = *v3; v3++;
 
 
-                            s->addTriangle(btVector3(x1, y1, z1), btVector3(x2, y2, z2), btVector3(x3, y3, z3));
+                                s->addTriangle(btVector3(x1, y1, z1), btVector3(x2, y2, z2), btVector3(x3, y3, z3));
+                            }
                         }
                         mesh->unmapBuffer();
-                        mesh->unmapTriangles();
+                        mesh->unmapIndexes();
                         mesh->setTriangleMesh(s);
                     }
                     else if (mesh)

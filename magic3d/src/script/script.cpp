@@ -724,10 +724,13 @@ void Magic3D::Script::log(std::string text)
 {
     const char format[] = "Script Error: %s - %s";
     const char* error = lua_tostring(lua, -1);
-    int size = strlen(format) + text.size() + strlen(error) + 1;
-    char formatedError[size];
-    sprintf(formatedError, format, error, text.c_str());
-    Log::log(eLOG_FAILURE, formatedError);
+    if (error)
+    {
+        int size = strlen(format) + text.size() + strlen(error) + 1;
+        char formatedError[size];
+        sprintf(formatedError, format, error, text.c_str());
+        Log::log(eLOG_FAILURE, formatedError);
+    }
 }
 
 void Magic3D::Script::helpItems(std::vector<ScriptHelpItem>* list, const char* table)

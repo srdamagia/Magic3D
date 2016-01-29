@@ -1,0 +1,16 @@
+<?0.9.0?>
+<MGE>
+    <!-- MGE Material -->
+    <color_ambient r="1" g="1" b="1" a="1"/>
+    <color_diffuse r="1" g="1" b="1" a="1"/>
+    <color_emission r="0" g="0" b="0" a="1"/>
+    <color_specular r="0" g="0" b="0" a="1"/>
+    <shininess>64</shininess>
+    <alpha_test>0.9</alpha_test>
+    <shader>vegetation</shader>
+    <blend>0</blend>
+    <Texture0 name="twigs" file="twigs.png" mipmap="1" clamp="1" type="0"/>
+    <Variables>
+        <height x="0.1" y="0" z="0" w="0"/>
+    </Variables>
+</MGE>

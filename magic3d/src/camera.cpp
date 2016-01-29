@@ -367,7 +367,7 @@ const Magic3D::Matrix4& Magic3D::Camera::view2D(float left, float right, float b
         window->setNeedingUpdateView(false);
     }
 
-    if (needUpdateView || viewLeft != left || viewRight != right || viewBottom != bottom || viewTop != top)
+    if (getType() == eOBJECT_LIGHT || needUpdateView || viewLeft != left || viewRight != right || viewBottom != bottom || viewTop != top)
     {
         viewLeft   = left;
         viewRight  = right;
@@ -407,7 +407,8 @@ const Magic3D::Matrix4& Magic3D::Camera::view2D(float left, float right, float b
 
         if (getType() == eOBJECT_LIGHT)
         {
-            projection *= Matrix4::orthographic(viewLeft, vr, vb, viewTop, getNear(), getFar());
+            //projection *= Matrix4::orthographic(viewLeft, vr, vb, viewTop, getNear(), getFar());
+            projection *= static_cast<Light*>(this)->computeShadowProjection();
         }
         else
         {

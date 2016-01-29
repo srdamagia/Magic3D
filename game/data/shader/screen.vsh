@@ -23,8 +23,8 @@ void main()
             float factor = distortion[indexParams].z;
             float wave = distortion[indexParams].w;
             highp float constant = PI2 * time * 1000.0 * frequency;
-            float rx = (finalPos.x - di.x);
-            float ry = (finalPos.y - di.y);
+            float rx = finalPos.x - di.x;
+            float ry = finalPos.y - di.y;
             float r  = (radius - d) * factor;
 
             vec2 s = vec2(rx, ry);

@@ -7,7 +7,7 @@
     <color_specular r="0" g="0" b="0" a="1"/>
     <shininess>64</shininess>
     <alpha_test>0</alpha_test>
-    <shader>null</shader>
+    <shader>depth</shader>
     <blend>0</blend>
     <Texture0 name="fbo_shadows" file="" mipmap="1" clamp="1" type="3"/>
     <Variables/>

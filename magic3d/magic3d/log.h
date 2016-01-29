@@ -77,6 +77,8 @@ public:
     static void log(LOG type, const char* text);
     static void debug(const char* file, int line);
 
+    static void logMatrix(LOG type, float* matrix);
+
     static void setCallBack(LogCallBack* callback);
 };
 

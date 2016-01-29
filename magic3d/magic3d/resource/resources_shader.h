@@ -43,6 +43,9 @@ namespace Magic3D
 #define M3D_DEFAULT_SHADER_PARTICLES "particles"
 #define M3D_DEFAULT_SHADER_BUMP "bump"
 #define M3D_DEFAULT_SHADER_TOON "toon"
+#define M3D_DEFAULT_SHADER_VEGETATION "vegetation"
+#define M3D_DEFAULT_SHADER_WATER "water"
+#define M3D_DEFAULT_SHADER_TERRAIN "terrain"
 
 enum SHADER_VAR
 {

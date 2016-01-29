@@ -1,19 +1,22 @@
 <?0.9.0?>
 <MGE>
     <!-- MGE Material -->
-    <color_ambient r="1" g="1" b="1" a="1"/>
-    <color_diffuse r="0.50196081" g="0.50196081" b="0.50196081" a="1"/>
+    <color_ambient r="0.50196081" g="0.50196081" b="0.50196081" a="1"/>
+    <color_diffuse r="0.39215687" g="0.39215687" b="0.39215687" a="1"/>
     <color_emission r="0" g="0" b="0" a="1"/>
     <color_specular r="1" g="1" b="1" a="1"/>
     <shininess>50</shininess>
     <alpha_test>0</alpha_test>
-    <shader>water_mobile</shader>
+    <shader>water</shader>
     <blend>0</blend>
     <Texture0 name="water" file="water.png" mipmap="1" clamp="0" type="0"/>
+    <Texture1 name="water_normal" file="water_normal.png" mipmap="1" clamp="0" type="0"/>
     <Variables>
-        <amplitude x="360" y="0" z="0" w="0"/>
-        <height x="0.0049999999" y="0" z="0" w="0"/>
-        <tile x="0.1" y="0.2" z="0" w="0"/>
-        <transparency x="0.60000002" y="0" z="0" w="0"/>
+        <amplitude x="4" y="0" z="0" w="0"/>
+        <height x="0.5" y="0" z="0" w="0"/>
+        <light_Hemi_Toon x="0" y="0" z="0" w="0"/>
+        <pixel x="0" y="0" z="0" w="0"/>
+        <tile x="0.0099999998" y="0.0099999998" z="0" w="0"/>
+        <transparency x="0.75" y="0" z="0" w="0"/>
     </Variables>
 </MGE>

@@ -39,6 +39,11 @@ namespace Magic3D
 #define M3D_DEFAULT_MATERIAL_PARTICLES "particles"
 #define M3D_DEFAULT_MATERIAL_LOADING_FONT "loading_font"
 #define M3D_DEFAULT_MATERIAL_LOADING_SPRITE "loading_sprite"
+#define M3D_DEFAULT_MATERIAL_TRUNK "trunk"
+#define M3D_DEFAULT_MATERIAL_TWIG "twig"
+#define M3D_DEFAULT_MATERIAL_GRASS "grass"
+#define M3D_DEFAULT_MATERIAL_WATER "water"
+#define M3D_DEFAULT_MATERIAL_TERRAIN "terrain"
 
 
 //template <class M3D_Class>

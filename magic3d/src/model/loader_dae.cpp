@@ -737,7 +737,7 @@ void Magic3D::LoaderDAE::addMesh(XMLElement* root, XMLElement* skin, XMLElement*
                             }
 
 
-                            if (modelMeshData->getTriangles()->size() > 0)
+                            if (modelMeshData->getIndexes()->size() > 0)
                             {
                                 modelMeshData->createVbo();
                                 addMaterial(root, mesh, poly->Attribute("material"), modelMeshData);

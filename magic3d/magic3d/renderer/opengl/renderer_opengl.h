@@ -330,6 +330,8 @@ protected:
     RENDER_ID renderIDScreen;
     RENDER_ID renderIDPlane;
 
+    Matrix4 shadowBias;
+
     Vector4 water;
     Vector4 screenAspect;
 
@@ -392,14 +394,15 @@ public:
     virtual void setTextureWrap(Texture* texture, bool clamp);
     virtual void blurTexture(FBO* fbo, int amount, float strength, bool gaussian);
 
-    virtual RENDER_ID createVBO(void* vertices, int vcount, void* triangles, int tcount);
+    virtual RENDER_ID createVBO(void* vertices, int vcount, void* indexes, int icount);
     virtual bool createVBO(MeshData* data);
     virtual bool updateVBO(MeshData* data);
+    virtual bool updateVBOVertices(uint id, float* data, int size);
     virtual RENDER_ID copyVBO(const RENDER_ID& id);
     virtual float* mapVBO(uint id);
     virtual bool unmapVBO();
-    virtual vindex* mapTriangles(uint id);
-    virtual bool unmapTriangles();
+    virtual vindex* mapIndexes(uint id);
+    virtual bool unmapIndexes();
     virtual void deleteVBO(RENDER_ID id);
 
     virtual void view2D(ViewPort* view);

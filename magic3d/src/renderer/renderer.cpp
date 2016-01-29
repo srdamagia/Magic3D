@@ -240,41 +240,10 @@ Magic3D::Renderer::Renderer()
             vertex.vertex = Vector3((-start) + (float)c * sizeVertex, start - (float)r * sizeVertex, 0.0f);
             vertex.uv = Texture2D((float)c * sizeUV, 1.0f - (float)r * sizeUV);
             posteffectsVertices.push_back(vertex);
-
-            if (r > 0)
-            {
-                if (c > 0)
-                {
-                    vindex q0 = vcount * r - vcount + c - 1;
-                    vindex q1 = vcount * r - vcount + c;
-                    vindex q2 = vcount * r + c - 1;
-                    vindex q3 = vcount * r + c;
-
-                    posteffectsTriangles.push_back(q0);
-                    posteffectsTriangles.push_back(q1);
-                    posteffectsTriangles.push_back(q2);
-                    posteffectsTriangles.push_back(q3);
-
-#if defined(_MGE_) || defined(DEBUG)
-                    posteffectsLines.push_back(q0);
-                    posteffectsLines.push_back(q1);
-
-                    posteffectsLines.push_back(q0);
-                    posteffectsLines.push_back(q2);
-
-                    posteffectsLines.push_back(q3);
-                    posteffectsLines.push_back(q1);
-
-                    posteffectsLines.push_back(q3);
-                    posteffectsLines.push_back(q2);
-
-                    posteffectsLines.push_back(q1);
-                    posteffectsLines.push_back(q2);
-#endif
-                }
-            }
         }
     }
+
+    MeshData::createPlaneStrip(&posteffectsTriangles, &posteffectsLines, vcount, vcount);
 }
 
 Magic3D::Renderer::~Renderer()
@@ -680,7 +649,8 @@ void Magic3D::Renderer::addDistortion(Vector3 position, DISTORTION type, float r
             }
         }
 
-        pos.setZ(dist(Point3(pos), Point3(radiusPos)));
+        float finalRadius = Math::limitRange(-1.0f, dist(Point3(pos), Point3(radiusPos)), 1.0f);
+        pos.setZ(finalRadius);
         Vector4 params = Vector4((float)type, frequency, factor, wave);
 
         distortions.push_back(Vector4(pos, 1.0f));

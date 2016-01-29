@@ -51,6 +51,47 @@ bool Magic3D::Math::collide(const Ray& ray, float start, float end, const Box& b
     return ( (tmin < end) && (tmax > start) );
 }
 
+bool Magic3D::Math::collide(const Ray& ray, float start, float end, const Vector3& v0, const Vector3& v1, const Vector3& v2)
+{
+    Vector3 n = ray.origin + ray.direction * start;
+    Vector3 f = ray.origin + ray.direction * end;
+
+    Vector3 l = f - n;
+
+    Vector3 N = cross(v1 - v0, v2 - v0);
+    float sin_alpha = asin(Vectormath::Aos::length(N) / (Vectormath::Aos::length(v1 - v0) * Vectormath::Aos::length(v2 - v0)));
+
+
+    Vector3 normal = normalize(N) * (sin_alpha > 0.0f ? sin_alpha : 1.0f);
+
+
+    float nDotL = dot(normal, l);
+
+    if (nDotL <= 0.0) // ray is parallel to plane (triangle)
+    {
+        return false;
+    }
+
+    float d = dot(normal, (v0 - n) / nDotL);
+    if (d < 0.0f || d > 1.0f) // plane is beyond the ray we consider
+    {
+        return false;
+    }
+
+    Vector3 p = n + d * l; // p intersect the plane (triangle)
+
+    Vector3 n1 = cross(v1 - v0, p - v0);
+    Vector3 n2 = cross(v2 - v1, p - v1);
+    Vector3 n3 = cross(v0 - v2, p - v2);
+
+    if (dot(n, n1) >= 0.0f &&
+        dot(n, n2) >= 0.0f &&
+        dot(n, n3) >= 0.0f)
+    {
+        // We have found one of the triangle that intersects the line/ray
+    }
+}
+
 Magic3D::Vector3 Magic3D::Math::euler(const Quaternion& quaternion)
 {
     float x;
@@ -244,4 +285,19 @@ Magic3D::Vector3 Magic3D::Math::intersectLinePlane(Vector3 linePoint, Vector3 li
     {
         return linePoint;
     }
+}
+
+Magic3D::Vector3 Magic3D::Math::scaleInDirection(Vector3 vector, Vector3 direction, float scale)
+{
+    float currentMag = dot(vector, direction);
+
+    Vector3 change = direction * (currentMag * scale - currentMag);
+    return vector + change;
+}
+
+Magic3D::Vector3 Magic3D::Math::vectorAxisAngle(Vector3 vector, Vector3 axis, float angle)
+{
+    float cosr = cosf(angle);
+    float sinr = sinf(angle);
+    return ((vector * cosr) + (cross(axis, vector) * sinr)) + (axis * dot(axis, vector) * (1.0f - cosr));
 }

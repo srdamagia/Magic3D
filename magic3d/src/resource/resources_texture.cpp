@@ -334,6 +334,12 @@ void Magic3D::ResourcesTexture::addDefault()
     load(eTEXTURE_GUI,     M3D_DEFAULT_THEME_NAME,     M3D_DEFAULT_THEME,     true, true, created);
     load(eTEXTURE_GUI,     M3D_DEFAULT_PROGRESS_NAME,  M3D_DEFAULT_PROGRESS,  true, true, created);
 
+    load(eTEXTURE_DIFFUSE, M3D_DEFAULT_TRUNKS_NAME,  M3D_DEFAULT_TRUNKS,  true, true,  created);
+    load(eTEXTURE_DIFFUSE, M3D_DEFAULT_TWIGS_NAME,   M3D_DEFAULT_TWIGS,   true, true,  created);
+    load(eTEXTURE_DIFFUSE, M3D_DEFAULT_GRASS_NAME,   M3D_DEFAULT_GRASS,   true, true,  created);
+    load(eTEXTURE_DIFFUSE, M3D_DEFAULT_WATER_NAME,   M3D_DEFAULT_WATER,   true, false, created);
+    load(eTEXTURE_DIFFUSE, M3D_DEFAULT_TERRAIN_NAME, M3D_DEFAULT_TERRAIN, true, false, created);
+
     add(new Texture("fbo_color", Renderer::getInstance()->getRenderToTextureColor(), eTEXTURE_FBO, Renderer::getInstance()->getRenderToTextureWidth(), Renderer::getInstance()->getRenderToTextureHeight(), true, true, ""));
     add(new Texture("fbo_depth", Renderer::getInstance()->getRenderToTextureDepth(), eTEXTURE_FBO, Renderer::getInstance()->getRenderToTextureWidth(), Renderer::getInstance()->getRenderToTextureHeight(), true, true, ""));
     add(new Texture("fbo_shadows", Renderer::getInstance()->getShadowsTexture(), eTEXTURE_FBO, Renderer::getInstance()->getShadowsTextureWidth(), Renderer::getInstance()->getShadowsTextureHeight(), true, true, ""));

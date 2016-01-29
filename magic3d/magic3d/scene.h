@@ -118,6 +118,7 @@ private:
     std::map<std::string, object_parents> parents;
     std::map<std::string, std::string> instances;
     std::map<std::string, std::string> spawns;
+    std::map<std::string, std::string> vegetations;
 
 protected:
     std::vector<Layer*> layers;

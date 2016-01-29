@@ -147,6 +147,9 @@ public:
 
     virtual const Box& getBoundingBox();
 
+    Box computeBox(const Matrix4& viewProjection);
+    Matrix4 computeShadowProjection();
+
     virtual XMLElement* save(XMLElement* root);
     virtual XMLElement* load(XMLElement* root);
 };

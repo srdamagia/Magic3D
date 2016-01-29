@@ -150,6 +150,20 @@ void Magic3D::Log::log(LOG type, const char* text)
     getInstance()->write(type, text);
 }
 
+void Magic3D::Log::logMatrix(LOG type, float* matrix)
+{
+    int inc = sizeof(float);
+    float* value = matrix;
+    for (int r = 0; r < 4; r++)
+    {
+        float v0 = *value; value++;
+        float v1 = *value; value++;
+        float v2 = *value; value++;
+        float v3 = *value; value++;
+        logFormat(type, "%8.9f, %8.9f, %8.9f, %8.9f", v0, v1, v2, v3);
+    }
+}
+
 void Magic3D::Log::debug(const char* file, int line) {
     logFormat(eLOG_FAILURE, "File: %s - Line: %d", file, line);
 }

@@ -652,21 +652,18 @@ void Magic3D::RendererOpenGL_Shaders::renderScreen(Camera* camera)
 
         prepareMaterial(glsl, materialScreen, NULL);
 
-        glFrontFace(GL_CW);
-        check_gl_error();
-
         if (extVBO)
         {
             glBindVertexArray(renderIDScreen.id);
             check_gl_error();
 
-            int size = renderIDScreen.indexSize / sizeof(vindex);
+            int size = renderIDScreen.indexSize;
 
             if (getRenderMode() == eRENDER_MODE_SCREEN_WIREFRAME)
             {
                 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
                 check_gl_error();
-                glDrawElements(GL_LINES, posteffectsLines.size(), GL_UINT, &posteffectsLines.front());
+                glDrawElements(GL_LINES, posteffectsLines.size() * 2, GL_UINT, &posteffectsLines.front());
                 check_gl_error();
                 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, renderIDScreen.index);
                 check_gl_error();
@@ -677,7 +674,7 @@ void Magic3D::RendererOpenGL_Shaders::renderScreen(Camera* camera)
                 check_gl_error();
             }
 
-            rendererTriangles += size / 3;
+            rendererTriangles += renderIDScreen.indexSize / sizeof(vindex) - 2;
 
             glBindVertexArray(0);
             check_gl_error();
@@ -700,7 +697,7 @@ void Magic3D::RendererOpenGL_Shaders::renderScreen(Camera* camera)
             // Draw the quad
             if (getRenderMode() == eRENDER_MODE_SCREEN_WIREFRAME)
             {
-                glDrawElements(GL_LINES, posteffectsLines.size(), GL_UINT, &posteffectsLines.front());
+                glDrawElements(GL_LINES, posteffectsLines.size() * 2, GL_UINT, &posteffectsLines.front());
                 check_gl_error();
             }
             else
@@ -709,7 +706,7 @@ void Magic3D::RendererOpenGL_Shaders::renderScreen(Camera* camera)
                 check_gl_error();
             }
 
-            rendererTriangles += size / 3;
+            rendererTriangles += posteffectsTriangles.size() - 2;
 
             glDisableVertexAttribArray(eVERTEX_POSITION);
             check_gl_error();
@@ -718,9 +715,6 @@ void Magic3D::RendererOpenGL_Shaders::renderScreen(Camera* camera)
         }
 
         rendererDrawCalls++;
-
-        glFrontFace(GL_CCW);
-        check_gl_error();
 
         glEnable(GL_DEPTH_TEST);
         check_gl_error();
@@ -790,7 +784,7 @@ bool Magic3D::RendererOpenGL_Shaders::renderShadows(Scene* scene)
         std::list<RenderObject>* shadowObjects = scene->getShadows();
 
         matrix_view = light->getView();
-        matrix_shadows = light->getProjection() * light->getView();
+        matrix_shadows = matrix_projection * light->getView();
 
         glDisable(GL_BLEND);
         check_gl_error();
@@ -1138,6 +1132,7 @@ void Magic3D::RendererOpenGL_Shaders::renderLightsGizmos(Camera* camera, ViewPor
                         ColorRGBA c = light->getColorDiffuse();
                         c.a = 0.025f;
                         renderGizmo(camera, view, light, eGIZMO_TYPE_SPHERE, c, Vector3(light->getFar(), light->getFar(), light->getFar()) * 2.0f, false, false, false, false);
+                        light->render();
                     }
                 }
             }
@@ -1199,6 +1194,11 @@ bool Magic3D::RendererOpenGL_Shaders::renderLights(GLSLShader* shader, const Ren
 
                     Vector4 pos = Vector4(light->getRenderMatrix().getTranslation(), (float)light->getLightType());
                     Vector4 dir = Vector4(light->getRenderMatrix().getCol2().getXYZ(), 0.0f);
+
+                    if (reflection)
+                    {
+                        dir = dir * -1.0f;
+                    }
 
                     lastLightsCount++;
                     int index = lastLightsCount - 1;
@@ -1353,6 +1353,10 @@ bool Magic3D::RendererOpenGL_Shaders::renderObject(Camera* camera, const RenderO
         
         if (mesh->isVisible() && (getRenderMode() != eRENDER_MODE_WIREFRAME || (mesh->getData() != finalObject->getCollisionMesh()  || !isShowingGizmosPhysics())))
         {
+            if (shadows && object->object->getType() == eOBJECT_TERRAIN)
+            {
+                glCullFace(GL_BACK);
+            }
             if (mesh->isDoubleSide())
             {
                 glDisable(GL_CULL_FACE);
@@ -1536,6 +1540,10 @@ bool Magic3D::RendererOpenGL_Shaders::renderObject(Camera* camera, const RenderO
             {
                 glEnable(GL_CULL_FACE);
                 check_gl_error();
+            }
+            if (shadows && object->object->getType() == eOBJECT_TERRAIN)
+            {
+                glCullFace(GL_FRONT);
             }
 
             /*glUseProgram(0);
@@ -1861,7 +1869,7 @@ bool Magic3D::RendererOpenGL_Shaders::renderMeshData(MeshData* data, GLSLShader*
         glBindVertexArray(data->getRenderID().id);
         check_gl_error();
 
-        int size = data->getTrianglesCount() * 3;
+        int size = data->getIndexesCount() * sizeof(vindex);
 
         if (getRenderMode() == eRENDER_MODE_WIREFRAME && !isProfileObject(object))
         {
@@ -1921,28 +1929,29 @@ bool Magic3D::RendererOpenGL_Shaders::renderMeshData(MeshData* data, GLSLShader*
             check_gl_error();
         }
 
-        glVertexAttribPointer(eVERTEX_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), &data->getVertices()->front().position);
+        int inc = sizeof(Vertex3D);
+        glVertexAttribPointer(eVERTEX_POSITION, 3, GL_FLOAT, GL_FALSE, inc, &data->getVertices()->front().position);
         check_gl_error();
-        glVertexAttribPointer(eVERTEX_NORMAL, 3, GL_FLOAT, GL_TRUE, sizeof(Vertex3D), &data->getVertices()->front().normal);
+        glVertexAttribPointer(eVERTEX_NORMAL, 3, GL_FLOAT, GL_TRUE, inc, &data->getVertices()->front().normal);
         check_gl_error();
-        glVertexAttribPointer(eVERTEX_TANGENT, 3, GL_FLOAT, GL_TRUE, sizeof(Vertex3D), &data->getVertices()->front().tangent);
+        glVertexAttribPointer(eVERTEX_TANGENT, 3, GL_FLOAT, GL_TRUE, inc, &data->getVertices()->front().tangent);
         check_gl_error();
-        glVertexAttribPointer(eVERTEX_COLOR, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), &data->getVertices()->front().color);
+        glVertexAttribPointer(eVERTEX_COLOR, 4, GL_FLOAT, GL_FALSE, inc, &data->getVertices()->front().color);
         check_gl_error();
-        glVertexAttribPointer(eVERTEX_UV0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), &data->getVertices()->front().uv[0]);
+        glVertexAttribPointer(eVERTEX_UV0, 2, GL_FLOAT, GL_FALSE, inc, &data->getVertices()->front().uv[0]);
         check_gl_error();
-        glVertexAttribPointer(eVERTEX_UV1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), &data->getVertices()->front().uv[1]);
+        glVertexAttribPointer(eVERTEX_UV1, 2, GL_FLOAT, GL_FALSE, inc, &data->getVertices()->front().uv[1]);
         check_gl_error();
 
         if (skin)
         {
-            glVertexAttribPointer(eVERTEX_WEIGHTS, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), &data->getVertices()->front().weights);
+            glVertexAttribPointer(eVERTEX_WEIGHTS, 4, GL_FLOAT, GL_FALSE, inc, &data->getVertices()->front().weights);
             check_gl_error();
-            glVertexAttribPointer(eVERTEX_BONES, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), &data->getVertices()->front().bones);
+            glVertexAttribPointer(eVERTEX_BONES, 4, GL_FLOAT, GL_FALSE, inc, &data->getVertices()->front().bones);
             check_gl_error();
         }
 
-        int size = data->getTrianglesCount() * 3;
+        int size = data->getIndexesCount();
         if (getRenderMode() == eRENDER_MODE_WIREFRAME && !isProfileObject(object))
         {
             glDrawElements(GL_LINES,   data->getLinesCount() * 2, GL_UINT, &data->getLines()->front());
@@ -1954,12 +1963,12 @@ bool Magic3D::RendererOpenGL_Shaders::renderMeshData(MeshData* data, GLSLShader*
             {
                 case eMESH_TRIANGLES:
                 {
-                    glDrawElements(GL_TRIANGLES,      size, GL_UINT, &data->getTriangles()->front());
+                    glDrawElements(GL_TRIANGLES,      size, GL_UINT, &data->getIndexes()->front());
                     break;
                 }
                 case eMESH_TRIANGLES_STRIP:
                 {
-                    glDrawElements(GL_TRIANGLE_STRIP, size, GL_UINT, &data->getTriangles()->front());
+                    glDrawElements(GL_TRIANGLE_STRIP, size, GL_UINT, &data->getIndexes()->front());
                     break;
                 }
             }
@@ -2181,6 +2190,7 @@ bool Magic3D::RendererOpenGL_Shaders::renderGizmo(Camera* camera, ViewPort* view
     }
 
     int size = 0;
+    int inc = sizeof(Vertex3D);
 
     STEREOSCOPY eye = getEye(view);
 
@@ -2197,7 +2207,7 @@ bool Magic3D::RendererOpenGL_Shaders::renderGizmo(Camera* camera, ViewPort* view
             MeshData* data = object->getCollisionMesh();
             if (data && data->getVertices()->size() > 0)
             {
-                size = data->getTrianglesCount();
+                size = data->getIndexesCount() * sizeof(vindex);
 
                 Vector3 diff = (r * Vector4(object->getShapePosition())).getXYZ();
                 Matrix4 matrix = camera->getView() * Matrix4(Quaternion::identity(), object->getPositionFromParent() - diff) * r;
@@ -2224,7 +2234,7 @@ bool Magic3D::RendererOpenGL_Shaders::renderGizmo(Camera* camera, ViewPort* view
                 setUniform1i(glsl->uniforms[eUNIFORM_SKELETON],  skeleton ? 1 : 0);
                 check_gl_error();
 
-                glVertexAttribPointer  (eVERTEX_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), &data->getVertices()->front().position);
+                glVertexAttribPointer  (eVERTEX_POSITION, 3, GL_FLOAT, GL_FALSE, inc, &data->getVertices()->front().position);
                 check_gl_error();
 
                 bool skin = data->isSkinned();
@@ -2235,9 +2245,9 @@ bool Magic3D::RendererOpenGL_Shaders::renderGizmo(Camera* camera, ViewPort* view
                     check_gl_error();
                     glEnableVertexAttribArray(eVERTEX_BONES);
                     check_gl_error();
-                    glVertexAttribPointer(eVERTEX_WEIGHTS, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), &data->getVertices()->front().weights);
+                    glVertexAttribPointer(eVERTEX_WEIGHTS, 4, GL_FLOAT, GL_FALSE, inc, &data->getVertices()->front().weights);
                     check_gl_error();
-                    glVertexAttribPointer(eVERTEX_BONES, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), &data->getVertices()->front().bones);
+                    glVertexAttribPointer(eVERTEX_BONES, 4, GL_FLOAT, GL_FALSE, inc, &data->getVertices()->front().bones);
                     check_gl_error();
                 }
 
@@ -2248,7 +2258,7 @@ bool Magic3D::RendererOpenGL_Shaders::renderGizmo(Camera* camera, ViewPort* view
                 }
                 else
                 {
-                    glDrawElements(GL_TRIANGLES, size * 3, GL_UINT, &data->getTriangles()->front());
+                    glDrawElements(GL_TRIANGLES, size, GL_UINT, &data->getIndexes()->front());
                     check_gl_error();
                 }
 
@@ -2705,6 +2715,8 @@ bool Magic3D::RendererOpenGL_Shaders::renderDebug(Camera* camera, ViewPort* view
         points = debugPoints[0];
     }
 
+    int inc = sizeof(Vertex3D);
+
     glEnableVertexAttribArray(eVERTEX_POSITION);
     check_gl_error();
     glEnableVertexAttribArray(eVERTEX_COLOR);
@@ -2712,22 +2724,22 @@ bool Magic3D::RendererOpenGL_Shaders::renderDebug(Camera* camera, ViewPort* view
     glEnableVertexAttribArray(eVERTEX_UV0);
     check_gl_error();
 
-    glVertexAttribPointer(eVERTEX_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), &lines->getVertices()->front().position);
+    glVertexAttribPointer(eVERTEX_POSITION, 3, GL_FLOAT, GL_FALSE, inc, &lines->getVertices()->front().position);
     check_gl_error();
-    glVertexAttribPointer(eVERTEX_COLOR, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), &lines->getVertices()->front().color);
+    glVertexAttribPointer(eVERTEX_COLOR, 4, GL_FLOAT, GL_FALSE, inc, &lines->getVertices()->front().color);
     check_gl_error();
-    glVertexAttribPointer(eVERTEX_UV0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), &lines->getVertices()->front().uv[0]);
+    glVertexAttribPointer(eVERTEX_UV0, 2, GL_FLOAT, GL_FALSE, inc, &lines->getVertices()->front().uv[0]);
     check_gl_error();
 
     glDrawElements(GL_LINES, lines->getLinesCount() * 2, GL_UINT, &lines->getLines()->front());
     check_gl_error();
     rendererDrawCalls++;
 
-    glVertexAttribPointer(eVERTEX_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), &points->getVertices()->front().position);
+    glVertexAttribPointer(eVERTEX_POSITION, 3, GL_FLOAT, GL_FALSE, inc, &points->getVertices()->front().position);
     check_gl_error();
-    glVertexAttribPointer(eVERTEX_COLOR, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), &points->getVertices()->front().color);
+    glVertexAttribPointer(eVERTEX_COLOR, 4, GL_FLOAT, GL_FALSE, inc, &points->getVertices()->front().color);
     check_gl_error();
-    glVertexAttribPointer(eVERTEX_UV0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), &points->getVertices()->front().uv[0]);
+    glVertexAttribPointer(eVERTEX_UV0, 2, GL_FLOAT, GL_FALSE, inc, &points->getVertices()->front().uv[0]);
     check_gl_error();
 
     glDrawElements(GL_POINTS, points->getPointsCount(), GL_UINT, &points->getPoints()->front());
@@ -3541,9 +3553,32 @@ bool Magic3D::RendererOpenGL_Shaders::updateShaderUserVariables(Shader* shader)
             if (!isShaderVarDefault(uniform_name))
             {
                 GLint location = glGetUniformLocation(shader->id, uniform_name);
-                check_gl_error();
-                shader->addVar(uniform_name, getUniformType(type), location, size);
-                Log::logFormat(eLOG_PLAINTEXT, "uniform: %s - length: %d - size: %d - type: %s - location: %d", uniform_name, length, size, getUniformTypeName(getUniformType(type)).c_str(), location);
+                check_gl_error();                
+
+                std::string uname = uniform_name;
+                std::string newName = uname;
+
+                if (uname.find('[') != std::string::npos)
+                {
+                    newName = uname.substr(0, uname.find('['));
+                }
+
+                for (int v = 0; v < size; v++)
+                {
+                    if (size > 1)
+                    {
+                        sprintf(uniform_name, "%s[%d]", newName.c_str(), v);
+                        location = glGetUniformLocation(shader->id, uniform_name);
+                        sprintf(uniform_name, "%s_%d", newName.c_str(), v);
+                        shader->addVar(uniform_name, getUniformType(type), location, size);
+                        Log::logFormat(eLOG_PLAINTEXT, "uniform: %s - length: %d - size: %d - type: %s - location: %d", uniform_name, length, size, getUniformTypeName(getUniformType(type)).c_str(), location);
+                    }
+                    else
+                    {
+                        shader->addVar(uniform_name, getUniformType(type), location, size);
+                        Log::logFormat(eLOG_PLAINTEXT, "uniform: %s - length: %d - size: %d - type: %s - location: %d", uniform_name, length, size, getUniformTypeName(getUniformType(type)).c_str(), location);
+                    }
+                }
             }
         }
     }

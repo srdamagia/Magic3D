@@ -110,4 +110,9 @@ void Magic3D::ResourcesMaterial::addDefault()
     load(M3D_DEFAULT_MATERIAL_PARTICLES, created);
     load(M3D_DEFAULT_MATERIAL_LOADING_FONT, created);
     load(M3D_DEFAULT_MATERIAL_LOADING_SPRITE, created);
+    load(M3D_DEFAULT_MATERIAL_TRUNK, created);
+    load(M3D_DEFAULT_MATERIAL_TWIG, created);
+    load(M3D_DEFAULT_MATERIAL_GRASS, created);
+    load(M3D_DEFAULT_MATERIAL_WATER, created);
+    load(M3D_DEFAULT_MATERIAL_TERRAIN, created);
 }

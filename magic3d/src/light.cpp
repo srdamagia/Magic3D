@@ -482,6 +482,108 @@ const Magic3D::Box& Magic3D::Light::getBoundingBox()
     return box;
 }
 
+Magic3D::Box Magic3D::Light::computeBox(const Matrix4& viewProjection)
+{
+    Matrix4 t = getView() * inverse(viewProjection);
+    std::vector<Vector4> v;
+    v.push_back(t * Vector4(-1.f, 1.f, -1.f, 1.f));
+    v.push_back(t * Vector4(1.f, 1.f, -1.f, 1.f));
+    v.push_back(t * Vector4(1.f, -1.f, -1.f, 1.f));
+    v.push_back(t * Vector4(-1.f, -1.f, -1.f, 1.f));
+    v.push_back(t * Vector4(-1.f, 1.f, 1.f, 1.f));
+    v.push_back(t * Vector4(1.f, 1.f, 1.f, 1.f));
+    v.push_back(t * Vector4(1.f, -1.f, 1.f, 1.f));
+    v.push_back(t * Vector4(-1.f, -1.f, 1.f, 1.f));
+
+    for (unsigned int i = 0; i < v.size(); i++)
+    {
+        v[i] = v[i] / v[i].getW();
+    }
+
+    float dist = 10000.0f;
+    Vector3 bl = Vector3(dist, dist, dist);
+    Vector3 tr = Vector3(-dist, -dist, -dist);
+
+    for (unsigned int i = 0; i < v.size(); i++)
+    {
+        if (v[i].getX() < bl.getX())
+        {
+            bl.setX(v[i].getX());
+        }
+        if (v[i].getX() > tr.getX())
+        {
+            tr.setX(v[i].getX());
+        }
+        if (v[i].getY() < bl.getY())
+        {
+            bl.setY(v[i].getY());
+        }
+        if (v[i].getY() > tr.getY())
+        {
+            tr.setY(v[i].getY());
+        }
+        if (v[i].getZ() < bl.getZ())
+        {
+            bl.setZ(v[i].getZ());
+        }
+        if (v[i].getZ() > tr.getZ())
+        {
+            tr.setZ(v[i].getX());
+        }
+    }
+
+    return Box(bl, tr);
+}
+
+Magic3D::Matrix4 Magic3D::Light::computeShadowProjection()
+{
+    Camera* camera = Renderer::getInstance()->getCurrentViewPort()->getPerspective();
+
+    Matrix4 projection = camera->getProjection();
+    Matrix4 view = camera->getView();
+
+    Matrix4 invProjection = inverse(camera->getProjection());
+    std::vector<Vector4> v;
+    v.push_back(invProjection * Vector4(-1.f,  1.f, -1.f, 1.f));
+    v.push_back(invProjection * Vector4( 1.f,  1.f, -1.f, 1.f));
+    v.push_back(invProjection * Vector4( 1.f, -1.f, -1.f, 1.f));
+    v.push_back(invProjection * Vector4(-1.f, -1.f, -1.f, 1.f));
+    v.push_back(invProjection * Vector4(-1.f,  1.f,  1.f, 1.f));
+    v.push_back(invProjection * Vector4( 1.f,  1.f,  1.f, 1.f));
+    v.push_back(invProjection * Vector4( 1.f, -1.f,  1.f, 1.f));
+    v.push_back(invProjection * Vector4(-1.f, -1.f,  1.f, 1.f));
+
+    float zNear = -(v[0] / v[0].getW()).getZ();
+    float zFar = -(v[4] / v[4].getW()).getZ();
+    float fov = atanf(1.f / projection[1][1]) * 2.0f;
+    float ratio = projection[1][1] / projection[0][0];
+
+    Vector4 splitFar = Vector4(zFar, zFar, zFar, zFar);
+    Vector4 splitNear = Vector4(zNear, zNear, zNear, zNear);
+    float lambda = 0.8f;
+    float j = 1.0f;
+    for (int i = 0; i < 4 - 1; i++, j += 1.0f)
+    {
+        splitFar[i] = Math::mix(zNear + (j / 4.0f) * (zFar - zNear), zNear * powf(zFar / zNear, j / 4.0f), lambda);
+        splitNear[i + 1] = splitFar[i];
+    }
+
+    int i = 1;
+    float zn = zNear;
+    float zf = splitFar[i];
+    //for (int i = 0; i < 4.0f; ++i)
+    //{
+         Matrix4 cameraViewProjection = Matrix4::perspective(fov, ratio, zn, zf) * view;
+         Box box = computeBox(cameraViewProjection);
+         Matrix4 result = Matrix4::orthographic(box.corners[0].getX(), box.corners[1].getX(), box.corners[0].getY(), box.corners[1].getY(), -box.corners[1].getZ(), -box.corners[0].getZ());
+
+         //_shadowProjections[i] = projection;
+         zNear = splitFar[i];
+    //}
+
+    return result;
+}
+
 Magic3D::XMLElement* Magic3D::Light::save(XMLElement* root)
 {
     Camera::save(root);

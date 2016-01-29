@@ -53,6 +53,11 @@ class Camera;
 class Math
 {
 public:
+    static inline float fract (float f)
+    {
+        return f - (int)f;
+    }
+
     static inline float radians(float degrees)
     {
         return degrees * M3D_MATH_DEGREE;
@@ -87,6 +92,12 @@ public:
     {
         return v - M3D_MATH_EPSILON < x && x < v + M3D_MATH_EPSILON;
     }
+
+    static inline float mix(float x, float y, float a)
+    {
+        return x * (1.0f - a) + y * a;
+    }
+
 
     static inline float min(float a, float b)
     {
@@ -128,6 +139,11 @@ public:
         return a > 0.0f ? 1.0f : (a < 0.0f ? -1.0f : 0.0f);
     }
 
+    static inline int randomize(int min, int max)
+    {
+        return min + (rand() % (max - min + 1));
+    }
+
     static inline float randomize(float min, float max)
     {
         return min + (max - min) * ((float)rand() / (float)RAND_MAX);
@@ -144,6 +160,7 @@ public:
     }
 
     static bool collide(const Ray& ray, float start, float end, const Box& box);
+    static bool collide(const Ray& ray, float start, float end, const Vector3& v0, const Vector3& v1, const Vector3& v2);
     static Vector3 euler(const Quaternion& quaternion);
     static Quaternion quaternion(const Vector3& euler);
     static void toAxisAngle(const Quaternion& quaternion, Vector3& axis, float& angle);
@@ -157,6 +174,9 @@ public:
     static bool isOnlyDigits(std::string str);
 
     static Vector3 intersectLinePlane(Vector3 linePoint, Vector3 lineVec, Vector3 planeNormal, Vector3 planePoint);
+
+    static Vector3 scaleInDirection(Vector3 vector, Vector3 direction, float scale);
+    static Vector3 vectorAxisAngle(Vector3 vector, Vector3 axis, float angle);
 };
 
 #pragma pack(push,1)

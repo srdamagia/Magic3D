@@ -27,7 +27,7 @@ subject to the following restrictions:
 Magic3D::MeshData::MeshData(const MeshData& meshData)
 {
     this->vertices  = meshData.vertices;
-    this->triangles = meshData.triangles;
+    this->indexes   = meshData.indexes;
     this->lines     = meshData.lines;
     this->points    = meshData.points;
 
@@ -88,7 +88,7 @@ Magic3D::MeshData::MeshData(MESH type, std::string name)
 
 Magic3D::MeshData::~MeshData()
 {
-    Renderer::getInstance()->deleteVBO(renderID);
+    deleteVbo();
 
     if (this->shape)
     {
@@ -111,7 +111,7 @@ Magic3D::MeshData* Magic3D::MeshData::spawn() const
 bool Magic3D::MeshData::update(Object* object)
 {
 #if defined(MAGIC3D_LEGACY)
-    bool first = false;
+    bool first = true;
     Vector3 min = Vector3(0.0f, 0.0f, 0.0f);
     Vector3 max = Vector3(0.0f, 0.0f, 0.0f);
 
@@ -244,9 +244,11 @@ bool Magic3D::MeshData::update(Object* object)
     if (!computedBox || physics)
     {
         computedBox = true;
-        bool first = false;
+        bool first = true;
         Vector3 min = Vector3(0.0f, 0.0f, 0.0f);
         Vector3 max = Vector3(0.0f, 0.0f, 0.0f);
+        box.corners[0] = min;
+        box.corners[1] = max;
 
         int incp = sizeof(btVector3) / sizeof(float);
 
@@ -397,9 +399,9 @@ std::vector<Magic3D::Vertex3D>* Magic3D::MeshData::getVertices()
     return &vertices;
 }
 
-std::vector<Magic3D::TriangleIndexes>* Magic3D::MeshData::getTriangles()
+std::vector<vindex>* Magic3D::MeshData::getIndexes()
 {
-    return &triangles;
+    return &indexes;
 }
 
 std::vector<Magic3D::LineIndexes>* Magic3D::MeshData::getLines()
@@ -428,18 +430,44 @@ int Magic3D::MeshData::getVerticesCount()
     return result;
 }
 
+int Magic3D::MeshData::getIndexesCount()
+{
+    int result = 0;
+
+    if (Renderer::getInstance()->hasMapBuffer() && isVBO())
+    {
+        result = renderID.indexSize / sizeof(vindex);
+    }
+    else
+    {
+        result = indexes.size();
+    }
+
+    return result;
+}
+
 int Magic3D::MeshData::getTrianglesCount()
 {
     int result = 0;
 
     if (Renderer::getInstance()->hasMapBuffer() && isVBO())
     {
-        result = renderID.indexSize / sizeof(TriangleIndexes);
+        result = renderID.indexSize / sizeof(vindex);
     }
     else
     {
-        result = triangles.size();
+        result = indexes.size();
     }
+
+    if (getType() == eMESH_TRIANGLES_STRIP)
+    {
+        result = result - 2;
+    }
+    else
+    {
+        result = result / 3;
+    }
+
 
     return result;
 }
@@ -459,9 +487,17 @@ void Magic3D::MeshData::addVertex(Vertex3D vertex)
     vertices.push_back(vertex);
 }
 
+void Magic3D::MeshData::addIndex(vindex index)
+{
+    indexes.push_back(index);
+}
+
 void Magic3D::MeshData::addTriangle(TriangleIndexes triangle)
 {
-    triangles.push_back(triangle);
+    //triangles.push_back(triangle);
+    indexes.push_back(triangle.index1);
+    indexes.push_back(triangle.index2);
+    indexes.push_back(triangle.index3);
 #if defined(_MGE_) || defined(DEBUG)
     lines.push_back(LineIndexes(triangle.index1, triangle.index2));
     lines.push_back(LineIndexes(triangle.index1, triangle.index3));
@@ -472,44 +508,7 @@ void Magic3D::MeshData::addTriangle(TriangleIndexes triangle)
 
 void Magic3D::MeshData::updateTangent(vindex index0, vindex index1, vindex index2)
 {
-    Vertex3D& v0 = vertices[index0];
-    Vertex3D& v1 = vertices[index1];
-    Vertex3D& v2 = vertices[index2];
-
-    // Edges of the triangle : postion delta
-    Vector3 deltaPos1 = v1.position - v0.position;
-    Vector3 deltaPos2 = v2.position - v0.position;
-
-    // UV delta
-    Texture2D deltaUV1 = Texture2D(v1.uv[0].u - v0.uv[0].u, v1.uv[0].v - v0.uv[0].v);
-    Texture2D deltaUV2 = Texture2D(v2.uv[0].u - v0.uv[0].u, v2.uv[0].v - v0.uv[0].v);
-
-    float r = 1.0f / (deltaUV1.u * deltaUV2.v - deltaUV1.v * deltaUV2.u);
-    Vector3 tangent = Vector3(deltaPos1 * deltaUV2.v - deltaPos2 * deltaUV1.v) * r;
-
-    v0.tangent = tangent;
-    v1.tangent = tangent;
-    v2.tangent = tangent;
-
-    vindex indexes[3] = {index0, index1, index2};
-    for (unsigned int i = 0; i < 3; i++ )
-    {
-        Vertex3D& v = vertices[indexes[i]];
-
-        Vector3 n = v.normal;
-        Vector3 t = v.tangent;
-        Vector3 b = normalize(cross(n, t));
-
-        // Gram-Schmidt orthogonalize
-        t = normalize(t - n * dot(n, t));
-
-        // Calculate handedness
-        if (dot(cross(n, t), b) < 0.0f){
-            t = t * -1.0f;
-        }
-
-        v.tangent = t;
-    }
+    MeshData::updateTangent((float*)&vertices.front(), vertices.size(), index0, index1, index2);
 }
 
 int Magic3D::MeshData::addQuad(float x, float y, float width, float height, AXIS axis, bool inverse)
@@ -741,13 +740,15 @@ void Magic3D::MeshData::removeQuad(int index)
         }
     }
 
-    idx = index * 2;
-    std::vector<Magic3D::TriangleIndexes>::iterator triangle = getTriangles()->begin() + idx + 1;
+    idx = index * 6;
+    std::vector<vindex>::iterator triangle = getIndexes()->begin() + idx + 3;
     for (int i = 0; i < 2; i++)
     {
-        if (getTriangles()->size() > 0)
+        if (getIndexes()->size() > 0)
         {
-            getTriangles()->erase(triangle--);
+            getIndexes()->erase(triangle--);
+            getIndexes()->erase(triangle--);
+            getIndexes()->erase(triangle--);
         }
     }
 }
@@ -797,11 +798,7 @@ void Magic3D::MeshData::createVbo()
     Renderer* renderer = Renderer::getInstance();
     if (renderer)
     {
-        renderer->deleteVBO(renderID);
-
-        renderID.id = 0;
-        renderID.data = 0;
-        renderID.index = 0;
+        deleteVbo();
         if (renderer->createVBO(this))
         {
             if (Renderer::getInstance()->hasMapBuffer())
@@ -809,10 +806,27 @@ void Magic3D::MeshData::createVbo()
 #if !defined(MAGIC3D_LEGACY) //CPU Skinning
                 vertices.clear();
 #endif
-                triangles.clear();
+                indexes.clear();
             }
         }
     }
+}
+
+void Magic3D::MeshData::deleteVbo()
+{
+    Renderer* renderer = Renderer::getInstance();
+    if (renderer)
+    {
+        renderer->deleteVBO(renderID);
+    }
+
+    renderID.id = 0;
+    renderID.data = 0;
+    renderID.index = 0;
+    renderID.dataSize = 0;
+    renderID.indexSize = 0;
+
+    computedBox = false;
 }
 
 float* Magic3D::MeshData::mapBuffer()
@@ -839,23 +853,23 @@ void Magic3D::MeshData::unmapBuffer()
     }
 }
 
-vindex* Magic3D::MeshData::mapTriangles()
+vindex* Magic3D::MeshData::mapIndexes()
 {
-    vindex* result = (vindex*)&triangles.front();
+    vindex* result = (vindex*)&indexes.front();
 
     if (Renderer::getInstance()->hasMapBuffer() && isVBO())
     {
-        result = Renderer::getInstance()->mapTriangles(getRenderID().index);
+        result = Renderer::getInstance()->mapIndexes(getRenderID().index);
     }
 
     return result;
 }
 
-void Magic3D::MeshData::unmapTriangles()
+void Magic3D::MeshData::unmapIndexes()
 {
     if (Renderer::getInstance()->hasMapBuffer() && isVBO())
     {
-        Renderer::getInstance()->unmapTriangles();
+        Renderer::getInstance()->unmapIndexes();
     }
 }
 
@@ -868,8 +882,248 @@ void Magic3D::MeshData::clear()
 {
     points.clear();
     lines.clear();
-    triangles.clear();
+    indexes.clear();
     vertices.clear();
+}
+
+void Magic3D::MeshData::createPlaneStrip(std::vector<vindex>* indexes, std::vector<LineIndexes>* lines, int length, int width)
+{
+    vindex q0 = 0;
+    vindex q1 = 0;
+    vindex q2 = 0;
+    vindex q3 = 0;
+
+    for (int r = 1; r < length; r++)
+    {
+        for (int c = 0; c < width ; c++)
+        {
+            bool even = r % 2 == 0;
+            if (even) // <- direction
+            {
+                q0 = width * r - (c + 1);
+                q1 = width * r + width - (c + 1);
+                q2 = width * r - (c + 2);
+                q3 = width * r + width - (c + 2);
+            }
+            else // -> direction
+            {
+                q0 = width * r - width + c;
+                q1 = width * r + c;
+                q2 = width * r - width + c + 1;
+                q3 = width * r + c + 1;
+            }
+
+            if (c == 0)
+            {
+                indexes->push_back(q0);
+            }
+
+            indexes->push_back(q1);
+
+            if (c == width - 1)
+            {
+                indexes->push_back(q1);
+            }
+
+            if (c < width - 1)
+            {
+                indexes->push_back(q2);
+
+                lines->push_back(LineIndexes(q0, q2));
+                lines->push_back(LineIndexes(q1, q2));
+
+                if (r == length - 1)
+                {
+                    lines->push_back(LineIndexes(q1, q3));
+                }
+            }
+
+            lines->push_back(LineIndexes(q0, q1));
+        }
+    }
+}
+
+void Magic3D::MeshData::updatePlaneStripNormals(float* vertices, int vcount, vindex* indexes, int icount)    
+{
+    vindex q0 = 0;
+    vindex q1 = 0;
+    vindex q2 = 0;
+
+    int incv = sizeof(Vertex3D) / sizeof(float);
+    int inc = sizeof(Vector3) / sizeof(float);
+
+    for (int i = 1; i < icount; i++)
+    {
+        if (i % 2 == 0)
+        {
+            for (int a = 0; a < 2; a++)
+            {
+                int index = i;
+                if (a == 1)
+                {
+                    if (index + 1 >= icount)
+                    {
+                        continue;
+                    }
+                    q0 = *(indexes + index);
+                    q1 = *(indexes + (index - 1));
+                    q2 = *(indexes + (index + 1));
+                }
+                else
+                {
+                    q0 = *(indexes + (index - 2));
+                    q1 = *(indexes + (index - 1));
+                    q2 = *(indexes + index);
+                }
+
+                if (q0 < (vindex)vcount && q1 < (vindex)vcount && q2 < (vindex)vcount && q0 != q1 && q0 != q2 && q1 != q2)
+                {
+                    float* v = vertices + incv * q0;
+                    Vector3 Ap;
+                    Vector3 An;
+                    Ap.setX(*v); v++;
+                    Ap.setY(*v); v++;
+                    Ap.setZ(*v); v++;
+                    v = vertices + incv * q0 + inc;
+                    An.setX(*v); v++;
+                    An.setY(*v); v++;
+                    An.setZ(*v); v++;
+                    v = vertices + incv * q1;
+                    Vector3 Bp;
+                    Vector3 Bn;
+                    Bp.setX(*v); v++;
+                    Bp.setY(*v); v++;
+                    Bp.setZ(*v); v++;
+                    v = vertices + incv * q1 + inc;
+                    Bn.setX(*v); v++;
+                    Bn.setY(*v); v++;
+                    Bn.setZ(*v); v++;
+                    v = vertices + incv * q2;
+                    Vector3 Cp;
+                    Vector3 Cn;
+                    Cp.setX(*v); v++;
+                    Cp.setY(*v); v++;
+                    Cp.setZ(*v); v++;
+                    v = vertices + incv * q2 + inc;
+                    Cn.setX(*v); v++;
+                    Cn.setY(*v); v++;
+                    Cn.setZ(*v); v++;
+
+                    Vector3 N = cross(Bp - Ap, Cp - Ap);
+                    float sin_alpha = asin(Vectormath::Aos::length(N) / (Vectormath::Aos::length(Bp - Ap) * Vectormath::Aos::length(Cp - Ap)));
+
+
+                    Vector3 normal = normalize(N) * (sin_alpha > 0.0f ? sin_alpha : 1.0f);
+
+                    Vector3 NA = normalize(An + normal);
+                    Vector3 NB = normalize(Bn + normal);
+                    Vector3 NC = normalize(Cn + normal);
+
+                    v = vertices + incv * q0 + inc;
+                    *v = NA.getX(); v++;
+                    *v = NA.getY(); v++;
+                    *v = NA.getZ(); v++;
+                    v = vertices + incv * q1 + inc;
+                    *v = NB.getX(); v++;
+                    *v = NB.getY(); v++;
+                    *v = NB.getZ(); v++;
+                    v = vertices + incv * q2 + inc;
+                    *v = NC.getX(); v++;
+                    *v = NC.getY(); v++;
+                    *v = NC.getZ(); v++;
+
+                    updateTangent(vertices, vcount, q0, q1, q2);
+                }
+            }
+        }
+    }
+}
+
+void Magic3D::MeshData::updateTangent(float* vertices, int vcount, vindex index0, vindex index1, vindex index2)
+{
+    int inc = sizeof(Vertex3D) / sizeof(float);
+    int incv = sizeof(Vector3) / sizeof(float);
+    int incc = sizeof(ColorRGBA) / sizeof(float);
+
+    Vertex3D vs[3];
+    vindex indexes[3] = {index0, index1, index2};
+
+    for (int i = 0; i < 3; i++)
+    {
+        int index = indexes[i];
+        if (index < vcount)
+        {
+            float* v = vertices + inc * index;
+            vs[i].position.setX(*v); v++;
+            vs[i].position.setY(*v); v++;
+            vs[i].position.setZ(*v); v++;
+            v = vertices + inc * index + incv;
+            vs[i].normal.setX(*v); v++;
+            vs[i].normal.setY(*v); v++;
+            vs[i].normal.setZ(*v); v++;
+            v = vertices + inc * index + incv * 2;
+            vs[i].tangent.setX(*v); v++;
+            vs[i].tangent.setY(*v); v++;
+            vs[i].tangent.setZ(*v); v++;
+            v = vertices + inc * index + incv * 3 + incc;
+            vs[i].uv[0].u = *v; v++;
+            vs[i].uv[0].v = *v; v++;
+        }
+    }
+
+    // Edges of the triangle : postion delta
+    Vector3 deltaPos1 = vs[1].position - vs[0].position;
+    Vector3 deltaPos2 = vs[2].position - vs[0].position;
+
+    // UV delta
+    Texture2D deltaUV1 = Texture2D(vs[1].uv[0].u - vs[0].uv[0].u, vs[1].uv[0].v - vs[0].uv[0].v);
+    Texture2D deltaUV2 = Texture2D(vs[2].uv[0].u - vs[0].uv[0].u, vs[2].uv[0].v - vs[0].uv[0].v);
+
+    float r = 1.0f / (deltaUV1.u * deltaUV2.v - deltaUV1.v * deltaUV2.u);
+    Vector3 tangent = Vector3(deltaPos1 * deltaUV2.v - deltaPos2 * deltaUV1.v) * r;
+
+    for (unsigned int i = 0; i < 3; i++ )
+    {
+        int index = indexes[i];
+        float* v = vertices + inc * index + incv * 2;
+        *v = tangent.getX(); v++;
+        *v = tangent.getY(); v++;
+        *v = tangent.getZ(); v++;
+    }
+
+    for (unsigned int i = 0; i < 3; i++ )
+    {
+        Vertex3D vc;
+        int index = indexes[i];
+        if (index < vcount)
+        {
+            float* v = vertices + inc * index + incv;
+            vc.normal.setX(*v); v++;
+            vc.normal.setY(*v); v++;
+            vc.normal.setZ(*v); v++;
+            v = vertices + inc * index + incv * 2;
+            vc.tangent.setX(*v); v++;
+            vc.tangent.setY(*v); v++;
+            vc.tangent.setZ(*v); v++;
+
+            Vector3 n = vc.normal;
+            Vector3 t = vc.tangent;
+            Vector3 b = normalize(cross(n, t));
+
+            // Gram-Schmidt orthogonalize
+            t = normalize(t - n * dot(n, t));
+
+            // Calculate handedness
+            if (dot(cross(n, t), b) < 0.0f){
+                t = t * -1.0f;
+            }
+
+            v = vertices + inc * index + incv * 2;
+            *v = t.getX(); v++;
+            *v = t.getY(); v++;
+            *v = t.getZ(); v++;
+        }
+    }
 }
 
 //******************************************************************************

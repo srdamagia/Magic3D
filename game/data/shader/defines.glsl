@@ -5,14 +5,13 @@
     //#define FAST_LIGHTS
 #endif
 
-#ifdef SHADOWS
-    //#define ESM
-    #define SHADOW_COLOR 0.666666
-    #ifdef ESM
-        #define SHADOW_DEPTH 4.0
-    #else
-        #define SHADOW_DEPTH 0.000005
-    #endif
+//#define ESM
+#define SHADOW_COLOR 0.666666
+#ifdef ESM
+    #define SHADOW_DEPTH 4.0
+#else
+
+    #define SHADOW_DEPTH 0.0002
 #endif
 
 #define PI  3.14159265
