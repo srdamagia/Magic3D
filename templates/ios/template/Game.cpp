@@ -143,7 +143,7 @@ Game::Game(std::string path, std::string pathUser, int width, int height)
     configuration.BLUR_MAP_SIZE        = 256;
     configuration.GLOW_MAP_SIZE        = 64;
     
-    configuration.SHOW_FPS         = false;
+    configuration.SHOW_FPS         = true;
     configuration.SHOW_INFORMATION = false;
     configuration.SHOW_COORDINATES = false;
     
@@ -172,7 +172,7 @@ Game::Game(std::string path, std::string pathUser, int width, int height)
     
     if (Magic3D::Magic3D::start("", &configuration) && Magic3D::Renderer::getInstance()->createWindow(true))
     {
-        Magic3D::ResourceManager::getInstance()->setPath(path + "/data/");
+        Magic3D::ResourceManager::getInstance()->setPath(path + "/data/", false);
         Magic3D::ResourceManager::getInstance()->setUserPath(pathUser);
         Magic3D::Magic3D::play();
         

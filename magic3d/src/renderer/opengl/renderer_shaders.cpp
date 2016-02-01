@@ -657,7 +657,7 @@ void Magic3D::RendererOpenGL_Shaders::renderScreen(Camera* camera)
             glBindVertexArray(renderIDScreen.id);
             check_gl_error();
 
-            int size = renderIDScreen.indexSize;
+            int size = renderIDScreen.indexSize / sizeof(vindex);
 
             if (getRenderMode() == eRENDER_MODE_SCREEN_WIREFRAME)
             {
@@ -1869,7 +1869,7 @@ bool Magic3D::RendererOpenGL_Shaders::renderMeshData(MeshData* data, GLSLShader*
         glBindVertexArray(data->getRenderID().id);
         check_gl_error();
 
-        int size = data->getIndexesCount() * sizeof(vindex);
+        int size = data->getIndexesCount();
 
         if (getRenderMode() == eRENDER_MODE_WIREFRAME && !isProfileObject(object))
         {

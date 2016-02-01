@@ -7,6 +7,7 @@ uniform float edgeTest;
 uniform float threshold_0;
 uniform float threshold_1;
 uniform float threshold_value;
+uniform bool stereoscopy;
 
 float threshold(in float thr1, in float thr2 , in float val) 
 {
@@ -103,40 +104,41 @@ void main()
     }
 #endif
 
-#ifdef STEREOSCOPY
-    vec2 eyeUV;
-    if (uvs.x > screenAspect.x * 0.5)
+    if (stereoscopy)
     {
-        eyeUV = uvs.xy * vec2(2.0 * screenAspect.z, screenAspect.w) - vec2(1.0, 0.0);
-    }
-    else
-    {
-        eyeUV = uvs.xy * vec2(2.0 * screenAspect.z, screenAspect.w);    
-    }
-
-    float r2 = (eyeUV.x - 0.5) * (eyeUV.x - 0.5) + (eyeUV.y - 0.5) * (eyeUV.y - 0.5);
-    float fx = barrelDistortion.x + (r2 * (barrelDistortion.z + barrelDistortion.w * sqrt(r2)));
-    float fy = barrelDistortion.y + (r2 * (barrelDistortion.z + barrelDistortion.w * sqrt(r2)));
-    vec2 realCoordOffs;
-    realCoordOffs.x = fx * (eyeUV.x - 0.5) + 0.5;
-    realCoordOffs.y = fy * (eyeUV.y - 0.5) + 0.5;
-
-    if (realCoordOffs.x >= 0.0 && realCoordOffs.x <= 1.0 && realCoordOffs.y >= 0.0 && realCoordOffs.y <= 1.0) 
-    {
-        //finalColor = texture2D(texture_0, realCoordOffs * vec2(screenAspect.x * 0.5, screenAspect.y));
-        realCoordOffs *= vec2(screenAspect.x * 0.5, screenAspect.y);
+        vec2 eyeUV;
         if (uvs.x > screenAspect.x * 0.5)
-        {        
-            realCoordOffs += vec2(screenAspect.x * 0.5, 0.0);
+        {
+            eyeUV = uvs.xy * vec2(2.0 * screenAspect.z, screenAspect.w) - vec2(1.0, 0.0);
+        }
+        else
+        {
+            eyeUV = uvs.xy * vec2(2.0 * screenAspect.z, screenAspect.w);
         }
 
-        finalColor = texture2D(texture_0, realCoordOffs);
+        float r2 = (eyeUV.x - 0.5) * (eyeUV.x - 0.5) + (eyeUV.y - 0.5) * (eyeUV.y - 0.5);
+        float fx = barrelDistortion.x + (r2 * (barrelDistortion.z + barrelDistortion.w * sqrt(r2)));
+        float fy = barrelDistortion.y + (r2 * (barrelDistortion.z + barrelDistortion.w * sqrt(r2)));
+        vec2 realCoordOffs;
+        realCoordOffs.x = fx * (eyeUV.x - 0.5) + 0.5;
+        realCoordOffs.y = fy * (eyeUV.y - 0.5) + 0.5;
+
+        if (realCoordOffs.x >= 0.0 && realCoordOffs.x <= 1.0 && realCoordOffs.y >= 0.0 && realCoordOffs.y <= 1.0)
+        {
+            //finalColor = texture2D(texture_0, realCoordOffs * vec2(screenAspect.x * 0.5, screenAspect.y));
+            realCoordOffs *= vec2(screenAspect.x * 0.5, screenAspect.y);
+            if (uvs.x > screenAspect.x * 0.5)
+            {
+                realCoordOffs += vec2(screenAspect.x * 0.5, 0.0);
+            }
+
+            finalColor = texture2D(texture_0, realCoordOffs);
+        }
+        else
+        {
+            finalColor = vec4(0.0, 0.0, 0.0, 1.0);
+        }
     }
-    else
-    {
-        finalColor = vec4(0.0, 0.0, 0.0, 1.0);
-    }
-#endif
 
     gl_FragColor.rgb = finalColor.rgb;
     gl_FragColor.a = 1.0;

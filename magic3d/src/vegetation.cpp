@@ -334,7 +334,7 @@ void Magic3D::Vegetation::generateVegetation()
                     Vector3 pos = Vector3(x + c * terrain->getTileWidth(), height - ((terrain->getTileLength() + terrain->getTileWidth()) * 0.5f * 0.25f) , y + r * terrain->getTileLength());
 
                     int random = (int)(Branch::random(index + properties.seed) * 100.0f);
-                    if (first || (random <= density && height >= minHeight && height <= maxHeight))
+                    if ((random <= density || first) && height >= minHeight && height <= maxHeight)
                     {
                         first = false;
                         int startVertex = dataVegetation->getVertices()->size();
@@ -365,7 +365,7 @@ void Magic3D::Vegetation::generateVegetation()
                     else if (height >= minHeight && height <= maxHeight)
                     {
                         pos.setY(height);
-                        createGrass(pos);
+                        createGrass(pos, terrain->getTileLength(), terrain->getTileWidth());
                     }
                 }
             }
@@ -394,6 +394,12 @@ void Magic3D::Vegetation::generateVegetation()
         dataGrass->createVbo();
 
         Object::updateBoundingBox();
+
+        if (getRigidBody())
+        {
+            dataVegetation->setTriangleMesh(NULL);
+            Physics::getInstance()->add(this);
+        }
     }
 }
 
@@ -527,12 +533,14 @@ void Magic3D::Vegetation::doFaces(Branch* branch, int startIndex)
             v2 = branch->ring1[(i + segOffset0 + 1) % segments];
             v3 = branch->ring1[(i + segOffset0) % segments];
             v4 = branch->child0->ring0[(i + 1) % segments];
+
             dataVegetation->addTriangle(TriangleIndexes(v1, v4, v3));
             dataVegetation->addTriangle(TriangleIndexes(v4, v2, v3));
             v1 = branch->child1->ring0[i];
             v2 = branch->ring2[(i + segOffset1 + 1) % segments];
             v3 = branch->ring2[(i + segOffset1) % segments];
             v4 = branch->child1->ring0[(i + 1) % segments];
+
             dataVegetation->addTriangle(TriangleIndexes(v1, v2, v3));
             dataVegetation->addTriangle(TriangleIndexes(v1, v4, v2));
 
@@ -553,8 +561,8 @@ void Magic3D::Vegetation::doFaces(Branch* branch, int startIndex)
             vertices->at(branch->child1->ring2[i]).uv[1] = vertices->at(branch->child1->ring2[i]).uv[0];
         }
 
-        doFaces(branch->child0);
-        doFaces(branch->child1);
+        doFaces(branch->child0, startIndex);
+        doFaces(branch->child1, startIndex);
     }
     else
     {
@@ -672,13 +680,13 @@ void Magic3D::Vegetation::createTwigs(Vector3 position, Branch* branch)
     }
 }
 
-void Magic3D::Vegetation::createGrass(Vector3 position)
+void Magic3D::Vegetation::createGrass(Vector3 position, float tileLength, float tileWidth)
 {
     MeshData* dataGrass = grassMesh->getData();
     std::vector<Vertex3D>* vertices = dataGrass->getVertices();
 
     float grassSize = 1.0f;
-    Vector3 pos = position + Math::randomize(Vector3(-0.5f, grassSize * 0.75f, -0.5f), Vector3(0.5f, grassSize * 0.65f, 0.5f));
+    Vector3 pos = position + Math::randomize(Vector3(-tileWidth * 0.5f, grassSize * 0.75f, -tileLength * 0.5f), Vector3(tileWidth * 0.5f, grassSize * 0.65f, tileLength * 0.5f));
     for (int i = 0; i < 2; i++)
     {
         Vector3 n = normalize(Vector3(0.5f, 0.0f, 0.5f));

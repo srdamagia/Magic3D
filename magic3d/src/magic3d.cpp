@@ -135,6 +135,8 @@ bool Magic3D::Magic3D::start(std::string applicationPath, Magic3DConfiguration* 
         
         started = Config::start();
         result = result && started;
+
+        instance->setStereoscopy(instance->configuration.STEREOSCOPY);
     }
     else
     {
@@ -522,4 +524,42 @@ void Magic3D::Magic3D::loadScene(std::string mge)
 void Magic3D::Magic3D::loadSceneAdditive(std::string mge)
 {
     loadMGEAdditive.push_back(mge);
+}
+
+void Magic3D::Magic3D::setStereoscopy(bool enabled)
+{
+    configuration.STEREOSCOPY = enabled;
+
+    if (Renderer::getInstance())
+    {
+        std::vector<ViewPort*>* viewports = Renderer::getInstance()->getViewPorts();
+
+        Camera* ortho = NULL;
+        Camera* persp = NULL;
+
+        if (!viewports->empty())
+        {
+            ortho = viewports->at(0)->getOrthographic();
+            persp = viewports->at(0)->getPerspective();
+        }
+
+        Renderer::getInstance()->removeAllViewPorts();
+        if (Magic3D::getInstance()->getConfiguration().STEREOSCOPY)
+        {
+            ViewPort* main = new ViewPort(Vector4(0.0f, 0.0f, 0.5f, 1.0f), 0, 0);
+            main->setOrthographic(ortho);
+            main->setPerspective(persp);
+            viewports->push_back(main);
+            ViewPort* stereoscopy = new ViewPort(Vector4(0.5f, 0.0f, 0.5f, 1.0f), 0, 0);
+            viewports->push_back(stereoscopy);
+            stereoscopy->setParent(main);
+        }
+        else
+        {
+            ViewPort* view = new ViewPort(Vector4(0.0f, 0.0f, 1.0f, 1.0f), 0, 0);
+            view->setOrthographic(ortho);
+            view->setPerspective(persp);
+            viewports->push_back(view);
+        }
+    }
 }

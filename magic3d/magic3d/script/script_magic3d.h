@@ -95,6 +95,10 @@ public:
     int debugLine(lua_State *lua);
 
     int rayCast(lua_State *lua);
+
+    int rotateCamera(lua_State* lua);
+
+    int setStereoscopy(lua_State* lua);
 };
 }
 #endif /* SCRIPT_MAGIC3D_H */

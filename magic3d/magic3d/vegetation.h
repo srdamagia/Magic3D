@@ -162,7 +162,7 @@ public:
     void createForks(Branch* branch, float radius);
     void updateForks(Vector3 position, int startIndex = 0);
 
-    void createGrass(Vector3 position);
+    void createGrass(Vector3 position, float tileLength = 1.0f, float tileWidth = 1.0f);
 
     void addMaterial(Material* material);
 

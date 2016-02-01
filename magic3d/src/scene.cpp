@@ -2440,7 +2440,7 @@ bool Magic3D::Scene::load()
 
             result = true;
         }
-        if (!vegetations.empty())
+        else if (!vegetations.empty())
         {
             Object* obj = ResourceManager::getObjects()->get((*vegetations.begin()).first);
 

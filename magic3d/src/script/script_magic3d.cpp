@@ -84,7 +84,11 @@ Magic3D::ScriptClass<Magic3D::ScriptMagic3D>::ScriptFunction Magic3D::ScriptMagi
 
     ScriptClassFunction(ScriptMagic3D, debugLine, "void debugLine(Vector3 pos1, Vector3 pos2, bool orthographic, Color color)", "Render a debug line."),
 
-    ScriptClassFunction(ScriptMagic3D, rayCast, "Object* rayCast(Vector3 start, Vector3 end, orthographic)", ""),
+    ScriptClassFunction(ScriptMagic3D, rayCast, "Object* rayCast(Vector3 start, Vector3 end, bool orthographic)", ""),
+
+    ScriptClassFunction(ScriptMagic3D, rotateCamera, "void rotateCamera(float x, float y, float z, bool rotate)", ""),
+
+    ScriptClassFunction(ScriptMagic3D, setStereoscopy, "void setStereoscopy(bool stereoscopy, bool screenEffects)", ""),
 
     {NULL, NULL, NULL, NULL}
 };
@@ -489,3 +493,51 @@ int Magic3D::ScriptMagic3D::rayCast(lua_State *lua)
     return 1;
 }
 
+int Magic3D::ScriptMagic3D::rotateCamera(lua_State* lua)
+{
+    float angleX = luaL_checknumber(lua, 1);
+    float angleY = luaL_checknumber(lua, 2);
+    float angleZ = luaL_checknumber(lua, 3);
+    bool rotate = lua_toboolean(lua, 4);
+
+    Quaternion ax = Quaternion::rotationX(Math::radians(angleX));
+    Quaternion ay = Quaternion::rotationY(Math::radians(angleY));
+    Quaternion az = Quaternion::rotationY(Math::radians(angleZ));
+
+    Camera* camera = Renderer::getInstance()->getCurrentViewPort()->getPerspective();
+    if (camera)
+    {
+        if (rotate)
+        {
+            camera->setRotation(ay * (camera->getRotation() * ax));
+        }
+        else
+        {
+            camera->setRotation(az * ay * ax);
+        }
+    }
+
+    return 0;
+}
+
+int Magic3D::ScriptMagic3D::setStereoscopy(lua_State* lua)
+{
+    float stereoscopy = lua_toboolean(lua, 1);
+    float screenEffects = lua_toboolean(lua, 2);
+
+    Magic3D::getInstance()->setStereoscopy(stereoscopy);
+
+    Material* material = ResourceManager::getInstance()->getMaterials()->get("screen");
+    if (material)
+    {
+        MaterialVar_Boolean* mb = static_cast<MaterialVar_Boolean*>(material->getVar("stereoscopy"));
+        if (mb)
+        {
+            mb->setValue(0, stereoscopy);
+        }
+    }
+
+    Renderer::getInstance()->setUsingScreenEffects(screenEffects);
+
+    return 0;
+}

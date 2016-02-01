@@ -79,9 +79,9 @@ Magic3D::PhysicsConstraint::PhysicsConstraint(CONSTRAINT type)
     connectedBone.clear();
 
     pivot          = Vector3(0.0f, 0.0f, 0.0f);
-    axis           = Vector3(0.0f, 0.0f, 0.0f);
+    axis           = Vector3(0.0f, 0.0f, 1.0f);
     connectedPivot = Vector3(0.0f, 0.0f, 0.0f);
-    connectedAxis  = Vector3(0.0f, 0.0f, 0.0f);
+    connectedAxis  = Vector3(0.0f, 0.0f, 1.0f);
 
     linearLowerLimit  = Vector3(0.0f, 0.0f, 0.0f);
     linearUpperLimit  = Vector3(0.0f, 0.0f, 0.0f);
@@ -239,8 +239,8 @@ void Magic3D::PhysicsConstraint::connect()
     btTransform frameInB = btTransform::getIdentity();
     frameInA.setOrigin(p);
     frameInB.setOrigin(pc);
-    frameInA.getBasis().setEulerZYX(Math::radians(a.getX()), Math::radians(a.getY()), Math::radians(a.getZ()));
-    frameInB.getBasis().setEulerZYX(Math::radians(ac.getX()), Math::radians(ac.getY()), Math::radians(ac.getZ()));
+    frameInA.getBasis().setEulerZYX(a.getX(), a.getY(), a.getZ());
+    frameInB.getBasis().setEulerZYX(ac.getX(), ac.getY(), ac.getZ());
 
     bool referenceFrameA = false;
 
@@ -285,6 +285,7 @@ void Magic3D::PhysicsConstraint::connect()
             btPoint2PointConstraint* point2point = static_cast<btPoint2PointConstraint*>(constraint);
             point2point->setPivotA(frameInA.getOrigin());
             point2point->setPivotB(frameInB.getOrigin());
+
             break;
         }
         case eCONSTRAINT_HINGE:
@@ -376,7 +377,10 @@ void Magic3D::PhysicsConstraint::connect()
         default: break;
     }
 
-    constraint->setBreakingImpulseThreshold(breakingImpulse);
+    if (constraint)
+    {
+        constraint->setBreakingImpulseThreshold(breakingImpulse);
+    }
     Physics::getInstance()->addConstraint(this);
     enabled = true;
 }

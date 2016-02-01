@@ -196,6 +196,8 @@ public:
 
     void loadScene(std::string mge);
     void loadSceneAdditive(std::string mge);
+
+    void setStereoscopy(bool enabled);
 };
 
 }

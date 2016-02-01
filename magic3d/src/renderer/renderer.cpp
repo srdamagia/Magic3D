@@ -170,19 +170,6 @@ Magic3D::Renderer::Renderer()
 
     window = NULL;
 
-    if (Magic3D::getInstance()->getConfiguration().STEREOSCOPY)
-    {
-        ViewPort* main = new ViewPort(Vector4(0.0f, 0.0f, 0.5f, 1.0f), 0, 0);
-        viewports.push_back(main);
-        ViewPort* stereoscopy = new ViewPort(Vector4(0.5f, 0.0f, 0.5f, 1.0f), 0, 0);
-        viewports.push_back(stereoscopy);
-        stereoscopy->setParent(main);
-    }
-    else
-    {
-        viewports.push_back(new ViewPort(Vector4(0.0f, 0.0f, 1.0f, 1.0f), 0, 0));
-    }
-
     grid2D = Vector3(0.0f, 0.0f, 0.0f);
     grid3D = Vector3(0.0f, 0.0f, 0.0f);
 

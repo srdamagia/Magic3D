@@ -60,7 +60,7 @@ Magic3D::ScriptClass<Magic3D::ScriptObject>::ScriptFunction Magic3D::ScriptObjec
     ScriptClassFunction(Magic3D::ScriptObject, getRotation, "Vector3 getRotation()", ""),
     ScriptClassFunction(Magic3D::ScriptObject, setScale,    "void setScale(Vector3 scale)", ""),
     ScriptClassFunction(Magic3D::ScriptObject, getScale,    "Vector3 getScale()", ""),
-    ScriptClassFunction(Magic3D::ScriptObject, lookAt,      "void lookAt(Vector3 position, Vector3 up, )", "Rotate to look at a position."),
+    ScriptClassFunction(Magic3D::ScriptObject, lookAt,      "void lookAt(Vector3 position, Vector3 up, float factor)", "Rotate to look at a position."),
 
     ScriptClassFunction(Magic3D::ScriptObject, move,    "void move(Vector3 factor)", ""),
     ScriptClassFunction(Magic3D::ScriptObject, rotate,  "void rotate(Vector3 rotation)", ""),

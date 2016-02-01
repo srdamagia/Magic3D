@@ -1155,7 +1155,9 @@ unsigned int Magic3D::Renderer_OpenGL::createTexture(Image* image, bool mipmap, 
         }
         else
         {
+#if !defined(MAGIC3D_OES)
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+#endif
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
             check_gl_error();
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);

@@ -1085,8 +1085,9 @@ void Magic3D::Camera::render()
     float fh = getFar()  * tang;
     float fw = fh * ratio;
 
-    Vector3 nc = getPosition() + getDirectionFront() * getNear();
-    Vector3 fc = getPosition() + getDirectionFront() * getFar();
+    Matrix4 mat = getMatrixFromParent();
+    Vector3 nc = mat.getCol3().getXYZ() + mat.getCol2().getXYZ() * getNear();
+    Vector3 fc = mat.getCol3().getXYZ() + mat.getCol2().getXYZ() * getFar();
 
     Vector3 ftl = fc + (getDirectionUp() * fh * 0.5f) - (getDirectionRight() * fw * 0.5f);
     Vector3 ftr = fc + (getDirectionUp() * fh * 0.5f) + (getDirectionRight() * fw * 0.5f);
