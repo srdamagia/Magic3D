@@ -1184,12 +1184,16 @@ bool Magic3D::Scene::update()
                 sprintf(profileText,
                         "Physics MS:      %11.6f\n"\
                         "Update MS:       %11.6f\n"\
-                        "Script MS:       %11.6f\n"\
+                        "Network MS:      %11.6f\n"\
+                        "Clients:         %8d\n"\
+                        "Script MS:       %11.6f\n"\                        
                         "Script Memory:   %8d Kb\n"\
                         "Frustum MS:      %11.6f\n"\
                         "Render MS:       %11.6f\n",
                         magic3D->getPhysicsMS(),
                         magic3D->getUpdateMS(),
+                        magic3D->getNetworkMS(),
+                        Network::getInstance()->getClientsCount(),
                         getScriptMS(),
                         Script::getInstance()->getMemoryUsed(),
                         getFrustumMS(),
@@ -1210,6 +1214,8 @@ bool Magic3D::Scene::update()
                         "Texture Changes: %8d\n"\
                         "Physics MS:      %11.6f\n"\
                         "Update MS:       %11.6f\n"\
+                        "Network MS:      %11.6f\n"\
+                        "Clients:         %8d\n"\
                         "Script MS:       %11.6f\n"\
                         "Script Memory:   %8d Kb\n"\
                         "Frustum MS:      %11.6f\n"\
@@ -1236,6 +1242,8 @@ bool Magic3D::Scene::update()
                         renderer->getTexChangesCount(),
                         magic3D->getPhysicsMS(),
                         magic3D->getUpdateMS(),
+                        magic3D->getNetworkMS(),
+                        Network::getInstance()->getClientsCount(),
                         getScriptMS(),
                         Script::getInstance()->getMemoryUsed(),
                         getFrustumMS(),
@@ -1253,16 +1261,16 @@ bool Magic3D::Scene::update()
             else
             {
                 sprintf(profileText,
-                        "Rendered:        %8d  Render MS:       %11.6f\n"\
-                        "Objects:         %8d      shadows      %11.6f\n"\
-                        "Shadowed:        %8d      reflections  %11.6f\n"\
-                        "Reflective:      %8d      default      %11.6f\n"\
-                        "Triangles:       %8d      fbo          %11.6f\n"\
-                        "VBO:             %8d      screen       %11.6f\n"\
-                        "Bodies:          %8d      sprites      %11.6f\n"\
-                        "Constraints:     %8d      gizmos       %11.6f\n"\
-                        "Draw Calls:      %8d\n"\
-                        "Texture Changes: %8d\n"\
+                        "Rendered:        %8d  Network MS:      %11.6f\n"\
+                        "Objects:         %8d  Clients:         %8d\n"\
+                        "Shadowed:        %8d  Render MS:       %11.6f\n"\
+                        "Reflective:      %8d      shadows      %11.6f\n"\
+                        "Triangles:       %8d      reflections  %11.6f\n"\
+                        "VBO:             %8d      default      %11.6f\n"\
+                        "Bodies:          %8d      fbo          %11.6f\n"\
+                        "Constraints:     %8d      screen       %11.6f\n"\
+                        "Draw Calls:      %8d      sprites      %11.6f\n"\
+                        "Texture Changes: %8d      gizmos       %11.6f\n"\
                         "Physics MS:      %11.6f\n"\
                         "Update MS:       %11.6f\n"\
                         "Script MS:       %11.6f\n"\
@@ -1271,16 +1279,16 @@ bool Magic3D::Scene::update()
                         "Octree Nodes:    %8d\n"\
                         "Octree Rendered: %8d\n",
                         
-                        renderer->getObjectsCount(),                   magic3D->getRenderMS(),
-                        getObjectCount(),                              renderer->getShadowsMS(),
-                        renderer->getShadowsCount(),                   renderer->getReflectionsMS(),
-                        renderer->getReflectiveCount(),                renderer->getDefaultMS(),
-                        renderer->getTrianglesCount(),                 renderer->getFboMS(),
-                        renderer->getVBOCount(),                       renderer->getScreenMS(),
-                        Physics::getInstance()->getBodiesCount(),      renderer->getSpritesMS(),
-                        Physics::getInstance()->getConstraintsCount(), renderer->getGizmosMS(),
-                        renderer->getDrawCallsCount(),
-                        renderer->getTexChangesCount(),
+                        renderer->getObjectsCount(),                   magic3D->getNetworkMS(),
+                        getObjectCount(),                              Network::getInstance()->getClientsCount(),
+                        renderer->getShadowsCount(),                   magic3D->getRenderMS(),
+                        renderer->getReflectiveCount(),                renderer->getShadowsMS(),
+                        renderer->getTrianglesCount(),                 renderer->getReflectionsMS(),
+                        renderer->getVBOCount(),                       renderer->getDefaultMS(),
+                        Physics::getInstance()->getBodiesCount(),      renderer->getFboMS(),
+                        Physics::getInstance()->getConstraintsCount(), renderer->getScreenMS(),
+                        renderer->getDrawCallsCount(),                 renderer->getSpritesMS(),
+                        renderer->getTexChangesCount(),                renderer->getGizmosMS(),
                         magic3D->getPhysicsMS(),
                         magic3D->getUpdateMS(),
                         getScriptMS(),

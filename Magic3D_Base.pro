@@ -9,6 +9,7 @@ MINIZIP        = $$MAGIC3D/minizip          #1.1
 VECTORMATH     = $$MAGIC3D/vectormath
 PNG            = $$MAGIC3D/lpng             #1.6.16
 LUA            = $$MAGIC3D/lua              #5.3.0
+ENET           = $$MAGIC3D/enet             #1.3.13
 
 INCLUDEPATH += \
     $$MAGIC3D/magic3d \
@@ -22,7 +23,8 @@ INCLUDEPATH += \
     $$MINIZIP \
     $$TINYXML \
     $$VECTORMATH/cpp \
-    $$LUA
+    $$LUA \
+    $$ENET
 win32|macx:INCLUDEPATH += $$PNG \
 
 #MEMORY_MANAGER *****************************************************************
@@ -182,6 +184,17 @@ SOURCES += \
 
 HEADERS += \
     $$LUA_INCLUDE/*.h \
+#********************************************************************************
+
+#ENET ***************************************************************************
+ENET_SOURCE  = $$ENET
+ENET_INCLUDE = $$ENET/enet
+
+SOURCES += \
+    $$ENET_SOURCE/*.c \
+
+HEADERS += \
+    $$ENET_INCLUDE/*.h \
 #********************************************************************************
 
 #Magic3D ************************************************************************

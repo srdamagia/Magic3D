@@ -37,6 +37,7 @@ subject to the following restrictions:
 #include <magic3d/renderer/renderer.h>
 #include <magic3d/script/script.h>
 #include <magic3d/tween/tweens.h>
+#include <magic3d/network.h>
 
 //PRECOMPILER MACROS*******************************
 //MAGIC3D_OES1
@@ -76,6 +77,10 @@ namespace Magic3D
 #define CFG_XML_REFLECTIONS         "REFLECTIONS"
 #define CFG_XML_GLOW                "GLOW"
 #define CFG_XML_STEREOSCOPY         "STEREOSCOPY"
+#define CFG_XML_SERVER              "SERVER"
+#define CFG_XML_ADDRESS             "ADDRESS"
+#define CFG_XML_PORT                "PORT"
+#define CFG_XML_CLIENTS             "CLIENTS"
 
 enum RENDERER
 {
@@ -115,6 +120,11 @@ struct Magic3DConfiguration
     bool REFLECTIONS;
     bool GLOW;
     bool STEREOSCOPY;
+
+    bool SERVER;
+    std::string ADDRESS;
+    int PORT;
+    int CLIENTS;
 };
 
 class Magic3D
@@ -131,10 +141,12 @@ private:
     std::vector<std::string> loadMGEAdditive;
 
     int accumulateCount;
+    float networkMSAccumulate;
     float physicsMSAccumulate;
     float updateMSAccumulate;
     float renderMSAccumulate;
 
+    float networkMS;
     float physicsMS;
     float updateMS;
     float renderMS;
@@ -189,6 +201,7 @@ public:
     void setTimeReference();
     float getTimeSinceReference();
 
+    float getNetworkMS();
     float getPhysicsMS();
     float getUpdateMS();
     float getScriptMS();

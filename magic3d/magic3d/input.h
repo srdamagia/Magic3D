@@ -63,6 +63,7 @@ public:
     void dispatchEvent(INPUT input, EVENT event, float value);
     void dispatchEvent(INPUT input, EVENT event, int x, int y, int button);
     void dispatchEvent(INPUT input, EVENT event, float x, float y, float z);
+    void dispatchEvent(INPUT input, EVENT event, float x, float y, float z, float w);
 };
 
 }

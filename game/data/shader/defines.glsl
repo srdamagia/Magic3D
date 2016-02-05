@@ -1,3 +1,4 @@
+#define FOG
 #define LIGHTS
 
 #ifdef LIGHTS
@@ -22,6 +23,10 @@
 #else
 #define MAX_LIGHTS 16
 #endif
+
+#define UNDERWATER
+#define UNDERWATER_COLOR vec4(0.333, 0.666, 1.0, 1.0)
+#define UNDERWATER_FOG 50.0
 
 #ifdef GL_ES
 // Set default precision to medium

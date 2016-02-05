@@ -21,7 +21,16 @@ const mat4 bias = mat4(0.5, 0.0, 0.0, 0.0,
 
 float fogLinear(float distanceToEye)
 {
-    return clamp((fog.attenuation.y - distanceToEye) / (fog.attenuation.y - fog.attenuation.x), 0.0, 1.0);
+#ifdef UNDERWATER
+    if (matrixCamera[3].y <= 0.0)
+    {
+        return clamp((UNDERWATER_FOG - distanceToEye) / (UNDERWATER_FOG - 0.0), 0.0, 1.0);
+    }
+    else
+#endif
+    {
+        return clamp((fog.attenuation.y - distanceToEye) / (fog.attenuation.y - fog.attenuation.x), 0.0, 1.0);
+    }
 }
 
 float fogExp(float distanceToEye)
@@ -215,7 +224,9 @@ void updateVarying()
 #endif
 
     updateShadow();
+#ifdef FOG
     updateFog();
+#endif
 }
 
 void updateVertex()

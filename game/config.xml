@@ -2,8 +2,8 @@
 <Magic3D>
     <!-- Magic3D Configuration -->
     <TITLE>Magic3D</TITLE>
-    <WINDOW_WIDTH>1760</WINDOW_WIDTH>
-    <WINDOW_HEIGHT>990</WINDOW_HEIGHT>
+    <WINDOW_WIDTH>1600</WINDOW_WIDTH>
+    <WINDOW_HEIGHT>900</WINDOW_HEIGHT>
     <FULLSCREEN>0</FULLSCREEN>
     <CURSOR>1</CURSOR>
     <selected>default</selected>
@@ -24,4 +24,8 @@
         <GLOW>1</GLOW>
         <STEREOSCOPY>0</STEREOSCOPY>
     </default>
+	<SERVER>0</SERVER>
+	<ADDRESS>null</ADDRESS>
+	<PORT>31234</PORT>
+	<CLIENTS>64</CLIENTS>
 </Magic3D>

@@ -10,7 +10,7 @@ MOC_DIR = ./build
 
 CONFIG -= exceptions
 
-win32:LIBS += -mwindows -lmingw32 -lopengl32 -lOpenAL32
+win32:LIBS += -mwindows -lwsock32 -lwinmm -lws2_32 -lmingw32 -lopengl32 -lOpenAL32
 unix:!macx:LIBS += -lopenal
 macx:LIBS += -framework OpenAL
 

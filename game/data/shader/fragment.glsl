@@ -41,9 +41,27 @@ vec2 screenUV()
     return result;
 }
 
-vec4 calcFog(in vec4 color)
+vec4 calcFog(in vec4 fogColor, in vec4 color, in float factor)
 {
-    return vec4(mix(fog.color.rgb, color.rgb, vertexLightColor.a), color.a);
+#ifdef FOG
+    return vec4(mix(fogColor.rgb, color.rgb, factor), color.a);
+#else
+    return color;
+#endif
+}
+
+vec4 calcFog(in vec4 color)
+{    
+#ifdef UNDERWATER
+    if (matrixCamera[3].y <= 0.0)
+    {
+        return calcFog(UNDERWATER_COLOR, color, vertexLightColor.a);
+    }
+    else
+#endif
+    {
+        return calcFog(fog.color, color, vertexLightColor.a);
+    }
 }
 
 float linearDepthFactor()

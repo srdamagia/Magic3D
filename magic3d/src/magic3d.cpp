@@ -22,6 +22,7 @@ subject to the following restrictions:
 */
 
 #include <magic3d/magic3d.h>
+#include <magic3d/network.h>
 
 Magic3D::Magic3D* Magic3D::Magic3D::instance = NULL;
 
@@ -35,10 +36,12 @@ Magic3D::Magic3D::Magic3D()
     timeSin = 0.0f;
 
     accumulateCount = 0;
+    networkMSAccumulate = 0.0f;
     physicsMSAccumulate = 0.0f;
     updateMSAccumulate  = 0.0f;
     renderMSAccumulate  = 0.0f;
 
+    networkMS = 0.0f;
     physicsMS = 0.0f;
     updateMS  = 0.0f;
     renderMS  = 0.0f;
@@ -136,6 +139,9 @@ bool Magic3D::Magic3D::start(std::string applicationPath, Magic3DConfiguration* 
         started = Config::start();
         result = result && started;
 
+        started = Network::start();
+        result = result && started;
+
         instance->setStereoscopy(instance->configuration.STEREOSCOPY);
     }
     else
@@ -150,6 +156,7 @@ bool Magic3D::Magic3D::finish()
 {
     if (instance)
     {
+        Network::finish();
         Config::finish();
         Script::finish();
         Scene::finish();
@@ -232,6 +239,15 @@ void Magic3D::Magic3D::loadConfiguration()
                 configuration.GLOW                 = Xml::loadInt(cfg, CFG_XML_GLOW);
                 configuration.STEREOSCOPY          = Xml::loadInt(cfg, CFG_XML_STEREOSCOPY);
 
+                configuration.SERVER               = Xml::loadBool(cfg, CFG_XML_SERVER);
+                configuration.ADDRESS              = Xml::loadString(cfg, CFG_XML_ADDRESS);
+                if (configuration.ADDRESS.compare(M3D_XML_NULL) == 0)
+                {
+                    configuration.ADDRESS.clear();
+                }
+                configuration.PORT                 = Xml::loadInt(cfg, CFG_XML_PORT);
+                configuration.CLIENTS              = Xml::loadInt(cfg, CFG_XML_CLIENTS);
+
                 loaded = true;
 
                 Log::log(eLOG_SUCCESS, "Configuration Loaded!");
@@ -273,6 +289,11 @@ void Magic3D::Magic3D::loadConfiguration()
         configuration.REFLECTIONS  = false;
         configuration.GLOW         = false;
         configuration.STEREOSCOPY  = false;
+
+        configuration.SERVER   = false;
+        configuration.ADDRESS  = "";
+        configuration.PORT     = 31234;
+        configuration.CLIENTS  = 64;
     }
 }
 
@@ -348,6 +369,10 @@ bool Magic3D::Magic3D::run()
             getInstance()->accumulateCount++;
 
             getInstance()->setTimeReferenceMain();
+            Network::getInstance()->update();
+            getInstance()->networkMSAccumulate += getInstance()->getTimeSinceReferenceMain();
+
+            getInstance()->setTimeReferenceMain();
             Script::getInstance()->update();
             getInstance()->updateMSAccumulate += getInstance()->getTimeSinceReferenceMain();
 
@@ -365,10 +390,12 @@ bool Magic3D::Magic3D::run()
 
             if (getInstance()->accumulateCount >= 30)
             {
+                getInstance()->networkMS = getInstance()->networkMSAccumulate / (float)getInstance()->accumulateCount;
                 getInstance()->physicsMS = getInstance()->physicsMSAccumulate / (float)getInstance()->accumulateCount;
                 getInstance()->updateMS  = getInstance()->updateMSAccumulate  / (float)getInstance()->accumulateCount;
                 getInstance()->renderMS  = getInstance()->renderMSAccumulate  / (float)getInstance()->accumulateCount;
 
+                getInstance()->networkMSAccumulate = 0.0f;
                 getInstance()->physicsMSAccumulate = 0.0f;
                 getInstance()->updateMSAccumulate  = 0.0f;
                 getInstance()->renderMSAccumulate  = 0.0f;
@@ -499,6 +526,11 @@ void Magic3D::Magic3D::setTimeReference()
 float Magic3D::Magic3D::getTimeSinceReference()
 {
     return timer->getSinceReference();
+}
+
+float Magic3D::Magic3D::getNetworkMS()
+{
+    return networkMS;
 }
 
 float Magic3D::Magic3D::getPhysicsMS()

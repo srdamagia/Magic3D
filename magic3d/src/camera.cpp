@@ -493,14 +493,14 @@ Magic3D::Matrix4 Magic3D::Camera::getEstereoscopyProjection(bool isLeftEye)
     return perspectiveOffCenter(left, right, -a, a, getNear(), getFar());
 }
 
-Magic3D::Matrix4 Magic3D::Camera::perspectiveOffCenter(float left, float right, float bottom, float top, float near, float far)
+Magic3D::Matrix4 Magic3D::Camera::perspectiveOffCenter(float left, float right, float bottom, float top, float zNear, float zFar)
 {
-    float x = (2.0f * near) / (right - left);
-    float y = (2.0f * near) / (top - bottom);
+    float x = (2.0f * zNear) / (right - left);
+    float y = (2.0f * zNear) / (top - bottom);
     float a = (right + left) / (right - left);
     float b = (top + bottom) / (top - bottom);
-    float c = -(far + near) / (far - near);
-    float d = -(2.0f * far * near) / (far - near);
+    float c = -(zFar + zNear) / (zFar - zNear);
+    float d = -(2.0f * zFar * zNear) / (zFar - zNear);
     float e = -1.0f;
 
     Matrix4 m;

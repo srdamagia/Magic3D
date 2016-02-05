@@ -64,7 +64,7 @@ public:
     virtual void down(int x, int y, int button);
     virtual void pressed(int x, int y, int button);
     virtual void up(int x, int y, int button);
-    virtual void move(int deltaX, int deltaY);
+    virtual void move(int x, int y);
     virtual void wheel(int x, int y, int delta);
 };
 
@@ -90,7 +90,7 @@ public:
 
 class Script_Input_Gyroscope : public EventListener_Gyroscope {
 public:
-    virtual void gyroscope(float x, float y, float z);
+    virtual void gyroscope(float x, float y, float z, float w);
 };
 
 }

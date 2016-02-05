@@ -114,7 +114,7 @@ private:
     void init();
 
     Matrix4 getEstereoscopyProjection(bool isLeftEye);
-    Matrix4 perspectiveOffCenter(float left, float right, float bottom, float top, float near, float far);
+    Matrix4 perspectiveOffCenter(float left, float right, float bottom, float top, float zNear, float zFar);
 
 protected:
     virtual void updateMatrix();

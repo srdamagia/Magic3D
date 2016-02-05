@@ -79,9 +79,9 @@ Magic3D::PhysicsConstraint::PhysicsConstraint(CONSTRAINT type)
     connectedBone.clear();
 
     pivot          = Vector3(0.0f, 0.0f, 0.0f);
-    axis           = Vector3(0.0f, 0.0f, 1.0f);
+    axis           = Vector3(0.0f, 1.0f, 0.0f);
     connectedPivot = Vector3(0.0f, 0.0f, 0.0f);
-    connectedAxis  = Vector3(0.0f, 0.0f, 1.0f);
+    connectedAxis  = Vector3(0.0f, 1.0f, 0.0f);
 
     linearLowerLimit  = Vector3(0.0f, 0.0f, 0.0f);
     linearUpperLimit  = Vector3(0.0f, 0.0f, 0.0f);
@@ -641,17 +641,17 @@ Magic3D::XMLElement* Magic3D::PhysicsConstraint::load(XMLElement* root)
         linearUpperLimit  = loadVector3(root,  M3D_PHYSICS_CONSTRAINT_XML_LINEAR_UPPER);
         angularLowerLimit = loadVector3(root,  M3D_PHYSICS_CONSTRAINT_XML_ANGULAR_LOWER);
         angularUpperLimit = loadVector3(root,  M3D_PHYSICS_CONSTRAINT_XML_ANGULAR_UPPER);
-        breakingImpulse   = loadBool(root,     M3D_PHYSICS_CONSTRAINT_XML_BREAKING_IMPULSE);
-        limitLow          = loadBool(root,     M3D_PHYSICS_CONSTRAINT_XML_LIMIT_LOW);
-        limitHigh         = loadBool(root,     M3D_PHYSICS_CONSTRAINT_XML_LIMIT_HIGH);
-        swingSpan1        = loadBool(root,     M3D_PHYSICS_CONSTRAINT_XML_SWING_SPAN1);
-        swingSpan2        = loadBool(root,     M3D_PHYSICS_CONSTRAINT_XML_SWING_SPAN2);
-        twistSpan         = loadBool(root,     M3D_PHYSICS_CONSTRAINT_XML_TWIST_SPAN);
-        softness          = loadBool(root,     M3D_PHYSICS_CONSTRAINT_XML_SOFTNESS);
-        bias              = loadBool(root,     M3D_PHYSICS_CONSTRAINT_XML_BIAS);
-        relaxation        = loadBool(root,     M3D_PHYSICS_CONSTRAINT_XML_RELAXATION);
-        damping           = loadBool(root,     M3D_PHYSICS_CONSTRAINT_XML_DAMPING);
-        thresh            = loadBool(root,     M3D_PHYSICS_CONSTRAINT_XML_THRESH);
+        breakingImpulse   = loadFloat(root,     M3D_PHYSICS_CONSTRAINT_XML_BREAKING_IMPULSE);
+        limitLow          = loadFloat(root,     M3D_PHYSICS_CONSTRAINT_XML_LIMIT_LOW);
+        limitHigh         = loadFloat(root,     M3D_PHYSICS_CONSTRAINT_XML_LIMIT_HIGH);
+        swingSpan1        = loadFloat(root,     M3D_PHYSICS_CONSTRAINT_XML_SWING_SPAN1);
+        swingSpan2        = loadFloat(root,     M3D_PHYSICS_CONSTRAINT_XML_SWING_SPAN2);
+        twistSpan         = loadFloat(root,     M3D_PHYSICS_CONSTRAINT_XML_TWIST_SPAN);
+        softness          = loadFloat(root,     M3D_PHYSICS_CONSTRAINT_XML_SOFTNESS);
+        bias              = loadFloat(root,     M3D_PHYSICS_CONSTRAINT_XML_BIAS);
+        relaxation        = loadFloat(root,     M3D_PHYSICS_CONSTRAINT_XML_RELAXATION);
+        damping           = loadFloat(root,     M3D_PHYSICS_CONSTRAINT_XML_DAMPING);
+        thresh            = loadFloat(root,     M3D_PHYSICS_CONSTRAINT_XML_THRESH);
         breakable         = loadBool(root,     M3D_PHYSICS_CONSTRAINT_XML_BREAKABLE);
         angularOnly       = loadBool(root,     M3D_PHYSICS_CONSTRAINT_XML_ANGULAR_ONLY);
 

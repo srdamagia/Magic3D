@@ -56,8 +56,8 @@ int main(int argc, char *argv[])
         //Magic3D::Renderer::getInstance()->createWindow(false, true, 1280, 1024);
         Magic3D::Renderer::getInstance()->createWindow();
 
-        Magic3D::ResourceManager::getInstance()->setPath(applicationPath + "data", false);
-        //Magic3D::ResourceManager::getInstance()->setPath(applicationPath + "data.magic3d", true);
+        //Magic3D::ResourceManager::getInstance()->setPath(applicationPath + "data", false);
+        Magic3D::ResourceManager::getInstance()->setPath(applicationPath + "data.magic3d", true);
         Magic3D::ResourceManager::getInstance()->setUserPath(applicationPath);
 
         Magic3D::Magic3D::play();

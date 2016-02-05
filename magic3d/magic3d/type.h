@@ -36,7 +36,13 @@ subject to the following restrictions:
 #include <map>
 #include <algorithm>
 
+#include <enet/enet.h>
 #include <tinyxml2.h>
+
+namespace Magic3D
+{
+    typedef tinyxml2::XMLDocument XMLDocument;
+}
 
 #include <btBulletDynamicsCommon.h>
 

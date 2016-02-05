@@ -250,6 +250,15 @@ INPUT(
 ./build\lutf8lib.o
 ./build\lvm.o
 ./build\lzio.o
+./build\callbacks.o
+./build\ecompress.o
+./build\host.o
+./build\list.o
+./build\packet.o
+./build\peer.o
+./build\protocol.o
+./build\unix.o
+./build\win32.o
 ./build\camera.o
 ./build\config.o
 ./build\eventlistener.o
@@ -260,6 +269,7 @@ INPUT(
 ./build\material.o
 ./build\math.o
 ./build\mesh.o
+./build\network.o
 ./build\object.o
 ./build\octree.o
 ./build\package.o

@@ -228,7 +228,7 @@ void Magic3D::Input::dispatchEvent(INPUT input, EVENT event, int value)
             case eEVENT_TOUCH_MOVE:       ((EventListener_Touch*)listener)->move(0, 0, value); break;
 
             case eEVENT_ACCELEROMETER:    ((EventListener_Accelerometer*)listener)->accelerometer(0.0f, 0.0f, 0.0f); break;
-            case eEVENT_GYROSCOPE:        ((EventListener_Gyroscope*)listener)->gyroscope(0.0f, 0.0f, 0.0f); break;
+            case eEVENT_GYROSCOPE:        ((EventListener_Gyroscope*)listener)->gyroscope(0.0f, 0.0f, 0.0f, 0.0f); break;
         }
     }
 }
@@ -307,7 +307,7 @@ void Magic3D::Input::dispatchEvent(INPUT input, EVENT event, int x, int y, int v
             case eEVENT_TOUCH_MOVE:       ((EventListener_Touch*)listener)->move(fx, fy, value); break;
 
             case eEVENT_ACCELEROMETER:    ((EventListener_Accelerometer*)listener)->accelerometer(fx, fy, 0.0f); break;
-            case eEVENT_GYROSCOPE:        ((EventListener_Gyroscope*)listener)->gyroscope(fx, fy, 0.0f); break;
+            case eEVENT_GYROSCOPE:        ((EventListener_Gyroscope*)listener)->gyroscope(fx, fy, 0.0f, 0.0f); break;
         }
     }
 }
@@ -387,7 +387,87 @@ void Magic3D::Input::dispatchEvent(INPUT input, EVENT event, float x, float y, f
             case eEVENT_TOUCH_MOVE:       ((EventListener_Touch*)listener)->move(fx, fy, fz); break;
 
             case eEVENT_ACCELEROMETER:    ((EventListener_Accelerometer*)listener)->accelerometer(fx, fy, fz); break;
-            case eEVENT_GYROSCOPE:        ((EventListener_Gyroscope*)listener)->gyroscope(fx, fy, fz); break;
+            case eEVENT_GYROSCOPE:        ((EventListener_Gyroscope*)listener)->gyroscope(fx, fy, fz, 0.0f); break;
+        }
+    }
+}
+
+void Magic3D::Input::dispatchEvent(INPUT input, EVENT event, float x, float y, float z, float w)
+{
+    std::vector<EventListener*>* list = NULL;
+
+    switch (input)
+    {
+        case eINPUT_KEYBOARD:      list = &events_keyboard; break;
+        case eINPUT_MOUSE:         list = &events_mouse; break;
+        case eINPUT_JOYSTICK:      list = &events_joystick; break;
+        case eINPUT_TOUCH:         list = &events_touch; break;
+        case eINPUT_ACCELEROMETER: list = &events_accelerometer; break;
+        case eINPUT_GYROSCOPE:     list = &events_gyroscope; break;
+    }
+
+    float fx = x;
+    float fy = y;
+    float fz = z;
+
+    Window* window = Renderer::getInstance()->getWindow();
+
+    if (window)
+    {
+        switch (window->getOrientation())
+        {
+            case eWINDOW_ORIENTATION_PORTRAIT_DOWN:
+            {
+                fx = -x;
+                fy = -y;
+                break;
+            }
+            case eWINDOW_ORIENTATION_LANDSCAPE_LEFT:
+            {
+                fx = -y;
+                fy = x;
+                break;
+            }
+            case eWINDOW_ORIENTATION_LANDSCAPE_RIGHT:
+            {
+                fx = y;
+                fy = -x;
+                break;
+            }
+
+            default: break;
+        }
+    }
+
+
+    std::vector<EventListener*>::const_iterator itor = list->begin();
+    while (itor != list->end())
+    {
+        EventListener* listener = *itor++;
+
+        switch (event)
+        {
+            case eEVENT_KEYBOARD_DOWN:    ((EventListener_Keyboard*)listener)->down(fz); break;
+            case eEVENT_KEYBOARD_PRESSED: ((EventListener_Keyboard*)listener)->pressed(fz); break;
+            case eEVENT_KEYBOARD_UP:      ((EventListener_Keyboard*)listener)->up(fz); break;
+
+            case eEVENT_MOUSE_DOWN:       ((EventListener_Mouse*)listener)->down(fx, fy, fz); break;
+            case eEVENT_MOUSE_PRESSED:    ((EventListener_Mouse*)listener)->pressed(fx, fy, fz); break;
+            case eEVENT_MOUSE_UP:         ((EventListener_Mouse*)listener)->up(fx, fy, fz); break;
+            case eEVENT_MOUSE_MOVE:       ((EventListener_Mouse*)listener)->move(fx, fy); break;
+            case eEVENT_MOUSE_WHEEL:       ((EventListener_Mouse*)listener)->wheel(fx, fy, fz); break;
+
+            case eEVENT_JOYSTICK_DOWN:    ((EventListener_Joystick*)listener)->down(fz); break;
+            case eEVENT_JOYSTICK_PRESSED: ((EventListener_Joystick*)listener)->pressed(fz); break;
+            case eEVENT_JOYSTICK_UP:      ((EventListener_Joystick*)listener)->up(fz); break;
+
+            case eEVENT_TOUCH_DOWN:       ((EventListener_Touch*)listener)->down(fx, fy, fz); break;
+            case eEVENT_TOUCH_PRESSED:    ((EventListener_Touch*)listener)->pressed(fx, fy, fz); break;
+            case eEVENT_TOUCH_UP:         ((EventListener_Touch*)listener)->up(fx, fy, fz); break;
+            case eEVENT_TOUCH_MOVE:       ((EventListener_Touch*)listener)->move(fx, fy, fz); break;
+
+            case eEVENT_ACCELEROMETER:    ((EventListener_Accelerometer*)listener)->accelerometer(fx, fy, fz); break;
+            case eEVENT_GYROSCOPE:        ((EventListener_Gyroscope*)listener)->gyroscope(x, y, z, w); break;
         }
     }
 }

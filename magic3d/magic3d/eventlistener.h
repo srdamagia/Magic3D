@@ -59,7 +59,7 @@ public:
     virtual void down(int x, int y, int button) {if (x || y || button) {}}
     virtual void pressed(int x, int y, int button) {if (x || y || button) {}}
     virtual void up(int x, int y, int button) {if (x || y || button) {}}
-    virtual void move(int deltaX, int deltaY) {if (deltaX || deltaY) {}}
+    virtual void move(int x, int y) {if (x || y) {}}
     virtual void wheel(int x, int y, int delta) {if (x || y || delta) {}}
 };
 
@@ -97,7 +97,7 @@ public:
     EventListener_Gyroscope() : EventListener(eINPUT_GYROSCOPE) {}
     virtual ~EventListener_Gyroscope() {}
 
-    virtual void gyroscope(float x, float y, float z) {if (x || y || z) {}}
+    virtual void gyroscope(float x, float y, float z, float w) {if (x || y || z || w) {}}
 };
 
 }

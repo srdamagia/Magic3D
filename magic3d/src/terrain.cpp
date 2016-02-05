@@ -239,24 +239,41 @@ void Magic3D::Terrain::generateTerrain()
 
         if (!heightMap.empty() && heightMap.rfind(".raw") != std::string::npos)
         {
-            std::ifstream heightStream;
-            heightStream.open( ResourceManager::getTextures()->getPath(eTEXTURE_DIFFUSE, heightMap).c_str(), std::ios::binary );
-            if ( heightStream.fail() )
-            {
-                Log::log(eLOG_FAILURE, "Could not open height file.");
-            }
 
-            if (heightStream.is_open())
+            std::string fileName = ResourceManager::getTextures()->getPath(eTEXTURE_DIFFUSE, heightMap);
+            if (ResourceManager::getInstance()->getPackage())
             {
-                // Get number of vertices
-                heightStream.seekg( 0, std::ios::end );
-                numVertices = heightStream.tellg();
-                heightStream.seekg( 0, std::ios::beg );
+                Memory mem;
+                ResourceManager::getInstance()->unpack(fileName, &mem);
 
-                // Allocate memory and read the data
+                mem.seeki( 0, std::ios::end );
+                numVertices = mem.telli();
+                mem.seeki( 0, std::ios::beg );
+
                 heightsRaw = new unsigned char[numVertices];
-                heightStream.read( (char *)heightsRaw, numVertices );
-                heightStream.close();
+                mem.read( (char *)heightsRaw, numVertices );
+            }
+            else
+            {
+                std::ifstream heightStream;
+                heightStream.open( fileName.c_str(), std::ios::binary );
+                if ( heightStream.fail() )
+                {
+                    Log::log(eLOG_FAILURE, "Could not open height file.");
+                }
+
+                if (heightStream.is_open())
+                {
+                    // Get number of vertices
+                    heightStream.seekg( 0, std::ios::end );
+                    numVertices = heightStream.tellg();
+                    heightStream.seekg( 0, std::ios::beg );
+
+                    // Allocate memory and read the data
+                    heightsRaw = new unsigned char[numVertices];
+                    heightStream.read( (char *)heightsRaw, numVertices );
+                    heightStream.close();
+                }
             }
         }
 
@@ -270,9 +287,24 @@ void Magic3D::Terrain::generateTerrain()
         float* heights = NULL;
         if (!heightMap.empty())
         {
+            std::string fileName = ResourceManager::getTextures()->getPath(eTEXTURE_DIFFUSE, heightMap + TERRAIN_FILE);
+            DataBuffer* io;
+            bool ready = false;
+
+            if (ResourceManager::getInstance()->getPackage())
+            {
+                io = new Memory();
+                ready = ResourceManager::getInstance()->unpack(fileName, io);
+            }
+            else
+            {
+                io = new File();
+                ready = static_cast<File*>(io)->open(fileName.c_str(), "rb");
+            }
+
             Image* image = NULL;
-            File* io = new File();
-            if (io->open(ResourceManager::getTextures()->getPath(eTEXTURE_DIFFUSE, heightMap + TERRAIN_FILE).c_str(), "rb"))
+
+            if (ready)
             {
                 image = new PNG();
                 image->decode(io);

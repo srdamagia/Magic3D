@@ -91,13 +91,13 @@ void Magic3D::Script_Input_Mouse::up(int x, int y, int button)
     }
 }
 
-void Magic3D::Script_Input_Mouse::move(int deltaX, int deltaY)
+void Magic3D::Script_Input_Mouse::move(int x, int y)
 {
     std::string function(M3D_SCRIPT_MOUSE_MOVE);
     if (Script::getInstance()->on_mouse_move && Script::getInstance()->startCall(function))
     {
-        Script::getInstance()->pushInteger(deltaX);
-        Script::getInstance()->pushInteger(deltaY);
+        Script::getInstance()->pushInteger(x);
+        Script::getInstance()->pushInteger(y);
         //Script::getInstance()->pushInteger(button);
         Script::getInstance()->call(function, 2);
     }
@@ -213,7 +213,7 @@ void Magic3D::Script_Input_Accelerometer::accelerometer(float x, float y, float 
 
 //********************************************************************************
 
-void Magic3D::Script_Input_Gyroscope::gyroscope(float x, float y, float z)
+void Magic3D::Script_Input_Gyroscope::gyroscope(float x, float y, float z, float w)
 {
     std::string function(M3D_SCRIPT_GYROSCOPE);
     if (Script::getInstance()->on_gyroscope && Script::getInstance()->startCall(function))
@@ -221,6 +221,7 @@ void Magic3D::Script_Input_Gyroscope::gyroscope(float x, float y, float z)
         Script::getInstance()->pushNumber(x);
         Script::getInstance()->pushNumber(y);
         Script::getInstance()->pushNumber(z);
-        Script::getInstance()->call(function, 3);
+        Script::getInstance()->pushNumber(w);
+        Script::getInstance()->call(function, 4);
     }
 }

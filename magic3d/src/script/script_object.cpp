@@ -57,6 +57,7 @@ Magic3D::ScriptClass<Magic3D::ScriptObject>::ScriptFunction Magic3D::ScriptObjec
     ScriptClassFunction(Magic3D::ScriptObject, setPosition, "void setPosition(Vector3 position)", ""),
     ScriptClassFunction(Magic3D::ScriptObject, getPosition, "Vector3 getPosition()", ""),
     ScriptClassFunction(Magic3D::ScriptObject, setRotation, "void setRotation(Vector3 rotation)", ""),
+    ScriptClassFunction(Magic3D::ScriptObject, setQuaternion, "void setQuaternion(float x, float y, float z, float w)", ""),
     ScriptClassFunction(Magic3D::ScriptObject, getRotation, "Vector3 getRotation()", ""),
     ScriptClassFunction(Magic3D::ScriptObject, setScale,    "void setScale(Vector3 scale)", ""),
     ScriptClassFunction(Magic3D::ScriptObject, getScale,    "Vector3 getScale()", ""),
@@ -230,6 +231,17 @@ int Magic3D::ScriptObject::setRotation(lua_State *lua)
     ScriptVector3* vector = ScriptClass<ScriptVector3>::check(lua, 1);
 
     object->setRotationEuler(vector->getValue());
+    return 0;
+}
+
+int Magic3D::ScriptObject::setQuaternion(lua_State *lua)
+{
+    float x = luaL_checknumber(lua, 1);
+    float y = luaL_checknumber(lua, 2);
+    float z = luaL_checknumber(lua, 3);
+    float w = luaL_checknumber(lua, 4);
+
+    object->setRotation(Quaternion(x, y, z, w));
     return 0;
 }
 

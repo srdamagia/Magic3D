@@ -49,7 +49,7 @@ end;
 --]]
 
 --[[
-function on_mouse_move(deltaX, deltaY)
+function on_mouse_move(x, x)
     --Code here
 end;
 --]]
@@ -110,7 +110,7 @@ end;
 --]]
 
 --[[
-function on_gyroscope(x, y, z);
+function on_gyroscope(x, y, z, w);
     --Code here
 end;
 --]]

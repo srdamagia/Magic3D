@@ -157,7 +157,7 @@ public:
     void generateVegetation();
 
     void calcNormals(int startVertex = 0, int startIndex = 0);
-    void doFaces(Branch* branch, int startIndex = 0);
+    void doFaces(Branch* branch, int startIndex = 0, bool invert = true);
     void createTwigs(Vector3 position,Branch* branch);
     void createForks(Branch* branch, float radius);
     void updateForks(Vector3 position, int startIndex = 0);

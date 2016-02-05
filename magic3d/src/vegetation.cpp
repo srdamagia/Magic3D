@@ -192,31 +192,7 @@ void Magic3D::Vegetation::init()
 {
     addDefaultTrees();
 
-    properties = trees[0];
-    /*properties.clumpMax            = 0.8f;
-    properties.clumpMin            = 0.5f;
-    properties.lengthFalloffFactor = 0.85f;
-    properties.branchFactor        = 2.0f;
-    properties.radiusFalloffRate   = 0.6f;
-    properties.climbRate           = 1.0f;
-    properties.trunkKink           = 0.00f;
-    properties.maxRadius           = 0.25f;
-    properties.taperRate           = 0.95f;
-    properties.initalBranchLength  = 0.85f;
-    properties.trunkLength         = 2.5f;
-    properties.dropAmount          = 0.0f;
-    properties.growAmount          = 0.0f;
-    properties.vMultiplier         = 0.2f;
-    properties.twigScale           = 2.0f;
-    properties.sweepAmount         = 0.0f;
-    properties.lengthFalloffPower  = 1.0f;
-    properties.twistRate           = 10.0f;
-    properties.treeSteps           = 2;    
-    properties.segments            = 6;
-    properties.levels              = 3;    
-    properties.seed                = 10;
-    properties.trunkIndex          = 0;
-    properties.twigIndex           = 0;*/
+    properties = trees[0];    
 
     density = 1.0f;
     minHeight = TERRAIN_HEIGHT_MIN;
@@ -349,7 +325,7 @@ void Magic3D::Vegetation::generateVegetation()
                             }
                         }
 
-                        Branch* root = new Branch(Vector3(0.0f, properties.trunkLength + Branch::random(index + properties.seed) * 2.5f, 0.0f), NULL);
+                        Branch* root = new Branch(Vector3(0.0f, properties.trunkLength + Branch::random(index + properties.seed) * properties.trunkLength * 0.5f, 0.0f), NULL);
                         root->length = properties.initalBranchLength;
                         root->split(properties.levels, properties.treeSteps, properties);
                         createForks(root, properties.maxRadius);
@@ -378,7 +354,8 @@ void Magic3D::Vegetation::generateVegetation()
             root->split(properties.levels, properties.treeSteps, properties);
             createForks(root, properties.maxRadius);
             createTwigs(Vector3(0.0f, 0.0f, 0.0f), root);
-            doFaces(root);
+            //doUVS(root);
+            doFaces(root);            
             calcNormals();
             updateForks(Vector3(0.0f, 0.0f, 0.0f), 0);
 
@@ -423,6 +400,8 @@ void Magic3D::Vegetation::calcNormals(int startVertex, int startIndex)
         allNormals[face[2] - startVertex].push_back(norm);
     }
 
+    float maxX = 0.0;
+    float maxY = 0.0;
     for (unsigned int i = 0; i < allNormals.size(); i++)
     {
         Vector3 total = Vector3(0.0f, 0.0f, 0.0f);
@@ -442,8 +421,26 @@ void Magic3D::Vegetation::calcNormals(int startVertex, int startIndex)
 
         Vector3 uv = Vector3(vertices->at(i + startVertex).uv[0].u, vertices->at(i + startVertex).uv[0].v, 1.0f);
 
-        uv.setX(Math::fract(uv.getX()));
-        uv.setY(Math::fract(uv.getY()));
+        /*float fx = Math::fract(uv.getX());
+        float fy = Math::fract(uv.getY());
+
+        if (uv.getX() >= 1.0f && fx == 0)
+        {
+            uv.setX(1.0f);
+        }
+        else
+        {
+            uv.setX(fx);
+        }
+        if (uv.getY() >= 1.0f && fy == 0)
+        {
+            uv.setY(1.0f);
+        }
+        else
+        {
+            uv.setY(fy);
+        }*/
+
 
         Vector3 uvs =  mulPerElem(uv, Vector3(uvu, uvv, 1.0)) + uvInc;
         vertices->at(i + startVertex).uv[0] = Texture2D(uvs.getX(), uvs.getY());
@@ -451,7 +448,7 @@ void Magic3D::Vegetation::calcNormals(int startVertex, int startIndex)
     }
 }
 
-void Magic3D::Vegetation::doFaces(Branch* branch, int startIndex)
+void Magic3D::Vegetation::doFaces(Branch* branch, int startIndex, bool invert)
 {
     MeshData* dataVegetation = vegetationMesh->getData();
     std::vector<Vertex3D>* vertices = dataVegetation->getVertices();
@@ -461,6 +458,15 @@ void Magic3D::Vegetation::doFaces(Branch* branch, int startIndex)
     vindex v2 = startIndex;
     vindex v3 = startIndex;
     vindex v4 = startIndex;
+
+    float texX = 1.0f;
+
+    float texY = 1.0f;
+
+    if (invert)
+    {
+        texY = 1.0f - properties.vMultiplier;
+    }
 
     if (!branch->parent)
     {
@@ -482,12 +488,14 @@ void Magic3D::Vegetation::doFaces(Branch* branch, int startIndex)
             int index = startIndex + ((i + segOffset) % segments);
             dataVegetation->addTriangle(TriangleIndexes(v1, v4, v3));
             dataVegetation->addTriangle(TriangleIndexes(v4, v2, v3));
-            vertices->at(index).uv[0] = Texture2D(fabs((float)i / (float)segments - 0.5f) * 2.0f, 0.0f);
+            vertices->at(index).uv[0] = Texture2D(fabs((float)i / (float)segments - 0.5f) * texX, 0.0f);
             vertices->at(index).uv[1] = vertices->at(index).uv[0];
-            float len = length(vertices->at(branch->ring0[i]).position - vertices->at(branch->root[(i + segOffset) % segments]).position) * properties.vMultiplier;
-            vertices->at(branch->ring0[i]).uv[0] = Texture2D(fabs((float)i / (float)segments - 0.5f) * 2.0f, len);
+            //float len = length(vertices->at(branch->ring0[i]).position - vertices->at(branch->root[(i + segOffset) % segments]).position) * properties.vMultiplier;
+            //vertices->at(branch->ring0[i]).uv[0] = Texture2D(fabs((float)i / (float)segments - 0.5f) * texX, len);
+            vertices->at(branch->ring0[i]).uv[0] = Texture2D(fabs((float)i / (float)segments - 0.5f) * texX, 1.0f);
             vertices->at(branch->ring0[i]).uv[1] = vertices->at(branch->ring0[i]).uv[0];
-            vertices->at(branch->ring2[i]).uv[0] = Texture2D(fabs((float)i / (float)segments - 0.5f) * 2.0f, len);
+            //vertices->at(branch->ring2[i]).uv[0] = Texture2D(fabs((float)i / (float)segments - 0.5f) * texX, len);
+            vertices->at(branch->ring2[i]).uv[0] = Texture2D(fabs((float)i / (float)segments - 0.5f) * texX, 1.0f);
             vertices->at(branch->ring2[i]).uv[1] = vertices->at(branch->ring2[i]).uv[0];
         }
     }
@@ -544,25 +552,29 @@ void Magic3D::Vegetation::doFaces(Branch* branch, int startIndex)
             dataVegetation->addTriangle(TriangleIndexes(v1, v2, v3));
             dataVegetation->addTriangle(TriangleIndexes(v1, v4, v2));
 
-            float len1 = length(vertices->at(branch->child0->ring0[i]).position - vertices->at(branch->ring1[(i + segOffset0) % segments]).position) * UVScale;
+            //float len1 = length(vertices->at(branch->child0->ring0[i]).position - vertices->at(branch->ring1[(i + segOffset0) % segments]).position) * UVScale;
             Texture2D uv1 = vertices->at(branch->ring1[(i + segOffset0 - 1) % segments]).uv[0];
 
-            vertices->at(branch->child0->ring0[i]).uv[0] = Texture2D(uv1.u, uv1.v + len1 * properties.vMultiplier);
+            //vertices->at(branch->child0->ring0[i]).uv[0] = Texture2D(uv1.u, uv1.v + len1 * properties.vMultiplier);
+            vertices->at(branch->child0->ring0[i]).uv[0] = Texture2D(uv1.u, texY);
             vertices->at(branch->child0->ring0[i]).uv[1] = vertices->at(branch->child0->ring0[i]).uv[0];
-            vertices->at(branch->child0->ring2[i]).uv[0] = Texture2D(uv1.u, uv1.v + len1 * properties.vMultiplier);
+            //vertices->at(branch->child0->ring2[i]).uv[0] = Texture2D(uv1.u, uv1.v + len1 * properties.vMultiplier);
+            vertices->at(branch->child0->ring2[i]).uv[0] = Texture2D(uv1.u, texY);
             vertices->at(branch->child0->ring2[i]).uv[1] = vertices->at(branch->child0->ring2[i]).uv[0];
 
-            float len2 = length(vertices->at(branch->child1->ring0[i]).position - vertices->at(branch->ring2[(i + segOffset1) % segments]).position) * UVScale;
+            //float len2 = length(vertices->at(branch->child1->ring0[i]).position - vertices->at(branch->ring2[(i + segOffset1) % segments]).position) * UVScale;
             Texture2D uv2 = vertices->at(branch->ring2[(i + segOffset1 - 1) % segments]).uv[0];
 
-            vertices->at(branch->child1->ring0[i]).uv[0] = Texture2D(uv2.u, uv2.v + len2 * properties.vMultiplier);
+            //vertices->at(branch->child1->ring0[i]).uv[0] = Texture2D(uv2.u, uv2.v + len2 * properties.vMultiplier);
+            vertices->at(branch->child1->ring0[i]).uv[0] = Texture2D(uv2.u, texY);
             vertices->at(branch->child1->ring0[i]).uv[1] = vertices->at(branch->child1->ring0[i]).uv[0];
-            vertices->at(branch->child1->ring2[i]).uv[0] = Texture2D(uv2.u, uv2.v + len2 * properties.vMultiplier);
+            //vertices->at(branch->child1->ring2[i]).uv[0] = Texture2D(uv2.u, uv2.v + len2 * properties.vMultiplier);
+            vertices->at(branch->child1->ring2[i]).uv[0] = Texture2D(uv2.u, texY);
             vertices->at(branch->child1->ring2[i]).uv[1] = vertices->at(branch->child1->ring2[i]).uv[0];
         }
 
-        doFaces(branch->child0, startIndex);
-        doFaces(branch->child1, startIndex);
+        doFaces(branch->child0, startIndex, !invert);
+        doFaces(branch->child1, startIndex, !invert);
     }
     else
     {
@@ -571,11 +583,13 @@ void Magic3D::Vegetation::doFaces(Branch* branch, int startIndex)
             dataVegetation->addTriangle(TriangleIndexes(branch->child0->end, branch->ring1[(i + 1) % segments], branch->ring1[i]));
             dataVegetation->addTriangle(TriangleIndexes(branch->child1->end, branch->ring2[(i + 1) % segments], branch->ring2[i]));
 
-            float len = length(vertices->at(branch->child0->end).position - vertices->at(branch->ring1[i]).position);
-            vertices->at(branch->child0->end).uv[0] = Texture2D(fabs((float)i / (float)segments - 1.0f - 0.5f) * 2.0f, len * properties.vMultiplier);
+            //float len = length(vertices->at(branch->child0->end).position - vertices->at(branch->ring1[i]).position);
+            //vertices->at(branch->child0->end).uv[0] = Texture2D(fabs((float)i / (float)segments - 1.0f - 0.5f) * texX, len * properties.vMultiplier);
+            vertices->at(branch->child0->end).uv[0] = Texture2D(fabs((float)i / (float)segments - 1.0f - 0.5f) * texX, texY);
             vertices->at(branch->child0->end).uv[1] = vertices->at(branch->child0->end).uv[0];
-            len = length(vertices->at(branch->child1->end).position - vertices->at(branch->ring2[i]).position);
-            vertices->at(branch->child1->end).uv[0] = Texture2D(fabs((float)i / (float)segments - 0.5f) * 2.0f, len * properties.vMultiplier);
+            //len = length(vertices->at(branch->child1->end).position - vertices->at(branch->ring2[i]).position);
+            //vertices->at(branch->child1->end).uv[0] = Texture2D(fabs((float)i / (float)segments - 0.5f) * texX, len * properties.vMultiplier);
+            vertices->at(branch->child1->end).uv[0] = Texture2D(fabs((float)i / (float)segments - 0.5f) * texX, texY);
             vertices->at(branch->child1->end).uv[1] = vertices->at(branch->child1->end).uv[0];
         }
     }
@@ -1172,7 +1186,7 @@ void Magic3D::Vegetation::addDefaultTrees()
     p.trunkLength         = 2.4f;
     p.dropAmount          = -0.1f;
     p.growAmount          = 0.235f;
-    p.vMultiplier         = 2.36f;
+    p.vMultiplier         = 1.0f;
     p.twigScale           = 0.39f;
     p.sweepAmount         = 0.01f;
     p.lengthFalloffPower  = 0.99f;
@@ -1199,7 +1213,7 @@ void Magic3D::Vegetation::addDefaultTrees()
     p.trunkLength         = 1.55f;
     p.dropAmount          = 0.07f;
     p.growAmount          = -0.005f;
-    p.vMultiplier         = 0.66f;
+    p.vMultiplier         = 1.0f;
     p.twigScale           = 0.47f;
     p.sweepAmount         = 0.01f;
     p.lengthFalloffPower  = 0.99f;
@@ -1226,7 +1240,7 @@ void Magic3D::Vegetation::addDefaultTrees()
     p.trunkLength         = 2.45;
     p.dropAmount          = 0.09f;
     p.growAmount          = 0.235f;
-    p.vMultiplier         = 1.16f;
+    p.vMultiplier         = 1.0f;
     p.twigScale           = 0.44f;
     p.sweepAmount         = 0.01f;
     p.lengthFalloffPower  = 0.99f;
@@ -1280,7 +1294,7 @@ void Magic3D::Vegetation::addDefaultTrees()
     p.trunkLength         = 1.75;
     p.dropAmount          = 0.18f;
     p.growAmount          = -0.108f;
-    p.vMultiplier         = 0.96f;
+    p.vMultiplier         = 1.0f;
     p.twigScale           = 0.71f;
     p.sweepAmount         = 0.01f;
     p.lengthFalloffPower  = 0.7f;
@@ -1307,7 +1321,7 @@ void Magic3D::Vegetation::addDefaultTrees()
     p.trunkLength         = 2.2f;
     p.dropAmount          = -0.16f;
     p.growAmount          = 0.128f;
-    p.vMultiplier         = 1.01f;
+    p.vMultiplier         = 1.0f;
     p.twigScale           = 0.52f;
     p.sweepAmount         = 0.01f;
     p.lengthFalloffPower  = 0.76f;
@@ -1334,7 +1348,7 @@ void Magic3D::Vegetation::addDefaultTrees()
     p.trunkLength         = 2.25f;
     p.dropAmount          = 0.09f;
     p.growAmount          = 0.235f;
-    p.vMultiplier         = 1.16f;
+    p.vMultiplier         = 1.0f;
     p.twigScale           = 0.39f;
     p.sweepAmount         = 0.051f;
     p.lengthFalloffPower  = 0.99f;
@@ -1362,7 +1376,7 @@ void Magic3D::Vegetation::addDefaultTrees()
     p.trunkLength         = 2.2;
     p.dropAmount          = -0.15f;
     p.growAmount          = 0.28f;
-    p.vMultiplier         = 0.96f;
+    p.vMultiplier         = 1.0f;
     p.twigScale           = 0.7f;
     p.sweepAmount         = 0.01f;
     p.lengthFalloffPower  = 0.7f;
