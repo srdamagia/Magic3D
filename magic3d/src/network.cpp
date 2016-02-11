@@ -123,7 +123,7 @@ bool Magic3D::Network::initialize()
             else
             {
                 ENetEvent event;
-                if(enet_host_service(server, &event, 5000) > 0 && event.type == ENET_EVENT_TYPE_CONNECT)
+                if (enet_host_service(server, &event, 5000) > 0 && event.type == ENET_EVENT_TYPE_CONNECT)
                 {                    
                     Log::logFormat(eLOG_SUCCESS, "Host connection %s successful!", Magic3D::getInstance()->getConfiguration().ADDRESS.c_str());
                 }
@@ -182,12 +182,11 @@ void Magic3D::Network::update()
 
                     enet_packet_destroy(event.packet);
                 }
-                else
-                {
-                    openPacket(event.packet);
-                }
+                openPacket(event.packet);
+
                 break;
             }
+
             case ENET_EVENT_TYPE_DISCONNECT:
             {
                 for (unsigned int i = 0; i < clients.size(); i++)
@@ -208,6 +207,7 @@ void Magic3D::Network::update()
                 }
                 break;
             }
+
             default: break;
         }
     }
@@ -225,23 +225,26 @@ bool Magic3D::Network::isServer()
 
 void Magic3D::Network::openPacket(ENetPacket* packet)
 {
-    switch (packet->data[0])
+    if (packet)
     {
-        case eNETWORK_OBJECT:
+        switch (packet->data[0])
         {
-            unsigned char name[256];
-            memcpy(&name[0], &packet->data[1], 256);
-            Log::logFormat(eLOG_RENDERER, "Object name: %s", name);
-            break;
-        }
-        case eNETWORK_INPUT:
-        {
-            break;
-        }
-        case eNETWORK_TEXT:
-        {
-            Log::logFormat(eLOG_RENDERER, "Network message: %s", &packet->data[1]);
-            break;
+            case eNETWORK_OBJECT:
+            {
+                unsigned char name[256];
+                memcpy(&name[0], &packet->data[1], 256);
+                Log::logFormat(eLOG_RENDERER, "Object name: %s", name);
+                break;
+            }
+            case eNETWORK_INPUT:
+            {
+                break;
+            }
+            case eNETWORK_TEXT:
+            {
+                Log::logFormat(eLOG_RENDERER, "Network message: %s", &packet->data[1]);
+                break;
+            }
         }
     }
 
