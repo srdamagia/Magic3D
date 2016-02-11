@@ -215,6 +215,15 @@ void Magic3D::Magic3D::loadConfiguration()
             configuration.FULLSCREEN    = Xml::loadBool(cfg, CFG_XML_FULLSCREEN);
             configuration.CURSOR        = Xml::loadBool(cfg, CFG_XML_CURSOR);
 
+            configuration.SERVER        = Xml::loadBool(cfg, CFG_XML_SERVER);
+            configuration.ADDRESS       = Xml::loadString(cfg, CFG_XML_ADDRESS);
+            if (configuration.ADDRESS.compare(M3D_XML_NULL) == 0)
+            {
+                configuration.ADDRESS.clear();
+            }
+            configuration.PORT          = Xml::loadInt(cfg, CFG_XML_PORT);
+            configuration.CLIENTS       = Xml::loadInt(cfg, CFG_XML_CLIENTS);
+
             configuration.NAME          = Xml::loadString(cfg, CFG_XML_SELECTED);
 
             cfg = cfg->FirstChildElement(configuration.NAME.c_str());
@@ -237,16 +246,7 @@ void Magic3D::Magic3D::loadConfiguration()
                 configuration.SOFT_SHADOWS         = Xml::loadInt(cfg, CFG_XML_SOFT_SHADOWS);
                 configuration.REFLECTIONS          = Xml::loadInt(cfg, CFG_XML_REFLECTIONS);
                 configuration.GLOW                 = Xml::loadInt(cfg, CFG_XML_GLOW);
-                configuration.STEREOSCOPY          = Xml::loadInt(cfg, CFG_XML_STEREOSCOPY);
-
-                configuration.SERVER               = Xml::loadBool(cfg, CFG_XML_SERVER);
-                configuration.ADDRESS              = Xml::loadString(cfg, CFG_XML_ADDRESS);
-                if (configuration.ADDRESS.compare(M3D_XML_NULL) == 0)
-                {
-                    configuration.ADDRESS.clear();
-                }
-                configuration.PORT                 = Xml::loadInt(cfg, CFG_XML_PORT);
-                configuration.CLIENTS              = Xml::loadInt(cfg, CFG_XML_CLIENTS);
+                configuration.STEREOSCOPY          = Xml::loadInt(cfg, CFG_XML_STEREOSCOPY);                
 
                 loaded = true;
 

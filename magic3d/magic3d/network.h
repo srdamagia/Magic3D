@@ -24,10 +24,17 @@ subject to the following restrictions:
 #ifndef MAGIC3D_NETWORK_H
 #define MAGIC3D_NETWORK_H
 
-#include <magic3d/type.h>
+#include <magic3d/object.h>
 
 namespace Magic3D
 {
+
+enum NETWORK_PACKET
+{
+    eNETWORK_OBJECT,
+    eNETWORK_INPUT,
+    eNETWORK_TEXT
+};
 
 class Network
 {
@@ -43,6 +50,9 @@ private:
     Network();
     virtual ~Network();
 
+    void openPacket(ENetPacket* packet);
+    void sendPacket(ENetPacket* packet);
+
 public:
     static bool start();
     static bool finish();
@@ -55,6 +65,12 @@ public:
     void update();
 
     int getClientsCount();
+
+    bool isServer();
+
+    void sendObject(Object* object);
+    void sendInput(INPUT input, EVENT event, float x, float y, float z, float w);
+    void sendText(std::string text);
 };
 
 }

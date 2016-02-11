@@ -99,6 +99,10 @@ public:
     int rotateCamera(lua_State* lua);
 
     int setStereoscopy(lua_State* lua);
+    
+    int sendText(lua_State* lua);
+    int sendObject(lua_State* lua);
+    int sendInput(lua_State* lua);
 };
 }
 #endif /* SCRIPT_MAGIC3D_H */
