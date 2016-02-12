@@ -91,8 +91,8 @@ Magic3D::ScriptClass<Magic3D::ScriptMagic3D>::ScriptFunction Magic3D::ScriptMagi
     ScriptClassFunction(ScriptMagic3D, setStereoscopy, "void setStereoscopy(bool stereoscopy, bool screenEffects)", ""),
 
     ScriptClassFunction(ScriptMagic3D, sendText, "void sendText(string text)", ""),
-    ScriptClassFunction(ScriptMagic3D, sendObject, "void setStereoscopy(string objectName)", ""),
-    ScriptClassFunction(ScriptMagic3D, sendInput, "void setStereoscopy(not working yet)", ""),
+    ScriptClassFunction(ScriptMagic3D, sendObject, "void sendObject(string objectName)", ""),
+    ScriptClassFunction(ScriptMagic3D, sendInput, "void sendInput(not working yet)", ""),
 
     {NULL, NULL, NULL, NULL}
 };

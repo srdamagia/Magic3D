@@ -72,7 +72,7 @@ private:
     void prepareAddress();
     enet_uint32 getAddress();
 
-    void prepareHeader(byte* data);
+    void prepareHeader(NETWORK_PACKET type, byte* data);
 
     void openPacket(ENetPacket* packet);
     void sendPacket(ENetPacket* packet);    
@@ -88,6 +88,7 @@ public:
 
     void connect();
     void disconnect(bool now);
+    bool isConnected();
 
     void update();
 

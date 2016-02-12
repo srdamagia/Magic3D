@@ -99,7 +99,7 @@ bool Magic3D::Network::initialize()
     {
         prepareAddress();
 
-        server = enet_host_create (isServer() ? &address : NULL, Magic3D::getInstance()->getConfiguration().CLIENTS, 2, 0, 0);
+        server = enet_host_create(isServer() ? &address : NULL, Magic3D::getInstance()->getConfiguration().CLIENTS, 2, 0, 0);
         if (server == NULL)
         {
             Log::log(eLOG_FAILURE, "An error occurred while trying to create an ENet server host.");
@@ -112,13 +112,17 @@ bool Magic3D::Network::initialize()
 
 bool Magic3D::Network::deinitialize()
 {
+    disconnect(true);
     if (peer)
     {
         enet_peer_reset(peer);
+        peer = NULL;
     }
+
     if (server)
     {
         enet_host_destroy(server);
+        server = NULL;
     }
     enet_deinitialize();
     return true;
@@ -139,9 +143,9 @@ void Magic3D::Network::prepareAddress()
 
 enet_uint32 Magic3D::Network::getAddress()
 {
-    if (peer)
+    if (isConnected())
     {
-        return peer->address.host;
+        return server->address.host;
     }
     else
     {
@@ -149,16 +153,16 @@ enet_uint32 Magic3D::Network::getAddress()
     }
 }
 
-void Magic3D::Network::prepareHeader(byte* data)
+void Magic3D::Network::prepareHeader(NETWORK_PACKET type, byte* data)
 {
-    data[0] = (byte)eNETWORK_TEXT;
+    data[0] = (byte)type;
     enet_uint32 ip = getAddress();
     memcpy(&data[1], &ip, sizeof(enet_uint32));
 }
 
 void Magic3D::Network::connect()
 {
-    if (!peer)
+    if (!isConnected())
     {
         prepareAddress();
 
@@ -176,13 +180,14 @@ void Magic3D::Network::connect()
                 {
                     Log::logFormat(eLOG_SUCCESS, "Host connection %s successful!", Magic3D::getInstance()->getConfiguration().ADDRESS.c_str());
                     char name[256];
-                    enet_address_get_host_ip(&peer->address, name, 255);
-                    Log::logFormat(eLOG_PLAINTEXT, "IP: %s:%u.\n", name, peer->address.port);
+                    enet_address_get_host_ip(&server->address, name, 255);
+                    Log::logFormat(eLOG_PLAINTEXT, "IP: %s:%u.\n", name, server->address.port);
                 }
                 else
                 {
                     Log::log(eLOG_FAILURE, "Host connection failed!");
                     enet_peer_reset(peer);
+                    peer = NULL;
                 }
             }
         }
@@ -191,7 +196,7 @@ void Magic3D::Network::connect()
 
 void Magic3D::Network::disconnect(bool now)
 {
-    if (peer)
+    if (isConnected())
     {
         if (now)
         {
@@ -202,6 +207,11 @@ void Magic3D::Network::disconnect(bool now)
             enet_peer_disconnect(peer, 0);
         }
     }
+}
+
+bool Magic3D::Network::isConnected()
+{
+    return peer && peer->connectID > 0;
 }
 
 void Magic3D::Network::update()
@@ -253,10 +263,8 @@ void Magic3D::Network::update()
                 Log::logFormat(eLOG_PLAINTEXT, "Client disconnected %s:%u.\n", name, event.peer->address.port);
                 event.peer->data = NULL;
 
-                if (peer)
-                {
-                    enet_peer_reset(peer);
-                }
+                enet_peer_reset(peer);
+                peer = NULL;
                 break;
             }
 
@@ -320,7 +328,7 @@ void Magic3D::Network::sendPacket(ENetPacket* packet)
 {
     if (packet)
     {
-        if (isServer() || peer)
+        if (isServer() || isConnected())
         {
             if (isServer())
             {
@@ -338,14 +346,14 @@ void Magic3D::Network::sendObject(Object* object)
 {
     if (object)
     {
-        if (isServer() || peer)
+        if (isServer() || isConnected())
         {
             Matrix4 matrix = object->getMatrix();
             unsigned int size = NETWORK_HEADER + sizeof(byte) * 256 + sizeof(Matrix4);
             byte* data = new byte[size];
-            prepareHeader(data);
+            prepareHeader(eNETWORK_OBJECT, data);
             memcpy(&data[NETWORK_HEADER], object->getName().c_str(), object->getName().size());
-            data[NETWORK_HEADER + object->getName().size() + 1] = '\0';
+            data[NETWORK_HEADER + object->getName().size()] = '\0';
             memcpy(&data[NETWORK_HEADER + 256], reinterpret_cast<float*>(&matrix), sizeof(Matrix4));
             ENetPacket* packet = enet_packet_create(data, size, ENET_PACKET_FLAG_RELIABLE);
             sendPacket(packet);
@@ -362,11 +370,11 @@ void Magic3D::Network::sendText(std::string text)
 {
     if (!text.empty())
     {
-        if (isServer() || peer)
+        if (isServer() || isConnected())
         {
             unsigned int size = NETWORK_HEADER + text.size() + 1;
             byte* data = new byte[size];
-            prepareHeader(data);
+            prepareHeader(eNETWORK_TEXT, data);
             memcpy(&data[NETWORK_HEADER], text.c_str(), text.size());
             data[size - 1] = '\0';
             ENetPacket* packet = enet_packet_create(data, size, ENET_PACKET_FLAG_RELIABLE);
