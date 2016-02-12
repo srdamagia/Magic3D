@@ -29,6 +29,25 @@ subject to the following restrictions:
 namespace Magic3D
 {
 
+/*
+NETWORK Packets
+
+NETWORK_OBJECT byte               type
+               enet_uint32        clientID
+               unsigned char[257] name
+               Matrix4            matrix
+
+NETWORK_INPUT  byte               type
+               enet_uint32        clientID
+               TODO **********************
+
+NETWORK_TEXT   byte               type
+               enet_uint32        clientID
+               unsigned char*     text
+*/
+
+#define NETWORK_HEADER (sizeof(byte) + sizeof(enet_uint32))
+
 enum NETWORK_PACKET
 {
     eNETWORK_OBJECT,
@@ -50,8 +69,13 @@ private:
     Network();
     virtual ~Network();
 
+    void prepareAddress();
+    enet_uint32 getAddress();
+
+    void prepareHeader(byte* data);
+
     void openPacket(ENetPacket* packet);
-    void sendPacket(ENetPacket* packet);
+    void sendPacket(ENetPacket* packet);    
 
 public:
     static bool start();
@@ -61,6 +85,9 @@ public:
 
     bool initialize();
     bool deinitialize();
+
+    void connect();
+    void disconnect(bool now);
 
     void update();
 
