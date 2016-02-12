@@ -141,7 +141,7 @@ void Magic3D::Network::prepareAddress()
     address.port = Magic3D::getInstance()->getConfiguration().PORT;
 }
 
-enet_uint32 Magic3D::Network::getAddress()
+enet_uint32 Magic3D::Network::getID()
 {
     if (isConnected())
     {
@@ -153,10 +153,23 @@ enet_uint32 Magic3D::Network::getAddress()
     }
 }
 
+ENetAddress Magic3D::Network::getClient(enet_uint32 id)
+{
+    ENetAddress result;
+    result.host = 0;
+    result.port = 0;
+    typename std::map<enet_uint32, ENetAddress>::const_iterator it_a = clients.find(id);
+    if (it_a != clients.end())
+    {
+        result = (*it_a).second;
+    }
+    return result;
+}
+
 void Magic3D::Network::prepareHeader(NETWORK_PACKET type, byte* data)
 {
     data[0] = (byte)type;
-    enet_uint32 ip = getAddress();
+    enet_uint32 ip = getID();
     memcpy(&data[1], &ip, sizeof(enet_uint32));
 }
 
@@ -179,12 +192,6 @@ void Magic3D::Network::connect()
                 if (enet_host_service(server, &event, 5000) > 0 && event.type == ENET_EVENT_TYPE_CONNECT)
                 {
                     Log::logFormat(eLOG_SUCCESS, "Host connection %s successful!", Magic3D::getInstance()->getConfiguration().ADDRESS.c_str());
-                    char name[256];
-                    ENetAddress tmp;
-                    tmp.host = peer->connectID;
-                    tmp.host = 0;
-                    enet_address_get_host_ip(&tmp, name, 255);
-                    Log::logFormat(eLOG_PLAINTEXT, "IP: %s:%u.\n", name, server->address.port);
                 }
                 else
                 {
@@ -232,15 +239,16 @@ void Magic3D::Network::update()
                 char name[256];
                 enet_address_get_host_ip(&event.peer->address, name, 255);
                 Log::logFormat(eLOG_SUCCESS, "A new client connected from %s:%u.\n", name, event.peer->address.port);
-                clients.push_back(event.peer->address);
 
+                if (getClient(event.peer->connectID).host == 0)
+                {
+                    clients[event.peer->connectID] = event.peer->address;
+                }
                 break;
             }
 
             case ENET_EVENT_TYPE_RECEIVE:
             {
-                Log::logFormat(eLOG_RENDERER, "A packet of length %u containing %s was received.", event.packet->dataLength, event.packet->data);
-
                 if (isServer())
                 {
                     packet = enet_packet_create(event.packet->data, event.packet->dataLength, ENET_PACKET_FLAG_RELIABLE);
@@ -254,12 +262,9 @@ void Magic3D::Network::update()
 
             case ENET_EVENT_TYPE_DISCONNECT:
             {
-                for (unsigned int i = 0; i < clients.size(); i++)
+                if (getClient(event.peer->connectID).host == event.peer->address.host)
                 {
-                    if (clients[i].host == event.peer->address.host)
-                    {
-                        clients.erase(clients.begin() + i);
-                    }
+                    clients.erase(event.peer->connectID);
                 }
                 char name[256];
                 enet_address_get_host_ip(&event.peer->address, name, 255);
@@ -296,7 +301,7 @@ void Magic3D::Network::openPacket(ENetPacket* packet)
         enet_uint32 sender;
         memcpy(&sender, &packet->data[1], sizeof(enet_uint32));
 
-        if (sender != getAddress())
+        if (sender != getID())
         {
             switch (packet->data[0])
             {

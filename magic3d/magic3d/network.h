@@ -64,13 +64,14 @@ private:
     ENetHost* server;
     ENetPeer* peer;
 
-    std::vector<ENetAddress> clients;
+    std::map<enet_uint32, ENetAddress> clients;
 
     Network();
     virtual ~Network();
 
     void prepareAddress();
-    enet_uint32 getAddress();
+    enet_uint32 getID();
+    ENetAddress getClient(enet_uint32 id);
 
     void prepareHeader(NETWORK_PACKET type, byte* data);
 
