@@ -145,7 +145,7 @@ enet_uint32 Magic3D::Network::getAddress()
 {
     if (isConnected())
     {
-        return server->address.host;
+        return peer->connectID;
     }
     else
     {
@@ -180,7 +180,10 @@ void Magic3D::Network::connect()
                 {
                     Log::logFormat(eLOG_SUCCESS, "Host connection %s successful!", Magic3D::getInstance()->getConfiguration().ADDRESS.c_str());
                     char name[256];
-                    enet_address_get_host_ip(&server->address, name, 255);
+                    ENetAddress tmp;
+                    tmp.host = peer->connectID;
+                    tmp.host = 0;
+                    enet_address_get_host_ip(&tmp, name, 255);
                     Log::logFormat(eLOG_PLAINTEXT, "IP: %s:%u.\n", name, server->address.port);
                 }
                 else
@@ -263,8 +266,11 @@ void Magic3D::Network::update()
                 Log::logFormat(eLOG_PLAINTEXT, "Client disconnected %s:%u.\n", name, event.peer->address.port);
                 event.peer->data = NULL;
 
-                enet_peer_reset(peer);
-                peer = NULL;
+                if (peer)
+                {
+                    enet_peer_reset(peer);
+                    peer = NULL;
+                }
                 break;
             }
 
