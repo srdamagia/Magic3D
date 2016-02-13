@@ -23,6 +23,7 @@ subject to the following restrictions:
 
 #include <magic3d/renderer/renderer.h>
 #include <magic3d/octree.h>
+#include <magic3d/network.h>
 
 int Magic3D::Octree::nodesCount = 0;
 int Magic3D::Octree::nodesRenderCount = 0;
@@ -221,6 +222,10 @@ void Magic3D::Octree::update()
             Object* object = *it_o++;
             if (object->isNeedingUpdateOctree())
             {                
+                if (object->isNetworkSpawn())
+                {
+                    Network::getInstance()->sendObject(object);
+                }
                 movedObjects.push_back(object);
             }
         }

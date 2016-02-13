@@ -286,7 +286,7 @@ void Magic3D::Vegetation::generateVegetation()
         Terrain* terrain = NULL;
         if (!terrainName.empty())
         {
-            Object* obj = ResourceManager::getInstance()->getObjects()->get(terrainName);
+            Object* obj = ResourceManager::getObjects()->get(terrainName);
             if (obj && obj->getType() == eOBJECT_TERRAIN)
             {
                 terrain = static_cast<Terrain*>(obj);

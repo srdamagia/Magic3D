@@ -91,7 +91,8 @@ Magic3D::ScriptClass<Magic3D::ScriptMagic3D>::ScriptFunction Magic3D::ScriptMagi
     ScriptClassFunction(ScriptMagic3D, setStereoscopy, "void setStereoscopy(bool stereoscopy, bool screenEffects)", ""),
 
     ScriptClassFunction(ScriptMagic3D, sendText, "void sendText(string text)", ""),
-    ScriptClassFunction(ScriptMagic3D, sendObject, "void sendObject(string objectName)", ""),
+    ScriptClassFunction(ScriptMagic3D, spawnNetworkObject, "Object* spawnNetworkObject(string name)", ""),
+    ScriptClassFunction(ScriptMagic3D, sendObject, "void sendObject(string name)", ""),
     ScriptClassFunction(ScriptMagic3D, sendInput, "void sendInput(not working yet)", ""),
 
     {NULL, NULL, NULL, NULL}
@@ -531,7 +532,7 @@ int Magic3D::ScriptMagic3D::setStereoscopy(lua_State* lua)
 
     Magic3D::getInstance()->setStereoscopy(stereoscopy);
 
-    Material* material = ResourceManager::getInstance()->getMaterials()->get("screen");
+    Material* material = ResourceManager::getMaterials()->get("screen");
     if (material)
     {
         MaterialVar_Boolean* mb = static_cast<MaterialVar_Boolean*>(material->getVar("stereoscopy"));
@@ -550,6 +551,22 @@ int Magic3D::ScriptMagic3D::sendText(lua_State* lua)
 {
     Network::getInstance()->sendText(luaL_checkstring(lua, 1));
     return 0;
+}
+
+int Magic3D::ScriptMagic3D::spawnNetworkObject(lua_State* lua)
+{
+    Object* object = Network::getInstance()->spawnObject(luaL_checkstring(lua, 1));
+    if (object)
+    {
+        ScriptObject* obj = new ScriptObject(object);
+
+        ScriptClass<ScriptObject>::push(lua, obj, true);
+    }
+    else
+    {
+        lua_pushnil(lua);
+    }
+    return 1;
 }
 
 int Magic3D::ScriptMagic3D::sendObject(lua_State* lua)

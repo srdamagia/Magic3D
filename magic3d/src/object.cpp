@@ -78,6 +78,8 @@ Magic3D::Object::Object(const Object& object, std::string name) : PhysicsObject(
     this->grid = false;
     this->uniqueUpdate = false;
 
+    this->networkSpawn = object.networkSpawn;
+
     std::vector<Mesh*>::const_iterator it_m = object.meshes.begin();
 
     while (it_m != object.meshes.end())
@@ -143,6 +145,8 @@ void Magic3D::Object::init(std::string name)
 
     uniqueUpdate     = false;
     scripted         = false;
+
+    networkSpawn     = false;
 
     AI               = NULL;
 }
@@ -273,6 +277,16 @@ void Magic3D::Object::killChildren()
         Scene::getInstance()->removeObject(child->getLayer(), child);
         ResourceManager::getObjects()->remove(child->name);
     }
+}
+
+void Magic3D::Object::setNetworkSpawn(bool network)
+{
+    this->networkSpawn = network;
+}
+
+bool Magic3D::Object::isNetworkSpawn()
+{
+    return networkSpawn;
 }
 
 bool Magic3D::Object::update()
@@ -1611,7 +1625,7 @@ Magic3D::ObjectInstance::ObjectInstance(std::string name) : Object(eOBJECT_INSTA
 
     box = Box(Vector3(-0.5f, -0.5f, -0.5f), Vector3(0.5f, 0.5f, 0.5f));
 
-    ModelInfo* modelInfo = ResourceManager::getInstance()->getModels()->get(M3D_PLACEHOLDER);
+    ModelInfo* modelInfo = ResourceManager::getModels()->get(M3D_PLACEHOLDER);
 
     if (modelInfo)
     {

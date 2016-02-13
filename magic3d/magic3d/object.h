@@ -145,6 +145,8 @@ private:
     bool parentRotation;
     bool parentScale;
 
+    bool networkSpawn;
+
     void init(std::string name);
     void updateAxisAngleFromRotation();
 
@@ -162,6 +164,9 @@ public:
     virtual Object* spawn(std::string name) const;
     Object* spawn(std::string name, std::string layerName, bool keepChildrenLayer);
     void killChildren();
+
+    void setNetworkSpawn(bool network);
+    bool isNetworkSpawn();
 
     void addInstance(ObjectInstance* instance);
     void removeInstance(ObjectInstance* instance);

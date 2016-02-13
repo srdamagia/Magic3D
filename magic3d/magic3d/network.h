@@ -32,9 +32,14 @@ namespace Magic3D
 /*
 NETWORK Packets
 
+NETWORK_SPAWN  byte               type
+               enet_uint32        clientID
+               enet_uint32        peerID
+               unsigned char[256] name               
+
 NETWORK_OBJECT byte               type
                enet_uint32        clientID
-               unsigned char[257] name
+               unsigned char[256] name
                Matrix4            matrix
 
 NETWORK_INPUT  byte               type
@@ -50,6 +55,7 @@ NETWORK_TEXT   byte               type
 
 enum NETWORK_PACKET
 {
+    eNETWORK_SPAWN,
     eNETWORK_OBJECT,
     eNETWORK_INPUT,
     eNETWORK_TEXT
@@ -65,6 +71,7 @@ private:
     ENetPeer* peer;
 
     std::map<enet_uint32, ENetAddress> clients;
+    std::map<std::string, enet_uint32> spawned;
 
     Network();
     virtual ~Network();
@@ -76,7 +83,9 @@ private:
     void prepareHeader(NETWORK_PACKET type, byte* data);
 
     void openPacket(ENetPacket* packet);
-    void sendPacket(ENetPacket* packet);    
+    void sendPacket(ENetPacket* packet);
+
+    Object* spawnObject(std::string name, enet_uint32 id);
 
 public:
     static bool start();
@@ -97,6 +106,7 @@ public:
 
     bool isServer();
 
+    Object* spawnObject(std::string name);
     void sendObject(Object* object);
     void sendInput(INPUT input, EVENT event, float x, float y, float z, float w);
     void sendText(std::string text);

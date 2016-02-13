@@ -101,6 +101,7 @@ public:
     int setStereoscopy(lua_State* lua);
     
     int sendText(lua_State* lua);
+    int spawnNetworkObject(lua_State* lua);
     int sendObject(lua_State* lua);
     int sendInput(lua_State* lua);
 };
