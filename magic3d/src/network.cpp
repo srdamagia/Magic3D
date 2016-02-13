@@ -346,8 +346,8 @@ void Magic3D::Network::openPacket(ENetPacket* packet)
 
                         if (!ResourceManager::getObjects()->get(name))
                         {
-                            object = object->spawn(name);
-                            spawned[name] = peer->connectID;
+                            object = object->spawn(name, object->getLayer()->getName(), true);
+                            spawned[name] = peerID;
                         }
                     }
 
