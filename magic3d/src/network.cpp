@@ -421,7 +421,7 @@ Magic3D::Object* Magic3D::Network::spawnObject(std::string name, enet_uint32 id)
                 Object* tmp = ResourceManager::getObjects()->get(spawnName);
                 if (!tmp)
                 {
-                    result = result->spawn(spawnName);
+                    result = result->spawn(spawnName, result->getLayer()->getName(), true);
                 }
                 else
                 {

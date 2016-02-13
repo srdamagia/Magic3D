@@ -374,10 +374,10 @@ int Magic3D::ScriptObject::getParent(lua_State *lua)
 
 int Magic3D::ScriptObject::setParentBone(lua_State *lua)
 {
-    if (object->getType() == eOBJECT_MODEL)
+    if (object->getParent()->getType() == eOBJECT_MODEL)
     {
-        Model* model = static_cast<Model*>(object);
-        model->setParentBone(model->getSkeleton()->getBoneByName(luaL_checkstring(lua, 1)));
+        Model* model = static_cast<Model*>(object->getParent());
+        object->setParentBone(model->getSkeleton()->getBoneByName(luaL_checkstring(lua, 1)));
     }
     return 0;
 }
