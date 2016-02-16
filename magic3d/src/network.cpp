@@ -247,11 +247,14 @@ void Magic3D::Network::update()
                         clients[event.peer->connectID] = event.peer->address;
                     }
 
-                    typename std::map<std::string, enet_uint32>::const_iterator it_o = spawned.begin();
-                    while (it_o != spawned.end())
+                    if (!isServer())
                     {
-                        spawnObject((*it_o).first, (*it_o).second);
-                        it_o++;
+                        typename std::map<std::string, enet_uint32>::const_iterator it_o = spawned.begin();
+                        while (it_o != spawned.end())
+                        {
+                            spawnObject((*it_o).first, (*it_o).second);
+                            it_o++;
+                        }
                     }
                     break;
                 }
