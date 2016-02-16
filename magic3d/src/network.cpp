@@ -226,87 +226,90 @@ bool Magic3D::Network::isConnected()
 
 void Magic3D::Network::update()
 {
-    connect();
-
-    ENetEvent event;
-    ENetPacket* packet;
-    if (enet_host_service(server, &event, 0) > 0)
+    if (Physics::getInstance()->isPlaying())
     {
-        switch(event.type)
+        connect();
+
+        ENetEvent event;
+        ENetPacket* packet;
+        if (enet_host_service(server, &event, 0) > 0)
         {
-            case ENET_EVENT_TYPE_CONNECT:
+            switch(event.type)
             {
-                char name[256];
-                enet_address_get_host_ip(&event.peer->address, name, 255);
-                Log::logFormat(eLOG_SUCCESS, "A new client connected from %s:%u.\n", name, event.peer->address.port);
-
-                if (getClient(event.peer->connectID).host == 0)
+                case ENET_EVENT_TYPE_CONNECT:
                 {
-                    clients[event.peer->connectID] = event.peer->address;
-                }
+                    char name[256];
+                    enet_address_get_host_ip(&event.peer->address, name, 255);
+                    Log::logFormat(eLOG_SUCCESS, "A new client connected from %s:%u.\n", name, event.peer->address.port);
 
-                typename std::map<std::string, enet_uint32>::const_iterator it_o = spawned.begin();
-                while (it_o != spawned.end())
-                {
-                    spawnObject((*it_o).first, (*it_o).second);
-                    it_o++;
-                }
-                break;
-            }
-
-            case ENET_EVENT_TYPE_RECEIVE:
-            {
-                if (isServer())
-                {
-                    packet = enet_packet_create(event.packet->data, event.packet->dataLength, ENET_PACKET_FLAG_RELIABLE);
-                    enet_host_broadcast(server, 0, packet);
-                    enet_host_flush(server);                    
-                }
-                openPacket(event.packet);
-
-                break;
-            }
-
-            case ENET_EVENT_TYPE_DISCONNECT:
-            {
-                typename std::map<std::string, enet_uint32>::const_iterator it_o = spawned.begin();
-                while (it_o != spawned.end())
-                {
-                    enet_uint32 id = (*it_o).second;
-                    if (id == event.peer->connectID)
+                    if (getClient(event.peer->connectID).host == 0)
                     {
-                        Object* object = ResourceManager::getObjects()->get((*it_o).first);
-                        if (object)
-                        {
-                            Scene::getInstance()->removeObject(object->getLayer(), object);
-                            ResourceManager::getObjects()->remove((*it_o).first);
-                        }
-                        spawned.erase((*it_o).first);
-                        it_o = spawned.begin();
+                        clients[event.peer->connectID] = event.peer->address;
                     }
-                    else
+
+                    typename std::map<std::string, enet_uint32>::const_iterator it_o = spawned.begin();
+                    while (it_o != spawned.end())
                     {
+                        spawnObject((*it_o).first, (*it_o).second);
                         it_o++;
                     }
+                    break;
                 }
-                if (getClient(event.peer->connectID).host == event.peer->address.host)
-                {
-                    clients.erase(event.peer->connectID);
-                }
-                char name[256];
-                enet_address_get_host_ip(&event.peer->address, name, 255);
-                Log::logFormat(eLOG_PLAINTEXT, "Client disconnected %s:%u.\n", name, event.peer->address.port);
-                event.peer->data = NULL;
 
-                if (peer)
+                case ENET_EVENT_TYPE_RECEIVE:
                 {
-                    enet_peer_reset(peer);
-                    peer = NULL;
+                    if (isServer())
+                    {
+                        packet = enet_packet_create(event.packet->data, event.packet->dataLength, ENET_PACKET_FLAG_RELIABLE);
+                        enet_host_broadcast(server, 0, packet);
+                        enet_host_flush(server);
+                    }
+                    openPacket(event.packet);
+
+                    break;
                 }
-                break;
+
+                case ENET_EVENT_TYPE_DISCONNECT:
+                {
+                    typename std::map<std::string, enet_uint32>::const_iterator it_o = spawned.begin();
+                    while (it_o != spawned.end())
+                    {
+                        enet_uint32 id = (*it_o).second;
+                        if (id == event.peer->connectID)
+                        {
+                            Object* object = ResourceManager::getObjects()->get((*it_o).first);
+                            if (object)
+                            {
+                                Scene::getInstance()->removeObject(object->getLayer(), object);
+                                ResourceManager::getObjects()->remove((*it_o).first);
+                            }
+                            spawned.erase((*it_o).first);
+                            it_o = spawned.begin();
+                        }
+                        else
+                        {
+                            it_o++;
+                        }
+                    }
+                    if (getClient(event.peer->connectID).host == event.peer->address.host)
+                    {
+                        clients.erase(event.peer->connectID);
+                    }
+                    char name[256];
+                    enet_address_get_host_ip(&event.peer->address, name, 255);
+                    Log::logFormat(eLOG_PLAINTEXT, "%s disconnected %s:%u.\n", isServer() ? "Client" : "Host", name, event.peer->address.port);
+                    event.peer->data = NULL;
+
+                    if (peer)
+                    {
+                        enet_peer_reset(peer);
+                        peer = NULL;
+                    }
+                    break;
+                }
+
+                default: break;
             }
-
-            default: break;
         }
     }
 }
