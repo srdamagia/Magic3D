@@ -558,6 +558,7 @@ int Magic3D::ScriptMagic3D::spawnNetworkObject(lua_State* lua)
     Object* object = Network::getInstance()->spawnObject(luaL_checkstring(lua, 1));
     if (object)
     {
+        Script::getInstance()->addToTemp(object);
         ScriptObject* obj = new ScriptObject(object);
 
         ScriptClass<ScriptObject>::push(lua, obj, true);
