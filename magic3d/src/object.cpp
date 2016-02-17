@@ -1013,6 +1013,10 @@ void Magic3D::Object::updateMatrix()
         (*it_o++)->needTransform = true;
     }
 
+    if (isNetworkSpawn())
+    {
+        Network::getInstance()->sendObject(this);
+    }
     needUpdateOctree = true;
 }
 
