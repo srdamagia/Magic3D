@@ -258,6 +258,8 @@ void Magic3D::Network::update()
                         spawnObject(getObjectBaseName((*it_o).first), (*it_o).second);
                         it_o++;
                     }
+
+                    break;
                 }
 
                 case ENET_EVENT_TYPE_RECEIVE:
