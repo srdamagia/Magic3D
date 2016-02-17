@@ -1,3 +1,4 @@
+QMAKE_CXXFLAGS += -std=c++11
 win32:RC_FILE = icons.rc
 
 TARGET = magic3d

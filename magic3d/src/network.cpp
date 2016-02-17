@@ -105,6 +105,9 @@ bool Magic3D::Network::initialize()
             Log::log(eLOG_FAILURE, "An error occurred while trying to create an ENet server host.");
         }
     }
+
+    connect();
+
     return result;
 }
 
