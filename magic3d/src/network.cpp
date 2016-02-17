@@ -128,6 +128,11 @@ bool Magic3D::Network::deinitialize()
     return true;
 }
 
+std::string Magic3D::Network::getObjectBaseName(std::string name)
+{
+    return name.substr(0, name.find_last_of('#'));
+}
+
 void Magic3D::Network::prepareAddress()
 {
     if (!Magic3D::getInstance()->getConfiguration().ADDRESS.empty())
@@ -247,16 +252,12 @@ void Magic3D::Network::update()
                         clients[event.peer->connectID] = event.peer->address;
                     }
 
-                    if (!isServer())
+                    auto it_o = spawned.begin();
+                    while (it_o != spawned.end())
                     {
-                        typename std::map<std::string, enet_uint32>::const_iterator it_o = spawned.begin();
-                        while (it_o != spawned.end())
-                        {
-                            spawnObject((*it_o).first, (*it_o).second);
-                            it_o++;
-                        }
+                        spawnObject(getObjectBaseName((*it_o).first), (*it_o).second);
+                        it_o++;
                     }
-                    break;
                 }
 
                 case ENET_EVENT_TYPE_RECEIVE:
@@ -274,7 +275,7 @@ void Magic3D::Network::update()
 
                 case ENET_EVENT_TYPE_DISCONNECT:
                 {
-                    typename std::map<std::string, enet_uint32>::const_iterator it_o = spawned.begin();
+                    auto it_o = spawned.begin();
                     while (it_o != spawned.end())
                     {
                         enet_uint32 id = (*it_o).second;
@@ -348,7 +349,7 @@ void Magic3D::Network::openPacket(ENetPacket* packet)
                     Object* object = ResourceManager::getObjects()->get(name);
                     if (object)
                     {
-                        sprintf(&name[0], "%s_%d", object->getName().c_str(), peerID);
+                        sprintf(&name[0], "%s#%d", object->getName().c_str(), peerID);
 
                         if (!ResourceManager::getObjects()->get(name))
                         {
@@ -423,7 +424,7 @@ Magic3D::Object* Magic3D::Network::spawnObject(std::string name, enet_uint32 id)
             if (result)
             {
                 char spawnName[256];
-                sprintf(&spawnName[0], "%s_%d", name.c_str(), getID());
+                sprintf(&spawnName[0], "%s#%d", name.c_str(), getID());
                 Object* tmp = ResourceManager::getObjects()->get(spawnName);
                 if (!tmp)
                 {

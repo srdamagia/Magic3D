@@ -76,6 +76,8 @@ private:
     Network();
     virtual ~Network();
 
+    std::string getObjectBaseName(std::string name);
+
     void prepareAddress();
     enet_uint32 getID();
     ENetAddress getClient(enet_uint32 id);
@@ -85,7 +87,7 @@ private:
     void openPacket(ENetPacket* packet);
     void sendPacket(ENetPacket* packet);
 
-    Object* spawnObject(std::string name, enet_uint32 id);
+    Object* spawnObject(std::string name, enet_uint32 id);    
 
 public:
     static bool start();
