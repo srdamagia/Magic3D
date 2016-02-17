@@ -389,9 +389,9 @@ void Magic3D::Network::openPacket(ENetPacket* packet)
                 }
             }
         }
-    }
 
-    enet_packet_destroy(packet);
+        enet_packet_destroy(packet);
+    }    
 }
 
 void Magic3D::Network::sendPacket(ENetPacket* packet)
@@ -409,6 +409,7 @@ void Magic3D::Network::sendPacket(ENetPacket* packet)
                 enet_peer_send(peer, 0, packet);
             }
         }
+        enet_host_flush(server);
     }
 }
 
