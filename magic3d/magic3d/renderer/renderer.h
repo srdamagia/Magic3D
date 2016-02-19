@@ -320,7 +320,7 @@ public:
     virtual Shader* createShader(std::string file) = 0;
     virtual bool updateShader(Shader* shader) = 0;
     virtual void deleteShader(unsigned int shader) = 0;
-    virtual bool compileShader(unsigned int* shader, SHADER_TYPE type, std::string file) = 0;
+    virtual bool compileShader(unsigned int& shader, SHADER_TYPE type, std::string file) = 0;
     virtual bool linkProgram(unsigned int prog) = 0;
     virtual bool validateProgram(unsigned int prog) = 0;
     virtual bool updateShaderUserVariables(Shader* shader) = 0;

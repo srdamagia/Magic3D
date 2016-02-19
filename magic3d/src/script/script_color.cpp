@@ -26,7 +26,7 @@ subject to the following restrictions:
 
 const char Magic3D::ScriptColor::className[] = "Color";
 
-Magic3D::ScriptClass<Magic3D::ScriptColor>::ScriptEnum Magic3D::ScriptColor::enums[] = {{NULL, NULL}};
+Magic3D::ScriptClass<Magic3D::ScriptColor>::ScriptEnum Magic3D::ScriptColor::enums[] = {{0, 0}};
 Magic3D::ScriptClass<Magic3D::ScriptColor>::ScriptFunction Magic3D::ScriptColor::functions[] = {
     ScriptClassFunction(ScriptColor, setR, "void setR(float r)", "Set the R element of the color."),
     ScriptClassFunction(ScriptColor, getR, "float getR()", "Get the R element of the color."),

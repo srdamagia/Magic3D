@@ -372,7 +372,7 @@ void Magic3D::Physics::add(PhysicsObject* physicsObject)
 
                         if (mesh->getType() == eMESH_TRIANGLES_STRIP)
                         {
-                            int size = mesh->getIndexesCount();
+                            unsigned int size = mesh->getIndexesCount();
 
                             vindex* q0 = NULL;
                             vindex* q1 = NULL;

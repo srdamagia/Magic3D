@@ -53,6 +53,7 @@ bool Magic3D::Math::collide(const Ray& ray, float start, float end, const Box& b
 
 bool Magic3D::Math::collide(const Ray& ray, float start, float end, const Vector3& v0, const Vector3& v1, const Vector3& v2)
 {
+    bool result = false;
     Vector3 n = ray.origin + ray.direction * start;
     Vector3 f = ray.origin + ray.direction * end;
 
@@ -88,8 +89,10 @@ bool Magic3D::Math::collide(const Ray& ray, float start, float end, const Vector
         dot(n, n2) >= 0.0f &&
         dot(n, n3) >= 0.0f)
     {
-        // We have found one of the triangle that intersects the line/ray
+        result = true;
     }
+
+    return result;
 }
 
 Magic3D::Vector3 Magic3D::Math::euler(const Quaternion& quaternion)

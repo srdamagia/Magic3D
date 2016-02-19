@@ -402,11 +402,12 @@ void Magic3D::Vegetation::calcNormals(int startVertex, int startIndex)
 
     float maxX = 0.0;
     float maxY = 0.0;
-    for (unsigned int i = 0; i < allNormals.size(); i++)
+    size_t nsize = allNormals.size();
+    for (size_t i = 0; i < nsize; i++)
     {
         Vector3 total = Vector3(0.0f, 0.0f, 0.0f);
-        int l = allNormals[i].size();
-        for (int j = 0; j < l; j++)
+        unsigned int l = allNormals[i].size();
+        for (unsigned int j = 0; j < l; j++)
         {
             total = total + allNormals[i][j] * (1.0f / (float)l);
         }
@@ -1058,7 +1059,8 @@ Magic3D::XMLElement* Magic3D::Vegetation::save(XMLElement* root)
             trees.push_back(properties);
         }
 
-        for (int i = 0; i < (int)trees.size(); i++)
+        size_t tsize = trees.size();
+        for (unsigned int i = 0; i < tsize; i++)
         {
             XMLElement* tree = root->GetDocument()->NewElement(M3D_VEGETATION_XML_TREE);
             vegetation->LinkEndChild(tree);

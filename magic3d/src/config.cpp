@@ -372,9 +372,11 @@ std::string Magic3D::Config::encrypt(std::string msg)
 {
     const std::string key = MAGIC3D_PASSWORD;
 
-    for (std::string::size_type i = 0; i < msg.size(); ++i)
+    std::string::size_type size = msg.size();
+    std::string::size_type keySize = key.size();
+    for (std::string::size_type i = 0; i < size; ++i)
     {
-        msg[i] ^= key[i % key.size()];
+        msg[i] ^= key[i % keySize];
     }
     return msg;
 }

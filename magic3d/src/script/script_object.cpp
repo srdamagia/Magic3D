@@ -842,6 +842,7 @@ int Magic3D::ScriptObject::playTween(lua_State *lua)
     {
         tween->play();
     }
+    return 0;
 }
 
 int Magic3D::ScriptObject::stopTween(lua_State *lua)
@@ -851,6 +852,7 @@ int Magic3D::ScriptObject::stopTween(lua_State *lua)
     {
         tween->stop();
     }
+    return 0;
 }
 
 int Magic3D::ScriptObject::setCurrentAnimation(lua_State *lua)

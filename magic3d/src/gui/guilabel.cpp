@@ -142,7 +142,8 @@ bool Magic3D::GUILabel::updateMeshes()
     if (quadCount < (int)text.size() - lastReturns)
     {
         lastReturns = 0;
-        for (unsigned int i = 0; i < text.size(); i++)
+        size_t tsize = text.size();
+        for (size_t i = 0; i < tsize; i++)
         {
             if (text.at(i) == '\n')
             {
@@ -170,7 +171,8 @@ bool Magic3D::GUILabel::updateMeshes()
         float* buffer = data->mapBuffer();
 
         int lastIndex = 0;
-        for (unsigned int i = 0; i < text.size(); i++)
+        size_t tsize = text.size();
+        for (size_t i = 0; i < tsize; i++)
         {
             int index = text.at(i);
 
@@ -239,7 +241,8 @@ bool Magic3D::GUILabel::updateMeshes()
 
         quad = 0;
         int line = 0;
-        for (unsigned int i = 0; i < text.size(); i++)
+        tsize = text.size();
+        for (size_t i = 0; i < tsize; i++)
         {
             if (text.at(i) != '\n')
             {

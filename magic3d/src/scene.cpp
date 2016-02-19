@@ -1186,7 +1186,7 @@ bool Magic3D::Scene::update()
                         "Update MS:       %11.6f\n"\
                         "Network MS:      %11.6f\n"\
                         "Clients:         %8d\n"\
-                        "Script MS:       %11.6f\n"\                        
+                        "Script MS:       %11.6f\n"\
                         "Script Memory:   %8d Kb\n"\
                         "Frustum MS:      %11.6f\n"\
                         "Render MS:       %11.6f\n",

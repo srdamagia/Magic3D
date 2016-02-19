@@ -27,6 +27,8 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+
 #ifndef _VECTORMATH_VEC_AOS_CPP_H
 #define _VECTORMATH_VEC_AOS_CPP_H
 

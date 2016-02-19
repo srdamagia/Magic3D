@@ -89,7 +89,7 @@ void Magic3D::Shader::clearVars()
 Magic3D::ShaderVar* Magic3D::Shader::getVar(std::string name)
 {
     ShaderVar* result = NULL;
-    int size = userVars.size();
+    unsigned int size = userVars.size();
     for (unsigned int i = 0; i < size; i++)
     {
         if (userVars[i].name.compare(name) == 0)

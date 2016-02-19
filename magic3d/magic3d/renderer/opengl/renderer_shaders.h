@@ -117,7 +117,7 @@ public:
     virtual Shader* createShader(std::string file);
     virtual bool updateShader(Shader* shader);
     virtual void deleteShader(unsigned int shader);
-    virtual bool compileShader(unsigned int* shader, SHADER_TYPE type, std::string file);
+    virtual bool compileShader(unsigned int& shader, SHADER_TYPE type, std::string file);
     virtual bool linkProgram(unsigned int prog);
     virtual bool validateProgram(unsigned int prog);
     virtual bool updateShaderUserVariables(Shader* shader);

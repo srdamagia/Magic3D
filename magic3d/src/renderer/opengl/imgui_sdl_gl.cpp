@@ -355,7 +355,9 @@ void ImGui_SDL_GL_Shutdown()
 void ImGui_SDL_GL_NewFrame()
 {
     if (!g_FontTexture)
+    {
         ImGui_SDL_GL_CreateDeviceObjects();
+    }
 
     ImGuiIO& io = ImGui::GetIO();
 
@@ -368,7 +370,7 @@ void ImGui_SDL_GL_NewFrame()
     // Setup time step
     Uint32	time = SDL_GetTicks();
     double current_time = time / 1000.0;
-    io.DeltaTime = g_Time > 0.0 ? (float)(current_time - g_Time) : (float)(1.0f / 60.0f);
+    io.DeltaTime = (float)(current_time - g_Time) > 0.0f ? (float)(current_time - g_Time) : (float)(1.0f / 60.0f);
     g_Time = current_time;
 
     // Setup inputs
@@ -376,9 +378,13 @@ void ImGui_SDL_GL_NewFrame()
     int mx, my;
     Uint32 mouseMask = SDL_GetMouseState(&mx, &my);
     if (SDL_GetWindowFlags(g_Window) & SDL_WINDOW_MOUSE_FOCUS)
+    {
         io.MousePos = ImVec2((float)mx, (float)my);   // Mouse position, in pixels (set to -1,-1 if no mouse / on another screen, etc.)
+    }
     else
+    {
         io.MousePos = ImVec2(-1, -1);
+    }
 
     io.MouseDown[0] = g_MousePressed[0] || (mouseMask & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;		// If a mouse press event came, always pass it as "mouse held this frame", so we don't miss click-release events that are shorter than 1 frame.
     io.MouseDown[1] = g_MousePressed[1] || (mouseMask & SDL_BUTTON(SDL_BUTTON_RIGHT)) != 0;

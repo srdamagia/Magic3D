@@ -21,10 +21,10 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
+#include <magic3d/magic3d.h>
 #if defined(__WIN32__)
 #include <windows.h>
 #endif
-#include <magic3d/magic3d.h>
 #include <magic3d/renderer/opengl/renderer_opengl.h>
 #include <math.h>
 
@@ -1576,8 +1576,8 @@ void Magic3D::Renderer_OpenGL::view2D(ViewPort* view)
     int height = 0;
     int w = view->getWidth();
     int h = view->getHeight();
-    int ws = w;
-    int hs = h;
+    //int ws = w;
+    //int hs = h;
 
     bool landscape = false;
     if (window)
@@ -1589,8 +1589,8 @@ void Magic3D::Renderer_OpenGL::view2D(ViewPort* view)
             {
                 w = w > 0 ? w : window->getWidth();
                 h = h > 0 ? h : window->getHeight();
-                ws = window->getWidth();
-                hs = window->getHeight();
+                //ws = window->getWidth();
+                //hs = window->getHeight();
                 break;
             }
             case eWINDOW_ORIENTATION_LANDSCAPE_LEFT:
@@ -1599,8 +1599,8 @@ void Magic3D::Renderer_OpenGL::view2D(ViewPort* view)
                 landscape = true;
                 w = w > 0 ? w : window->getHeight();
                 h = h > 0 ? h : window->getWidth();
-                ws = window->getHeight();
-                hs = window->getWidth();
+                //ws = window->getHeight();
+                //hs = window->getWidth();
                 break;
             }
         }

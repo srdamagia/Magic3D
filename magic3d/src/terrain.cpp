@@ -673,13 +673,12 @@ void pack (png_byte *ptr, float val)
     ptr[3] = (byte)(color.getW() * TERRAIN_COLOR_PACK);
 }
 
-void Magic3D::Terrain::saveToHeightMap(std::string name)
+int Magic3D::Terrain::saveToHeightMap(std::string name)
 {
     int code = 0;
     FILE *fp = NULL;
     png_structp png_ptr = NULL;
-    png_infop info_ptr = NULL;
-    png_bytep row = NULL;
+    png_infop info_ptr = NULL;    
 
     // Open file for writing (binary mode)
     fp = fopen(ResourceManager::getTextures()->getPath(eTEXTURE_DIFFUSE, name + ".terrain").c_str(), "wb");
@@ -704,14 +703,16 @@ void Magic3D::Terrain::saveToHeightMap(std::string name)
         code = 3;
     }
 
+    int result = code;
     // Setup Exception handling
     if (setjmp(png_jmpbuf(png_ptr))) {
         Log::log(eLOG_FAILURE, "Error during png creation");
         code = 4;
     }
 
-    if (code == 0)
+    if (result == 0)
     {
+        png_bytep row = NULL;
         png_init_io(png_ptr, fp);
 
         // Write header (8 bit colour depth)
@@ -747,6 +748,10 @@ void Magic3D::Terrain::saveToHeightMap(std::string name)
 
         // End write
         png_write_end(png_ptr, NULL);
+        if (row != NULL)
+        {
+            free(row);
+        }
     }
 
     if (fp != NULL)
@@ -760,11 +765,9 @@ void Magic3D::Terrain::saveToHeightMap(std::string name)
     if (png_ptr != NULL)
     {
         png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
-    }
-    if (row != NULL)
-    {
-        free(row);
-    }
+    }    
+
+    return result;
 }
 
 Magic3D::XMLElement* Magic3D::Terrain::save(XMLElement* root)

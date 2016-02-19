@@ -102,7 +102,8 @@ void Magic3D::GUINetwork::addLog(const char* fmt, ...)
 void Magic3D::GUINetwork::draw(const char* title, bool* opened)
 {
     //ImGui::ShowTestWindow();
-    ImGui::SetNextWindowSize(ImVec2(320, 480), ImGuiSetCond_FirstUseEver);
+    ImGui::SetNextWindowPos(ImVec2(5.0f, Renderer::getInstance()->getWindow()->getHeight() - 325.0f), ImGuiSetCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(480.0f, 320.0f), ImGuiSetCond_FirstUseEver);
     if (!ImGui::Begin(title, opened))
     {
         ImGui::End();

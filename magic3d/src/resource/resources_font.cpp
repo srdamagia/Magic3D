@@ -72,7 +72,7 @@ float Magic3D::Font::getLineOffsetY()
 Magic3D::Texture* Magic3D::Font::getTexture(int index)
 {
     Texture* result = NULL;
-    if (index >= 0 && index < textures.size())
+    if (index >= 0 && (unsigned int)index < textures.size())
     {
         result = textures.at(index);
     }

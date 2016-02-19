@@ -27,7 +27,7 @@ subject to the following restrictions:
 
 const char Magic3D::ScriptVector3::className[] = "Vector3";
 
-Magic3D::ScriptClass<Magic3D::ScriptVector3>::ScriptEnum Magic3D::ScriptVector3::enums[] = {{NULL, NULL}};
+Magic3D::ScriptClass<Magic3D::ScriptVector3>::ScriptEnum Magic3D::ScriptVector3::enums[] = {{0, 0}};
 Magic3D::ScriptClass<Magic3D::ScriptVector3>::ScriptFunction Magic3D::ScriptVector3::functions[] = {
     ScriptClassFunction(ScriptVector3, setX, "void setX(float x)", "Set the X element of the vector."),
     ScriptClassFunction(ScriptVector3, getX, "float getX()", "Get the X element of the vector."),

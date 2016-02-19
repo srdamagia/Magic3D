@@ -142,7 +142,7 @@ void Magic3D::Package::pack(std::string filesPath, void(*callBack)(std::string, 
         {
             std::string fileNameInPack = *it_f++;
             std::string fullFileName = filesPath + fileNameInPack;
-            FILE * fin;
+            FILE* fin = NULL;
             int size_read;
             zip_fileinfo zi;
             unsigned long crcFile=0;
@@ -309,7 +309,7 @@ bool Magic3D::Package::unpack(std::string fileName, DataBuffer* memory)
                     }
                     if (err > 0)
                     {
-                        if (memory->write((const char*)buf, err) == NULL)
+                        if (memory->write((const char*)buf, err) == 0)
                         {
                             Log::logFormat(eLOG_FAILURE, "Error in writing extracted file.");
                             err = UNZ_ERRNO;

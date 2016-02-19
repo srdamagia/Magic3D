@@ -22,10 +22,10 @@ subject to the following restrictions:
 */
 
 #if !defined(MAGIC3D_LEGACY)
+#include <magic3d/magic3d.h>
 #if defined(__WIN32__)
 #include <windows.h>
 #endif
-#include <magic3d/magic3d.h>
 #include <magic3d/renderer/opengl/renderer_shaders.h>
 #include <math.h>
 #include <magic3d/physics/physics_geometry.h>
@@ -2933,7 +2933,7 @@ bool Magic3D::RendererOpenGL_Shaders::updateShader(Shader* shader)
         shaderVertex << tv.rdbuf();
     }
 
-    if (!compileShader(&vertShader, eSHADER_TYPE_VERTEX, shaderVertex.str().c_str())) {
+    if (!compileShader(vertShader, eSHADER_TYPE_VERTEX, shaderVertex.str().c_str())) {
         compiled = false;
         Log::log(eLOG_FAILURE, "Failed to compile vertex shader");
     }
@@ -2971,7 +2971,7 @@ bool Magic3D::RendererOpenGL_Shaders::updateShader(Shader* shader)
         shaderFragment << tf.rdbuf();
     }
 
-    if (!compileShader(&fragShader, eSHADER_TYPE_FRAGMENT, shaderFragment.str().c_str())) {
+    if (!compileShader(fragShader, eSHADER_TYPE_FRAGMENT, shaderFragment.str().c_str())) {
         compiled = false;
         Log::log(eLOG_FAILURE, "Failed to compile fragment shader");
     }
@@ -3224,7 +3224,7 @@ void Magic3D::RendererOpenGL_Shaders::deleteShader(unsigned int shader)
     check_gl_error();
 }
 
-bool Magic3D::RendererOpenGL_Shaders::compileShader(unsigned int* shader, SHADER_TYPE type, std::string file)
+bool Magic3D::RendererOpenGL_Shaders::compileShader(unsigned int& shader, SHADER_TYPE type, std::string file)
 {
     bool result = true;
     GLint status;
@@ -3246,31 +3246,32 @@ bool Magic3D::RendererOpenGL_Shaders::compileShader(unsigned int* shader, SHADER
             case eSHADER_TYPE_FRAGMENT: shaderType = GL_FRAGMENT_SHADER; break;
         }
 
-        *shader = glCreateShader(shaderType);
+        shader = glCreateShader(shaderType);
+
         check_gl_error();
-        glShaderSource(*shader, 1, &source, NULL);
+        glShaderSource(shader, 1, &source, NULL);
         check_gl_error();
-        glCompileShader(*shader);
+        glCompileShader(shader);
         check_gl_error();
 
         GLint logLength;
-        glGetShaderiv(*shader, GL_INFO_LOG_LENGTH, &logLength);
+        glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logLength);
         check_gl_error();
         if (logLength > 1)
         {
             GLchar *log = static_cast<GLchar*>(malloc(logLength));
-            glGetShaderInfoLog(*shader, logLength, &logLength, log);
+            glGetShaderInfoLog(shader, logLength, &logLength, log);
             check_gl_error();
             Log::log(eLOG_FAILURE, "Shader compile log:");
             Log::log(eLOG_FAILURE, log);
             free(log);
         }
 
-        glGetShaderiv(*shader, GL_COMPILE_STATUS, &status);
+        glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
         check_gl_error();
         if (status == 0)
         {
-            glDeleteShader(*shader);
+            glDeleteShader(shader);
             check_gl_error();
             result = false;
         }

@@ -495,7 +495,8 @@ Magic3D::Box Magic3D::Light::computeBox(const Matrix4& viewProjection)
     v.push_back(t * Vector4(1.f, -1.f, 1.f, 1.f));
     v.push_back(t * Vector4(-1.f, -1.f, 1.f, 1.f));
 
-    for (unsigned int i = 0; i < v.size(); i++)
+    size_t vsize = v.size();
+    for (size_t i = 0; i < vsize; i++)
     {
         v[i] = v[i] / v[i].getW();
     }
@@ -504,7 +505,7 @@ Magic3D::Box Magic3D::Light::computeBox(const Matrix4& viewProjection)
     Vector3 bl = Vector3(dist, dist, dist);
     Vector3 tr = Vector3(-dist, -dist, -dist);
 
-    for (unsigned int i = 0; i < v.size(); i++)
+    for (size_t i = 0; i < vsize; i++)
     {
         if (v[i].getX() < bl.getX())
         {

@@ -24,9 +24,9 @@ subject to the following restrictions:
 #ifndef MAGIC3D_MATH_H
 #define MAGIC3D_MATH_H
 
+#include <magic3d/type.h>
 #include <cmath>
 #include <vectormath_aos.h>
-#include <magic3d/type.h>
 
 namespace Magic3D
 {

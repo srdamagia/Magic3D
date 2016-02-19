@@ -101,7 +101,7 @@ public:
     void setHeightMap(std::string heightMap);
     const std::string& getHeightMap();
     void loadFromHeightMap();
-    void saveToHeightMap(std::string name);
+    int saveToHeightMap(std::string name);
 
     virtual XMLElement* save(XMLElement* root);
     virtual XMLElement* load(XMLElement* root);

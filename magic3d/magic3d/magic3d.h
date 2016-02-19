@@ -39,6 +39,7 @@ subject to the following restrictions:
 #include <magic3d/tween/tweens.h>
 #include <magic3d/network.h>
 
+//Use this to remove file warnings #pragma GCC diagnostic ignored "-Wunused-variable"
 //PRECOMPILER MACROS*******************************
 //MAGIC3D_OES1
 //MAGIC3D_OES2
