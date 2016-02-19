@@ -138,6 +138,9 @@ extern PFNGLDELETEBUFFERSARBPROC        glDeleteBuffersARB;        // VBO Deleti
 extern PFNGLGETBUFFERPARAMETERIVARBPROC glGetBufferParameterivARB; // return various parameters of VBO
 extern PFNGLMAPBUFFERARBPROC            glMapBufferARB;            // map VBO procedure
 extern PFNGLUNMAPBUFFERARBPROC          glUnmapBufferARB;          // unmap VBO procedure
+
+extern PFNGLBLENDEQUATIONEXTPROC         glBlendEquation;
+extern PFNGLBLENDEQUATIONSEPARATEEXTPROC glBlendEquationSeparate;
 #endif
 #endif
 

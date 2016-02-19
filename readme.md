@@ -27,6 +27,10 @@ Entirely built using standard C and C++ portable game engine with focus on mobil
 
 * Integration and full access to the Lua Programming Language. http://www.lua.org
 
+####Networking:
+
+* Integration and full access to the Enet library. http://enet.bespin.org
+
 ####Shaders and Effects:
 
 * Vertex and Pixel lightning system.
@@ -69,3 +73,6 @@ Libraries
 * http://www.libpng.org/
 * https://collada.org/
 * http://www.theora.org/
+* http://enet.bespin.org/
+* https://www.libsdl.org/
+* https://github.com/ocornut/imgui

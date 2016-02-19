@@ -39,7 +39,11 @@ enum WINDOW_ORIENTATION
 class Window
 {
 protected:
+#if defined(WIN32_OLD_WINDOW)
     std::wstring title;
+#else
+    std::string title;
+#endif
 
     int width;
     int height;
@@ -60,7 +64,7 @@ public:
     virtual ~Window() {}
     virtual bool start() = 0;
     virtual bool finish() = 0;
-    virtual bool render() = 0;
+    virtual bool render() = 0;    
 
     bool isActive()
     {

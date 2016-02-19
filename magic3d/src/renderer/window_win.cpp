@@ -22,7 +22,7 @@ subject to the following restrictions:
 */
 
 #if !defined(MAGIC3D_OES)
-#if defined(__WIN32__)
+#if defined(WIN32_OLD_WINDOW)
 #include <magic3d/magic3d.h>
 #include <magic3d/renderer/window_win.h>
 

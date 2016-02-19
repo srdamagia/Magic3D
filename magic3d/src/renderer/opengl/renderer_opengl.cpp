@@ -122,6 +122,10 @@ PFNGLDELETEBUFFERSARBPROC        glDeleteBuffersARB = NULL;        // VBO Deleti
 PFNGLGETBUFFERPARAMETERIVARBPROC glGetBufferParameterivARB = NULL; // return various parameters of VBO
 PFNGLMAPBUFFERARBPROC            glMapBufferARB = NULL;            // map VBO procedure
 PFNGLUNMAPBUFFERARBPROC          glUnmapBufferARB = NULL;          // unmap VBO procedure
+
+PFNGLBLENDEQUATIONEXTPROC         glBlendEquation = NULL;
+PFNGLBLENDEQUATIONSEPARATEEXTPROC glBlendEquationSeparate = NULL;
+
 #endif
 bool WGLExtensionSupported(const char *extension_name)
 {
@@ -569,6 +573,9 @@ void Magic3D::Renderer_OpenGL::initialize()
         glMapBufferARB            = (PFNGLMAPBUFFERARBPROC)wglGetProcAddress("glMapBufferARB");
         glUnmapBufferARB          = (PFNGLUNMAPBUFFERARBPROC)wglGetProcAddress("glUnmapBufferARB");
     }
+
+    glBlendEquation         = (PFNGLBLENDEQUATIONEXTPROC)wglGetProcAddress("glBlendEquationEXT");
+    glBlendEquationSeparate = (PFNGLBLENDEQUATIONSEPARATEEXTPROC)wglGetProcAddress("glBlendEquationSeparateEXT");
 #endif
 #endif
 

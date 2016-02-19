@@ -6,6 +6,7 @@
 *.exe
 *.o
 *.so
+*.a
 
 # Packages #
 ############
@@ -33,3 +34,6 @@ ehthumbs.db
 Icon?
 Thumbs.db
 *.pro.user
+Makefile
+*.Debug
+*.Release

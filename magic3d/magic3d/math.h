@@ -33,6 +33,7 @@ namespace Magic3D
 
 #define M3D_MATH_DELTA 1e-10 // error tolerance
 #define BIT(x) (1<<(x))
+#undef M_PI
 #define M_PI  3.141592653589f
 
 static const float M3D_MATH_EPSILON = 0.005f;            // error tolerance for check

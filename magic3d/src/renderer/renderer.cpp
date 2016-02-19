@@ -31,7 +31,7 @@ subject to the following restrictions:
 
 #include <magic3d/renderer/window_internal.h>
 #if defined(__WIN32__)
-#include <magic3d/renderer/window_win.h>
+#include <magic3d/renderer/window_sdl.h>
 #endif
 
 int Magic3D::Renderer::vboCreated = 0;
@@ -331,11 +331,7 @@ Magic3D::Window* Magic3D::Renderer::createWindow(bool internal)
         }
         else
         {
-#if !defined(MAGIC3D_OES)
-#if defined(__WIN32__)
-            window = WindowWin::getInstance();
-#endif
-#endif
+            window = WindowSDL::getInstance();
         }
         if (window)
         {

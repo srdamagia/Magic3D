@@ -87,6 +87,10 @@ bool Magic3D::Network::initialize()
 {    
     server = NULL;
     peer = NULL;
+    showConsole = true;
+
+    ip = Magic3D::getInstance()->getConfiguration().ADDRESS;
+    port = Magic3D::getInstance()->getConfiguration().PORT;
 
     bool result = true;
     int error = enet_initialize ();
@@ -97,7 +101,7 @@ bool Magic3D::Network::initialize()
     }
     else
     {
-        prepareAddress();
+        prepareAddress(ip, port);
 
         server = enet_host_create(isServer() ? &address : NULL, Magic3D::getInstance()->getConfiguration().CLIENTS, 2, 0, 0);
         if (server == NULL)
@@ -106,7 +110,7 @@ bool Magic3D::Network::initialize()
         }
     }
 
-    connect();
+    connect(ip, port);
 
     return result;
 }
@@ -134,17 +138,17 @@ std::string Magic3D::Network::getObjectBaseName(std::string name)
     return name.substr(0, name.find_last_of('#'));
 }
 
-void Magic3D::Network::prepareAddress()
+void Magic3D::Network::prepareAddress(std::string ip, int port)
 {
-    if (!Magic3D::getInstance()->getConfiguration().ADDRESS.empty())
+    if (!ip.empty())
     {
-        enet_address_set_host(&address, Magic3D::getInstance()->getConfiguration().ADDRESS.c_str());
+        enet_address_set_host(&address, ip.c_str());
     }
     else
     {
         address.host = ENET_HOST_ANY;
     }
-    address.port = Magic3D::getInstance()->getConfiguration().PORT;
+    address.port = port;
 }
 
 enet_uint32 Magic3D::Network::getID()
@@ -179,11 +183,13 @@ void Magic3D::Network::prepareHeader(NETWORK_PACKET type, byte* data)
     memcpy(&data[1], &ip, sizeof(enet_uint32));
 }
 
-void Magic3D::Network::connect()
+void Magic3D::Network::connect(std::string ip, int port)
 {
+    this->ip = ip;
+    this->port = port;
     if (!isConnected())
     {
-        prepareAddress();
+        prepareAddress(this->ip, this->port);
 
         if (server && !isServer() && address.host != ENET_HOST_ANY)
         {
@@ -191,18 +197,18 @@ void Magic3D::Network::connect()
 
             if (peer == NULL)
             {
-                Log::log(eLOG_FAILURE, "No available peers for initializing an ENet connection.");
+                log(eLOG_FAILURE, "No available peers for initializing an ENet connection.");
             }
             else
             {
                 ENetEvent event;
                 if (enet_host_service(server, &event, 5000) > 0 && event.type == ENET_EVENT_TYPE_CONNECT)
                 {
-                    Log::logFormat(eLOG_SUCCESS, "Host connection %s successful!", Magic3D::getInstance()->getConfiguration().ADDRESS.c_str());
+                    log(eLOG_SUCCESS, "Host connection %s successful!", Magic3D::getInstance()->getConfiguration().ADDRESS.c_str());
                 }
                 else
                 {
-                    Log::log(eLOG_FAILURE, "Host connection failed!");
+                    log(eLOG_FAILURE, "Host connection failed!");
                     enet_peer_reset(peer);
                     peer = NULL;
                 }
@@ -235,7 +241,10 @@ void Magic3D::Network::update()
 {
     if (Physics::getInstance()->isPlaying())
     {
-        connect();
+        if (!showConsole)
+        {
+            connect(ip, port);
+        }
 
         ENetEvent event;
         ENetPacket* packet;
@@ -247,7 +256,7 @@ void Magic3D::Network::update()
                 {
                     char name[256];
                     enet_address_get_host_ip(&event.peer->address, name, 255);
-                    Log::logFormat(eLOG_SUCCESS, "A new client connected from %s:%u.\n", name, event.peer->address.port);
+                    log(eLOG_SUCCESS, "A new client connected from %s:%u.\n", name, event.peer->address.port);
 
                     if (getClient(event.peer->connectID).host == 0)
                     {
@@ -305,7 +314,7 @@ void Magic3D::Network::update()
                     }
                     char name[256];
                     enet_address_get_host_ip(&event.peer->address, name, 255);
-                    Log::logFormat(eLOG_PLAINTEXT, "%s disconnected %s:%u.\n", isServer() ? "Client" : "Host", name, event.peer->address.port);
+                    log(eLOG_PLAINTEXT, "%s disconnected %s:%u.\n", isServer() ? "Client" : "Host", name, event.peer->address.port);
                     event.peer->data = NULL;
 
                     if (peer)
@@ -319,6 +328,14 @@ void Magic3D::Network::update()
                 default: break;
             }
         }
+    }
+}
+
+void Magic3D::Network::render()
+{
+    if (showConsole)
+    {
+        console.draw("Network", &showConsole);
     }
 }
 
@@ -384,7 +401,9 @@ void Magic3D::Network::openPacket(ENetPacket* packet)
                 }
                 case eNETWORK_TEXT:
                 {
-                    Log::logFormat(eLOG_RENDERER, "Network message: %s", &packet->data[NETWORK_HEADER]);
+                    char nick[256];
+                    memcpy(&nick[0], &packet->data[NETWORK_HEADER], 256);
+                    log(eLOG_RENDERER, "%s: %s", nick, &packet->data[NETWORK_HEADER + 256]);
                     break;
                 }
             }
@@ -487,20 +506,41 @@ void Magic3D::Network::sendInput(INPUT input, EVENT event, float x, float y, flo
 
 }
 
-void Magic3D::Network::sendText(std::string text)
+void Magic3D::Network::sendText(std::string nick, std::string text)
 {
     if (!text.empty())
     {
         if (isServer() || isConnected())
         {
-            unsigned int size = NETWORK_HEADER + text.size() + 1;
+            unsigned int size = NETWORK_HEADER + sizeof(byte) * 256 + text.size() + 1;
             byte* data = new byte[size];
             prepareHeader(eNETWORK_TEXT, data);
-            memcpy(&data[NETWORK_HEADER], text.c_str(), text.size());
+            memcpy(&data[NETWORK_HEADER], nick.c_str(), nick.size());
+            data[NETWORK_HEADER + nick.size()] = '\0';
+            memcpy(&data[NETWORK_HEADER + 256], text.c_str(), text.size());
             data[size - 1] = '\0';
             ENetPacket* packet = enet_packet_create(data, size, ENET_PACKET_FLAG_RELIABLE);
             sendPacket(packet);
+            log(eLOG_PLAINTEXT, "%s: %s", nick.c_str(), text.c_str());
         }
+    }
+}
+
+void Magic3D::Network::log(LOG type, const char* format, ...)
+{
+    va_list va;
+    va_start(va, format);
+    char szParsedString[4096];
+    vsprintf(szParsedString, format, va);
+    va_end(va);
+
+    if (showConsole)
+    {
+        console.addLog(szParsedString);
+    }
+    else
+    {
+        Log::logFormat(type, szParsedString);
     }
 }
 

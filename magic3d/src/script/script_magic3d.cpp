@@ -90,7 +90,7 @@ Magic3D::ScriptClass<Magic3D::ScriptMagic3D>::ScriptFunction Magic3D::ScriptMagi
 
     ScriptClassFunction(ScriptMagic3D, setStereoscopy, "void setStereoscopy(bool stereoscopy, bool screenEffects)", ""),
 
-    ScriptClassFunction(ScriptMagic3D, sendText, "void sendText(string text)", ""),
+    ScriptClassFunction(ScriptMagic3D, sendText, "void sendText(string nick, string text)", ""),
     ScriptClassFunction(ScriptMagic3D, spawnNetworkObject, "Object* spawnNetworkObject(string name)", ""),
     ScriptClassFunction(ScriptMagic3D, sendObject, "void sendObject(string name)", ""),
     ScriptClassFunction(ScriptMagic3D, sendInput, "void sendInput(not working yet)", ""),
@@ -549,7 +549,7 @@ int Magic3D::ScriptMagic3D::setStereoscopy(lua_State* lua)
 
 int Magic3D::ScriptMagic3D::sendText(lua_State* lua)
 {
-    Network::getInstance()->sendText(luaL_checkstring(lua, 1));
+    Network::getInstance()->sendText(luaL_checkstring(lua, 1), luaL_checkstring(lua, 2));
     return 0;
 }
 

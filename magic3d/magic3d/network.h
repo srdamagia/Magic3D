@@ -25,6 +25,8 @@ subject to the following restrictions:
 #define MAGIC3D_NETWORK_H
 
 #include <magic3d/object.h>
+#include <magic3d/input.h>
+#include <magic3d/gui/imgui_window/imgui_window_network.h>
 
 namespace Magic3D
 {
@@ -73,12 +75,18 @@ private:
     std::map<enet_uint32, ENetAddress> clients;
     std::map<std::string, enet_uint32> spawned;
 
+    std::string ip;
+    int port;
+
+    GUINetwork console;
+    bool showConsole;
+
     Network();
     virtual ~Network();
 
     std::string getObjectBaseName(std::string name);
 
-    void prepareAddress();
+    void prepareAddress(std::string ip, int port);
     enet_uint32 getID();
     ENetAddress getClient(enet_uint32 id);
 
@@ -87,7 +95,9 @@ private:
     void openPacket(ENetPacket* packet);
     void sendPacket(ENetPacket* packet);
 
-    Object* spawnObject(std::string name, enet_uint32 id);    
+    Object* spawnObject(std::string name, enet_uint32 id);
+
+    void log(LOG type, const char* format, ...);
 
 public:
     static bool start();
@@ -98,11 +108,12 @@ public:
     bool initialize();
     bool deinitialize();
 
-    void connect();
+    void connect(std::string ip, int port);
     void disconnect(bool now);
     bool isConnected();
 
     void update();
+    void render();
 
     int getClientsCount();
 
@@ -111,7 +122,7 @@ public:
     Object* spawnObject(std::string name);
     void sendObject(Object* object);
     void sendInput(INPUT input, EVENT event, float x, float y, float z, float w);
-    void sendText(std::string text);
+    void sendText(std::string nick, std::string text);
 };
 
 }
