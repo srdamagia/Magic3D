@@ -24,7 +24,7 @@ subject to the following restrictions:
 #ifndef MAGIC3D_GUI_NETWORK_H
 #define MAGIC3D_GUI_NETWORK_H
 
-#include <contrib/imgui/imgui.h>
+#include <imgui.h>
 
 namespace Magic3D
 {

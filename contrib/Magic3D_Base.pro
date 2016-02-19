@@ -11,7 +11,7 @@ PNG            = $$CONTRIB/lpng             #1.6.16
 LUA            = $$CONTRIB/lua              #5.3.0
 ENET           = $$CONTRIB/enet             #1.3.13
 SDL            = $$CONTRIB/sdl              #2.0.4
-IMGUI          = $$CONTRIB/imgui           #1.48
+IMGUI          = $$CONTRIB/imgui            #1.48
 
 INCLUDEPATH += \
     $$MEMORY_MANAGER \

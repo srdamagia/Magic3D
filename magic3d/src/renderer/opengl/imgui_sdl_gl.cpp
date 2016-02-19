@@ -22,7 +22,7 @@ subject to the following restrictions:
 */
 
 #include <magic3d/renderer/opengl/renderer_opengl.h>
-#include <contrib/imgui/imgui.h>
+#include <imgui.h>
 #include <magic3d/renderer/opengl/imgui_sdl_gl.h>
 
 #include <SDL.h>

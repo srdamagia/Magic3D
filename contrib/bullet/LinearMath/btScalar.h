@@ -12,7 +12,7 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-
+#pragma GCC diagnostic ignored "-Wunused-variable"
 
 #ifndef BT_SCALAR_H
 #define BT_SCALAR_H

@@ -28,7 +28,7 @@ subject to the following restrictions:
 #if defined(__WIN32__)
 #include <windows.h>
 #include <magic3d/renderer/renderer.h>
-#include <contrib/sdl/include/SDL.h>
+#include <SDL.h>
 
 namespace Magic3D
 {

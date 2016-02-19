@@ -13,6 +13,8 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+
 #ifndef BT_FIXED_CONSTRAINT_H
 #define BT_FIXED_CONSTRAINT_H
 
