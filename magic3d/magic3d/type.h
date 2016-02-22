@@ -39,7 +39,11 @@ subject to the following restrictions:
 #include <enet/enet.h>
 #include <tinyxml2.h>
 
+#if defined(__linux__)
+#include <SDL2/SDL.h>
+#else
 #include <SDL.h>
+#endif
 
 namespace Magic3D
 {
@@ -65,7 +69,7 @@ namespace Magic3D
 #include <vorbis/vorbisfile.h>
 #include <ogg/ogg.h>
 
-#if defined(MAGIC3D_MEMORY) && !defined(__APPLE__)
+#if defined(MAGIC3D_MEMORY) && !defined(__APPLE__) && !defined(__linux__)
 #include <mmgr.h>
 #endif
 

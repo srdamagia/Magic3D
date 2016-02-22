@@ -74,7 +74,7 @@
 //
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-#if defined(MAGIC3D_MEMORY) && !defined(__APPLE__)
+#if defined(MAGIC3D_MEMORY) && !defined(__APPLE__) && !defined(__linux__)
 #ifdef _MSC_VER
 #include "stdafx.h"
 #endif

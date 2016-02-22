@@ -599,7 +599,12 @@ void Magic3D::Magic3D::setStereoscopy(bool enabled)
 std::string Magic3D::Magic3D::getApplicationPath(std::string path)
 {
     std::string applicationPath = path;
-#if defined(_WIN32)
+#if defined(__APPLE__)
+    size_t pos = applicationPath.find("/Contents/MacOS");
+    applicationPath = applicationPath.substr(0, pos);
+    pos = applicationPath.find_last_of('/');
+    applicationPath = applicationPath.substr(0, pos + 1);
+#else
     size_t pos = applicationPath.find_last_of('/');
     if (pos == std::string::npos)
     {
@@ -619,12 +624,6 @@ std::string Magic3D::Magic3D::getApplicationPath(std::string path)
             pos = applicationPath.find('\\');
         }
     }
-#elif defined(__APPLE__)
-    size_t pos = applicationPath.find("/Contents/MacOS");
-    applicationPath = applicationPath.substr(0, pos);
-    pos = applicationPath.find_last_of('/');
-    applicationPath = applicationPath.substr(0, pos + 1);
-#else
 #endif
     return applicationPath;
 }

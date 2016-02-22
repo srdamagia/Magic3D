@@ -26,9 +26,6 @@ SOURCES += \
     $$MAGIC3D_SOURCE/tween/*.cpp \
     $$MAGIC3D_SOURCE/physics/*.cpp \
 
-win32:SOURCES += \
-    $$MAGIC3D_SOURCE/image/*.mm \
-
 HEADERS += \
     $$MAGIC3D_INCLUDE/*.h \
     $$MAGIC3D_INCLUDE/gui/*.h \
