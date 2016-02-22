@@ -75,7 +75,7 @@ Magic3D::GUI::~GUI()
 
 }
 
-Magic3D::GUI* Magic3D::GUI::spawn(std::string name) const
+void* Magic3D::GUI::spawn(std::string name) const
 {
     return (new GUI(*this, name));
 }

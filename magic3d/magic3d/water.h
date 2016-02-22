@@ -62,7 +62,7 @@ public:
     Water(std::string name);
     Water(OBJECT type, std::string name);
     virtual ~Water();
-    virtual Water* spawn(std::string name) const;
+    virtual void* spawn(std::string name) const;
 
     void generateWater();
 

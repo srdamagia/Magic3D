@@ -114,7 +114,7 @@ public:
     Shader* load(std::string name, bool& created);
     Shader* compile(std::string file, bool& created);
 
-    std::string getPath(std::string shader);
+    virtual std::string getPath(std::string path);
     virtual void addDefault();
 };
 

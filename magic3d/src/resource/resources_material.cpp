@@ -41,7 +41,7 @@ bool Magic3D::ResourcesMaterial::remove(std::string name)
     Resources<Material>::resources.erase(name);
     if (material)
     {
-        typename std::map<std::string, Object*>::const_iterator it_o = ResourceManager::getObjects()->begin();
+        std::map<std::string, Object*>::const_iterator it_o = ResourceManager::getObjects()->begin();
 
         while (it_o != ResourceManager::getObjects()->end())
         {
@@ -88,9 +88,9 @@ Magic3D::Material* Magic3D::ResourcesMaterial::load(std::string name, bool& crea
     return result;
 }
 
-std::string Magic3D::ResourcesMaterial::getPath(std::string material)
+std::string Magic3D::ResourcesMaterial::getPath(std::string path)
 {
-    std::string fileName = Resources<Material>::getPath() + M3D_PATH_MATERIAL + material;
+    std::string fileName = Resources<Material>::getPath() + M3D_PATH_MATERIAL + path;
 
     return fileName;
 }

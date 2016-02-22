@@ -56,7 +56,7 @@ Magic3D::GUIButton::~GUIButton()
 
 }
 
-Magic3D::GUIButton* Magic3D::GUIButton::spawn(std::string name) const
+void* Magic3D::GUIButton::spawn(std::string name) const
 {
     return (new GUIButton(*this, name));
 }

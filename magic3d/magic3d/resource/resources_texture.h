@@ -117,7 +117,7 @@ public:
 
     std::string getPrefix(TEXTURE type);
 
-    std::string getPath(TEXTURE type, std::string texture);
+    std::string getTexturePath(TEXTURE type, std::string texture);
 
     virtual void addDefault();
 

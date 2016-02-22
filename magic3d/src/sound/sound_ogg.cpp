@@ -158,7 +158,7 @@ Magic3D::SoundOGG::~SoundOGG()
     release();
 }
 
-Magic3D::SoundOGG* Magic3D::SoundOGG::spawn(std::string name) const
+void* Magic3D::SoundOGG::spawn(std::string name) const
 {
     return (new SoundOGG(*this, name));
 }

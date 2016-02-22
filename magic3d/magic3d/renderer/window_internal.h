@@ -43,6 +43,8 @@ public:
     virtual bool finish();
     virtual bool render();
 
+    virtual void showCursor(bool show);
+
     static WindowInternal* getInstance();
 };
 

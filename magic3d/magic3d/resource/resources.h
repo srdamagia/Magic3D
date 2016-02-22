@@ -78,6 +78,11 @@ public:
         return *path;
     }
 
+    virtual std::string getPath(std::string path)
+    {
+        return *this->path + path;
+    }
+
     virtual bool add(M3D_Class* resource)
     {
         bool result = false;

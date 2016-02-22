@@ -1,5 +1,6 @@
-win32:QMAKE_CXXFLAGS += -std=c++11
 win32:RC_FILE = icons.rc
+macx:ICON = icons/icons.icns
+macx:QMAKE_INFO_PLIST = Info.plist
 
 TARGET = game
 TEMPLATE = app
@@ -10,13 +11,15 @@ UI_DIR = ./build
 MOC_DIR = ./build
 
 CONFIG -= exceptions
+CONFIG += c++11
 
+macx:LIBS += -F/Library/Frameworks -framework SDL2
 LIBS += -L./game -lmagic3d_contrib
 win32:LIBS += -mwindows -lwsock32 -lwinmm -lws2_32 -limm32 -lmingw32 -lopengl32 -lOpenAL32 -lSDL2
 unix:!macx:LIBS += -lopenal
 macx:LIBS += -framework OpenAL
 
-DEFINES += MAGIC3D_LOG
+DEFINES += MAGIC3D_LOG MAGIC3D_MEMORY
 
 MAGIC3D = ./
 CONTRIB = ./contrib
@@ -29,4 +32,4 @@ SOURCES += \
     ./main.cpp
 
 DISTFILES += \    
-    game/config.xml \
+    game/config.xml

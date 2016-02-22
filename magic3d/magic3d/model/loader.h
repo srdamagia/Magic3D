@@ -42,8 +42,8 @@ public:
     Loader();
     virtual ~Loader();
 
-    virtual bool load(Model* model) = 0;
-    virtual bool load() = 0;
+    virtual bool loadModel(Model* model) = 0;
+    virtual bool loadModel() = 0;
     virtual bool isLoading() = 0;
 
     const std::string& getName();

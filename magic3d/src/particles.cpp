@@ -199,7 +199,7 @@ Magic3D::Particles::~Particles()
     particlesMesh = NULL;
 }
 
-Magic3D::Particles* Magic3D::Particles::spawn(std::string name) const
+void* Magic3D::Particles::spawn(std::string name) const
 {
     return (new Particles(*this, name));
 }
@@ -511,7 +511,7 @@ bool Magic3D::Particles::updateMeshes()
                         particlesMesh->getData()->setQuad(buffer, idx, v1, v2, v3, v4, color1, color2, color2, color1);
                         particlesMesh->getData()->setQuadTexture(buffer, i, uv1, uv2, uv3, uv4);
 
-                        updateBoundingBox(v1, v2, v3, v4, first);
+                        updateBounds(v1, v2, v3, v4, first);
                         if (first)
                         {
                             first = false;
@@ -632,7 +632,7 @@ void Magic3D::Particles::createParticle(Particle* particle, bool reset)
     }
 }
 
-void Magic3D::Particles::updateBoundingBox(Vector3& v1, Vector3& v2, Vector3& v3, Vector3& v4, bool reset)
+void Magic3D::Particles::updateBounds(Vector3& v1, Vector3& v2, Vector3& v3, Vector3& v4, bool reset)
 {
     Vector3 min = Vector3(Math::min(Math::min(v1.getX(), v2.getX()), Math::min(v3.getX(), v4.getX())),
                           Math::min(Math::min(v1.getY(), v2.getY()), Math::min(v3.getY(), v4.getY())),

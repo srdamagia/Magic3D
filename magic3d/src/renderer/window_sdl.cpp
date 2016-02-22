@@ -22,7 +22,6 @@ subject to the following restrictions:
 */
 
 #if !defined(MAGIC3D_OES)
-#if defined(__WIN32__)
 #include <magic3d/magic3d.h>
 #include <magic3d/renderer/window_sdl.h>
 #include <magic3d/renderer/opengl/imgui_sdl_gl.h>
@@ -73,6 +72,7 @@ bool Magic3D::WindowSDL::finish()
 {
     bool result = true;
 
+    SDL_ShowCursor(true);
     ImGui_SDL_GL_Shutdown();
     SDL_GL_DeleteContext(glcontext);
     SDL_DestroyWindow(window);
@@ -96,6 +96,7 @@ bool Magic3D::WindowSDL::render()
                 case SDL_MOUSEMOTION:
                 {
                     Input::getInstance()->dispatchEvent(eINPUT_MOUSE, eEVENT_MOUSE_MOVE, event.button.x, event.button.y, event.button.button);
+                    Renderer::getInstance()->getWindow()->setCursorPosition(event.button.x, event.button.y);
                     break;
                 }
 
@@ -186,6 +187,21 @@ bool Magic3D::WindowSDL::render()
     return true;
 }
 
+void Magic3D::WindowSDL::showCursor(bool show)
+{
+    cursor = show;
+    if (cursor)
+    {
+        ImGui::GetIO().MouseDrawCursor = true;
+        SDL_ShowCursor(false);
+    }
+    else
+    {
+        ImGui::GetIO().MouseDrawCursor = false;
+        SDL_ShowCursor(false);
+    }
+}
+
 Magic3D::WindowSDL* Magic3D::WindowSDL::getInstance()
 {
     if (!instance)
@@ -214,7 +230,16 @@ bool Magic3D::WindowSDL::create()
     //SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
     SDL_DisplayMode current;
     SDL_GetCurrentDisplayMode(0, &current);
-    window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_OPENGL|SDL_WINDOW_RESIZABLE);
+    Uint32 flags = SDL_WINDOW_OPENGL;
+    if (fullscreen)
+    {
+        flags = flags|SDL_WINDOW_FULLSCREEN;
+    }
+    else
+    {
+        flags = flags|SDL_WINDOW_RESIZABLE;
+    }
+    window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, flags);
     glcontext = SDL_GL_CreateContext(window);
 
     // Setup ImGui binding
@@ -230,6 +255,7 @@ bool Magic3D::WindowSDL::create()
     //io.Fonts->AddFontFromFileTTF("../../extra_fonts/ProggyTiny.ttf", 10.0f);
     //io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
 
+    showCursor(cursor);
     setActive(true);
 
     Renderer::getInstance()->initialize();
@@ -239,5 +265,4 @@ bool Magic3D::WindowSDL::create()
     return true;
 }
 
-#endif
 #endif

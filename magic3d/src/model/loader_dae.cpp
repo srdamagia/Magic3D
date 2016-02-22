@@ -53,7 +53,7 @@ Magic3D::LoaderDAE::~LoaderDAE()
     }
 }
 
-bool Magic3D::LoaderDAE::load(Model* model)
+bool Magic3D::LoaderDAE::loadModel(Model* model)
 {
     loading = true;
     bool result = false;
@@ -151,7 +151,7 @@ bool Magic3D::LoaderDAE::load(Model* model)
     return result;
 }
 
-bool Magic3D::LoaderDAE::load()
+bool Magic3D::LoaderDAE::loadModel()
 {
     bool result = false;
 

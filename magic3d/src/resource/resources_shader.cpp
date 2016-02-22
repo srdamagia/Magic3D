@@ -134,7 +134,7 @@ bool Magic3D::ResourcesShader::remove(std::string name)
     Resources<Shader>::resources.erase(name);
     if (shader)
     {
-        typename std::map<std::string, Material*>::const_iterator it_o = ResourceManager::getMaterials()->begin();
+        std::map<std::string, Material*>::const_iterator it_o = ResourceManager::getMaterials()->begin();
 
         while (it_o != ResourceManager::getMaterials()->end())
         {
@@ -176,7 +176,7 @@ Magic3D::Shader* Magic3D::ResourcesShader::compile(std::string file, bool& creat
 
     if (shader)
     {
-        typename std::map<std::string, Material*>::const_iterator it_o = ResourceManager::getMaterials()->begin();
+        std::map<std::string, Material*>::const_iterator it_o = ResourceManager::getMaterials()->begin();
         while (it_o != ResourceManager::getMaterials()->end())
         {
             Material* child = (*it_o++).second;
@@ -204,9 +204,9 @@ Magic3D::Shader* Magic3D::ResourcesShader::compile(std::string file, bool& creat
     return shader;
 }
 
-std::string Magic3D::ResourcesShader::getPath(std::string shader)
+std::string Magic3D::ResourcesShader::getPath(std::string path)
 {
-    std::string fileName = Resources<Shader>::getPath() + M3D_PATH_SHADER + shader;
+    std::string fileName = Resources<Shader>::getPath() + M3D_PATH_SHADER + path;
 
     return fileName;
 }

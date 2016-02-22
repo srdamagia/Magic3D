@@ -83,7 +83,7 @@ Magic3D::Water::~Water()
     waterMesh = NULL;
 }
 
-Magic3D::Water* Magic3D::Water::spawn(std::string name) const
+void* Magic3D::Water::spawn(std::string name) const
 {
     return (new Water(*this, name));
 }

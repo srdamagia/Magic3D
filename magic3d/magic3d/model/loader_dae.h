@@ -94,8 +94,8 @@ public:
     LoaderDAE();
     virtual ~LoaderDAE();
 
-    virtual bool load(Model* model);
-    virtual bool load();
+    virtual bool loadModel(Model* model);
+    virtual bool loadModel();
     virtual bool isLoading();
 
     virtual XMLElement* save(XMLElement* root);

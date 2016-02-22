@@ -244,7 +244,7 @@ Magic3D::Texture* Magic3D::PVR::getTexture(DataBuffer* file, TEXTURE type, std::
         }
     }
 #else
-    if (file || type || !name.empty() || mipmap || clamp)
+    if (file || type || !name.empty() || fileName.empty() || mipmap || clamp)
     {
 
     }

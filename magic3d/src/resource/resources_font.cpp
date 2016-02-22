@@ -292,7 +292,7 @@ bool Magic3D::ResourcesFont::remove(std::string name)
     Resources<Font>::resources.erase(name);
     if (font)
     {
-        typename std::map<std::string, Object*>::const_iterator it_o = ResourceManager::getObjects()->begin();
+        std::map<std::string, Object*>::const_iterator it_o = ResourceManager::getObjects()->begin();
 
         while (it_o != ResourceManager::getObjects()->end())
         {
@@ -325,9 +325,9 @@ Magic3D::Font* Magic3D::ResourcesFont::load(std::string name, bool& created)
     return result;
 }
 
-std::string Magic3D::ResourcesFont::getPath(std::string font)
+std::string Magic3D::ResourcesFont::getPath(std::string path)
 {
-    std::string fileName = Resources<Font>::getPath() + M3D_PATH_FONT + font;
+    std::string fileName = Resources<Font>::getPath() + M3D_PATH_FONT + path;
 
     return fileName;
 }

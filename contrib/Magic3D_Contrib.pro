@@ -1,5 +1,3 @@
-win32:QMAKE_CXXFLAGS += -std=c++11
-
 TARGET = magic3d_contrib
 TEMPLATE = lib
 DESTDIR = ../game
@@ -9,9 +7,7 @@ UI_DIR = ./build
 MOC_DIR = ./build
 
 CONFIG -= exceptions
-CONFIG += staticlib warn_off
-
-DEFINES += MAGIC3D_MEMORY
+CONFIG += staticlib warn_off c++11
 
 CONTRIB = ./
 

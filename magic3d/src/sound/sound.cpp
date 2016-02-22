@@ -39,7 +39,7 @@ Magic3D::Sound::Sound(const Sound& sound, std::string name) : Object(sound, name
     this->loop = sound.loop;
     this->needPlay = sound.needPlay;
 
-    this->child = sound.child ? sound.child->spawn(name) : NULL;
+    this->child = sound.child ? static_cast<Sound*>(sound.child->spawn(name)) : NULL;
 }
 
 Magic3D::Sound::Sound(std::string name) : Object(eOBJECT_SOUND, eRENDER_3D, name)
@@ -65,7 +65,7 @@ Magic3D::Sound::~Sound()
     }
 }
 
-Magic3D::Sound* Magic3D::Sound::spawn(std::string name) const
+void* Magic3D::Sound::spawn(std::string name) const
 {
     return (new Sound(*this, name));
 }

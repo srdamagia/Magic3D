@@ -79,7 +79,7 @@ public:
     Terrain(std::string name);
     Terrain(OBJECT type, std::string name);
     virtual ~Terrain();
-    virtual Terrain* spawn(std::string name) const;
+    virtual void* spawn(std::string name) const;
 
     virtual bool updateMeshes();
     void addMaterial(Material* material);

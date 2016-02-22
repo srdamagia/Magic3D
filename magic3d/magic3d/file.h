@@ -32,8 +32,8 @@ namespace Magic3D
 class DataBuffer
 {
 public:
-    DataBuffer(){};
-    virtual ~DataBuffer(){};
+    DataBuffer(){}
+    virtual ~DataBuffer(){}
     virtual size_t read(void *buffer, size_t size) = 0;
     virtual size_t write(const void *buffer, size_t size) = 0;
 
@@ -305,7 +305,7 @@ public:
         return buffer.get();
     }
 
-    virtual std::stringstream::__stringbuf_type* getBuffer()
+    virtual  std::basic_stringbuf<std::stringstream::char_type, std::stringstream::traits_type, std::stringstream::allocator_type>* getBuffer()
     {
         return buffer.rdbuf();
     }

@@ -43,7 +43,7 @@ protected:
 public:
     GUIWindow(std::string name);
     virtual ~GUIWindow();
-    virtual GUIWindow* spawn(std::string name) const;
+    virtual void* spawn(std::string name) const;
 
     virtual bool updateMeshes();
 

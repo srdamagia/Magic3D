@@ -161,7 +161,7 @@ public:
     Object(OBJECT type, RENDER render, std::string name);
     virtual ~Object();
 
-    virtual Object* spawn(std::string name) const;
+    virtual void* spawn(std::string name) const;
     Object* spawn(std::string name, std::string layerName, bool keepChildrenLayer);
     void killChildren();
 
@@ -338,7 +338,7 @@ public:
     ObjectInstance(std::string name);
     virtual ~ObjectInstance();
 
-    virtual ObjectInstance* spawn(std::string name) const;
+    virtual void* spawn(std::string name) const;
 
     void setInstance(Object* object, bool removeOld = true);
     Object* getInstance();

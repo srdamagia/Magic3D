@@ -66,6 +66,13 @@ public:
     virtual bool finish() = 0;
     virtual bool render() = 0;    
 
+    virtual void showCursor(bool show) = 0;
+
+    bool isShowingCursor()
+    {
+        return cursor;
+    }
+
     bool isActive()
     {
         return active;

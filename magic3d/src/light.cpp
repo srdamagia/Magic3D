@@ -222,7 +222,7 @@ Magic3D::Light::~Light()
 
 }
 
-Magic3D::Light* Magic3D::Light::spawn(std::string name) const
+void* Magic3D::Light::spawn(std::string name) const
 {
     return (new Light(*this, name));
 }

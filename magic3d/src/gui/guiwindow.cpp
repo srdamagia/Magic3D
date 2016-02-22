@@ -58,7 +58,7 @@ Magic3D::GUIWindow::~GUIWindow()
 
 }
 
-Magic3D::GUIWindow* Magic3D::GUIWindow::spawn(std::string name) const
+void* Magic3D::GUIWindow::spawn(std::string name) const
 {
     return (new GUIWindow(*this, name));
 }

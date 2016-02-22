@@ -100,7 +100,7 @@ Magic3D::Joystick::~Joystick()
     }
 }
 
-Magic3D::Joystick* Magic3D::Joystick::spawn(std::string name) const
+void* Magic3D::Joystick::spawn(std::string name) const
 {
     return (new Joystick(*this, name));
 }

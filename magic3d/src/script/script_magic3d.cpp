@@ -473,7 +473,7 @@ int Magic3D::ScriptMagic3D::debugLine(lua_State *lua)
     ScriptColor*   color = ScriptClass<ScriptColor>::check(lua, 4);
 
 
-    Renderer::getInstance()->drawLine(l1->getValue(), l2->getValue(), ortho, color->getValue());
+    Renderer::getInstance()->addLine(l1->getValue(), l2->getValue(), ortho, color->getValue());
     return 0;
 }
 
@@ -582,5 +582,9 @@ int Magic3D::ScriptMagic3D::sendObject(lua_State* lua)
 
 int Magic3D::ScriptMagic3D::sendInput(lua_State* lua)
 {
+    if (lua)
+    {
+
+    }
     return 0;
 }

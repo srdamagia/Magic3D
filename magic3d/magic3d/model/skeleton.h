@@ -115,7 +115,7 @@ protected:
 public:
     Bone(std::string name, Skeleton* skeleton, int index);
     virtual ~Bone();
-    virtual Bone* spawn(Skeleton* skeleton) const;
+    Bone* spawnBone(Skeleton* skeleton) const;
 
     virtual bool update();
 

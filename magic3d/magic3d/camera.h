@@ -50,7 +50,7 @@ namespace Magic3D
 #define M3D_CAMERA_DEFAULT_NEAR 0.1f
 #define M3D_CAMERA_DEFAULT_FAR  10000.0f
 
-struct ViewPort;
+class ViewPort;
 
 enum STEREOSCOPY
 {
@@ -124,7 +124,7 @@ public:
     Camera(OBJECT type, std::string name);
     Camera(std::string name);
     virtual ~Camera();
-    virtual Camera* spawn(std::string name) const;
+    virtual void* spawn(std::string name) const;
 
     void setView(float fovy, float zNear, float zFar);
     void setFovy(float fovy);

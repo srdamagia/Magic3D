@@ -96,7 +96,7 @@ public:
     virtual bool remove(std::string name);
 
     Font* load(std::string name, bool& created);
-    std::string getPath(std::string font);
+    virtual std::string getPath(std::string path);
 
     virtual void addDefault();
 };

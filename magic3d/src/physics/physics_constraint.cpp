@@ -222,7 +222,7 @@ void Magic3D::PhysicsConstraint::connect()
 
     if (constraint)
     {
-        if ((connected && &constraint->getRigidBodyB() != connected->getRigidBody()) || (!connected && &constraint->getRigidBodyB() != NULL))
+        if ((connected && &constraint->getRigidBodyB() != connected->getRigidBody()))
         {
             delete constraint;
             constraint = NULL;

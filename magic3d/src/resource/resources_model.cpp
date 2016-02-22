@@ -151,9 +151,9 @@ Magic3D::ResourcesModel::~ResourcesModel()
     }
 }
 
-std::string Magic3D::ResourcesModel::getPath(std::string model)
+std::string Magic3D::ResourcesModel::getPath(std::string path)
 {
-    std::string fileName = Resources<ModelInfo>::getPath() + M3D_PATH_MODEL + model;
+    std::string fileName = Resources<ModelInfo>::getPath() + M3D_PATH_MODEL + path;
 
     return fileName;
 }

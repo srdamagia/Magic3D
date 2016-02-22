@@ -85,7 +85,6 @@ private:
     float current;
     float elapsed;
     float elapsedReal;
-    float lastTicks;
     float timeSinceStart;
 
     float scale;

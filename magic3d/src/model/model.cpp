@@ -63,7 +63,7 @@ Magic3D::Model::~Model()
     }
 }
 
-Magic3D::Model* Magic3D::Model::spawn(std::string name) const
+void* Magic3D::Model::spawn(std::string name) const
 {
     return (new Model(*this, name));
 }
@@ -101,7 +101,7 @@ bool Magic3D::Model::load()
     bool result = false;
     if (loader)
     {
-        if (!loader->load())
+        if (!loader->loadModel())
         {
             delete loader;
             loader = NULL;
@@ -127,7 +127,7 @@ bool Magic3D::Model::load()
                 if (lower.compare (lower.length() - ending.length(), ending.length(), ending) == 0)
                 {
                     loader = new LoaderDAE();
-                    loader->load(this);
+                    loader->loadModel(this);
                 }
                 else
                 {

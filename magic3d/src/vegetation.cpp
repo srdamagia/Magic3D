@@ -241,7 +241,7 @@ Magic3D::Vegetation::~Vegetation()
     grassMesh = NULL;
 }
 
-Magic3D::Vegetation* Magic3D::Vegetation::spawn(std::string name) const
+void* Magic3D::Vegetation::spawn(std::string name) const
 {
     return (new Vegetation(*this, name));
 }
@@ -400,8 +400,8 @@ void Magic3D::Vegetation::calcNormals(int startVertex, int startIndex)
         allNormals[face[2] - startVertex].push_back(norm);
     }
 
-    float maxX = 0.0;
-    float maxY = 0.0;
+    //float maxX = 0.0;
+    //float maxY = 0.0;
     size_t nsize = allNormals.size();
     for (size_t i = 0; i < nsize; i++)
     {
@@ -534,7 +534,7 @@ void Magic3D::Vegetation::doFaces(Branch* branch, int startIndex, bool invert)
             }
         }
 
-        float UVScale = properties.maxRadius / branch->radius;
+        //float UVScale = properties.maxRadius / branch->radius;
 
         for (int i = 0; i < segments; i++)
         {

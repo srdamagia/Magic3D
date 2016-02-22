@@ -76,7 +76,7 @@ protected:
 public:
     Joystick(std::string name);
     virtual ~Joystick();
-    virtual Joystick* spawn(std::string name) const;
+    virtual void* spawn(std::string name) const;
 
     Vector3 getDirection();
     float getForce();

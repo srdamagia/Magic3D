@@ -26,9 +26,10 @@ INCLUDEPATH += \
     $$VECTORMATH/cpp \
     $$LUA \
     $$ENET \
-    $$SDL/include \
     $$IMGUI
-win32|macx:INCLUDEPATH += $$PNG \
+win32|macx:INCLUDEPATH += $$PNG
+win32:INCLUDEPATH += $$SDL/include
+macx:INCLUDEPATH += /Library/Frameworks/SDL2.framework/Headers
 
 MEMORY_MANAGER_SOURCE  = $$MEMORY_MANAGER
 MEMORY_MANAGER_INCLUDE = $$MEMORY_MANAGER

@@ -126,7 +126,7 @@ protected:
 public:
     PhysicsObject(OBJECT type, RENDER render);
     virtual ~PhysicsObject();
-    virtual PhysicsObject* spawn() const;
+    virtual void* spawn(std::string name) const;
 
     bool isNeedingUpdateOctree();
     void updateOctree();

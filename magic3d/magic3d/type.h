@@ -39,12 +39,18 @@ subject to the following restrictions:
 #include <enet/enet.h>
 #include <tinyxml2.h>
 
+#include <SDL.h>
+
 namespace Magic3D
 {
     typedef tinyxml2::XMLDocument XMLDocument;
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wall"
+#pragma GCC diagnostic ignored "-Wextra"
 #include <btBulletDynamicsCommon.h>
+#pragma GCC diagnostic pop
 
 #if defined(__APPLE__)
 #include <OpenAL/al.h>
@@ -59,17 +65,19 @@ namespace Magic3D
 #include <vorbis/vorbisfile.h>
 #include <ogg/ogg.h>
 
-#ifdef MAGIC3D_MEMORY
+#if defined(MAGIC3D_MEMORY) && !defined(__APPLE__)
 #include <mmgr.h>
+#endif
+
+#if defined(MAGIC3D_OES1) || defined(MAGIC3D_OES2) || defined(MAGIC3D_OES3)
+#define MAGIC3D_OES
 #endif
 
 typedef unsigned char  byte;
 typedef unsigned short word;
 typedef unsigned long  dword;
 typedef unsigned int   uint;
-#if defined(MAGIC3D_OES1)
-typedef unsigned short vindex;
-#elif defined(MAGIC3D_OES2)
+#if defined(MAGIC3D_OES)
 typedef unsigned short vindex;
 #else
 typedef unsigned int vindex;
@@ -77,10 +85,6 @@ typedef unsigned int vindex;
 
 #define M3D_MULTI_TEXTURE_COUNT 2
 #define M3D_MULTI_SKIN_COUNT 4
-
-#if defined(MAGIC3D_OES1) || defined(MAGIC3D_OES2) || defined(MAGIC3D_OES3)
-#define MAGIC3D_OES
-#endif
 
 #define MAGIC3D_PASSWORD "magic3d"
 

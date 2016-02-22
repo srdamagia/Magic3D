@@ -80,7 +80,7 @@ public:
     ResourcesModel();
     virtual ~ResourcesModel();
 
-    std::string getPath(std::string model);
+    virtual std::string getPath(std::string path);
 
     virtual void addDefault();
 };

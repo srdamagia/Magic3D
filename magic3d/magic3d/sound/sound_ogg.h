@@ -70,7 +70,7 @@ protected:
 public:
     SoundOGG(std::string name);
     ~SoundOGG();
-    virtual SoundOGG* spawn(std::string name) const;
+    virtual void* spawn(std::string name) const;
 
     unsigned long decode(OggVorbis_File *psOggVorbisFile, char *pDecodeBuffer, unsigned long ulBufferSize, unsigned long ulChannels);
     void release();

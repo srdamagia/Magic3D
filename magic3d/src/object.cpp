@@ -189,14 +189,14 @@ Magic3D::Object::~Object()
     clearMeshes();
 }
 
-Magic3D::Object* Magic3D::Object::spawn(std::string name) const
+void* Magic3D::Object::spawn(std::string name) const
 {
     return new Object(*this, name);
 }
 
 Magic3D::Object* Magic3D::Object::spawn(std::string name, std::string layerName, bool keepChildrenLayer)
 {
-    Object* result = NULL;
+    void* result = NULL;
     Layer* layer = Scene::getInstance()->getLayer(layerName);
 
     if (!layer)
@@ -215,7 +215,7 @@ Magic3D::Object* Magic3D::Object::spawn(std::string name, std::string layerName,
             Object* child = *it_o++;
 
             std::string childName = child->getName();
-            unsigned int separator = childName.rfind('.');
+            size_t separator = childName.rfind('.');
             childName = name + "." + (separator == childName.npos ? childName : childName.substr(separator + 1));
 
             if (getObject(childName))
@@ -228,8 +228,8 @@ Magic3D::Object* Magic3D::Object::spawn(std::string name, std::string layerName,
         if (allchildren)
         {
             result = spawn(name);
-            ResourceManager::getObjects()->add(result);
-            Scene::getInstance()->addObject(layer, result);
+            ResourceManager::getObjects()->add(static_cast<Object*>(result));
+            Scene::getInstance()->addObject(layer, static_cast<Object*>(result));
 
             it_o = children.begin();
             while (it_o != children.end())
@@ -237,14 +237,14 @@ Magic3D::Object* Magic3D::Object::spawn(std::string name, std::string layerName,
                 Object* child = *it_o++;
 
                 std::string childName = child->getName();
-                unsigned int separator = childName.rfind('.');
+                size_t separator = childName.rfind('.');
                 childName = name + "." + (separator == childName.npos ? childName : childName.substr(separator + 1));
 
                 Object* spawned = child->spawn(childName, keepChildrenLayer && child->getLayer() ? child->getLayer()->getName() : layerName, keepChildrenLayer);
                 if (spawned != child)
                 {
-                    spawned->setParent(result);
-                    if (child->getParentBone() && result->getType() == eOBJECT_MODEL)
+                    spawned->setParent(static_cast<Object*>(result));
+                    if (child->getParentBone() && static_cast<Object*>(result)->getType() == eOBJECT_MODEL)
                     {
                         Bone* bone = static_cast<Model*>(result)->getSkeleton()->getBoneByName(child->getParentBone()->getName());
                         spawned->setParentBone(bone);
@@ -260,10 +260,10 @@ Magic3D::Object* Magic3D::Object::spawn(std::string name, std::string layerName,
 
     if (result && getRigidBody())
     {
-        Physics::getInstance()->add(result);
+        Physics::getInstance()->add(static_cast<Object*>(result));
     }
 
-    return result;
+    return static_cast<Object*>(result);
 }
 
 void Magic3D::Object::killChildren()
@@ -1515,7 +1515,7 @@ Magic3D::Object* Magic3D::Object::getObject(std::string name)
 Magic3D::Object* Magic3D::Object::getChild(std::string name)
 {
     std::string childName = name;
-    unsigned int separator = childName.rfind('.');
+    size_t separator = childName.rfind('.');
     childName = getName() + "." + (separator == childName.npos ? childName : childName.substr(separator + 1));
     return getObject(childName);
 }
@@ -1662,7 +1662,7 @@ Magic3D::ObjectInstance::~ObjectInstance()
     instance = NULL;
 }
 
-Magic3D::ObjectInstance* Magic3D::ObjectInstance::spawn(std::string name) const
+void* Magic3D::ObjectInstance::spawn(std::string name) const
 {
     return new ObjectInstance(*this, name);
 }

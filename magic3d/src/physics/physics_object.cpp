@@ -129,8 +129,12 @@ Magic3D::PhysicsObject::~PhysicsObject()
     }
 }
 
-Magic3D::PhysicsObject* Magic3D::PhysicsObject::spawn() const
+void* Magic3D::PhysicsObject::spawn(std::string name) const
 {
+    if (name.empty())
+    {
+
+    }
     return (new PhysicsObject(*this));
 }
 

@@ -136,7 +136,7 @@ public:
     Sprite(std::string name);
     Sprite(OBJECT type, std::string name);
     virtual ~Sprite();
-    virtual Sprite* spawn(std::string name) const;
+    virtual void* spawn(std::string name) const;
 
     virtual bool update();
     virtual bool updateMeshes();

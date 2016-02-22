@@ -580,6 +580,10 @@ int Magic3D::ScriptObject::applyForce(lua_State *lua)
 
 int Magic3D::ScriptObject::applyGravity(lua_State *lua)
 {
+    if (lua)
+    {
+
+    }
     object->applyPhysicsGravity();
     return 0;
 }

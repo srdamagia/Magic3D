@@ -644,6 +644,10 @@ void Magic3D::Scene::updateVisibleObjects2D(Camera* camera, bool profile)
 
 void Magic3D::Scene::prepareUpdate(Camera* camera, bool reflectives, bool reflections, bool anyType)
 {
+    if (camera || anyType)
+    {
+
+    }
     if (reflections)
     {
         this->reflections.clear();
@@ -1923,7 +1927,8 @@ void Magic3D::Scene::spawnInstances()
 
         if (obj && instance)
         {
-            Object* spawn = instance->spawn(obj->getName());
+            void* tmp = instance->spawn(obj->getName());
+            Object* spawn = static_cast<Object*>(tmp);
 
             spawn->setParent(obj->getParent());
             spawn->setParentBone(obj->getParentBone());

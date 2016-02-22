@@ -30,9 +30,7 @@ subject to the following restrictions:
 #endif
 
 #include <magic3d/renderer/window_internal.h>
-#if defined(__WIN32__)
 #include <magic3d/renderer/window_sdl.h>
-#endif
 
 int Magic3D::Renderer::vboCreated = 0;
 int Magic3D::Renderer::vboDestroyed = 0;
@@ -641,7 +639,7 @@ void Magic3D::Renderer::addDistortion(Vector3 position, DISTORTION type, float r
     }
 }
 
-void Magic3D::Renderer::drawLine(Vector3 start, Vector3 finish, bool orthographic, ColorRGBA color)
+void Magic3D::Renderer::addLine(Vector3 start, Vector3 finish, bool orthographic, ColorRGBA color)
 {
     if (orthographic)
     {
@@ -653,7 +651,7 @@ void Magic3D::Renderer::drawLine(Vector3 start, Vector3 finish, bool orthographi
     }
 }
 
-void Magic3D::Renderer::drawPoint(Vector3 position, float size, bool orthographic, ColorRGBA color)
+void Magic3D::Renderer::addPoint(Vector3 position, float size, bool orthographic, ColorRGBA color)
 {
     if (orthographic)
     {

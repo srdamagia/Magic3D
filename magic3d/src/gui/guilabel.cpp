@@ -53,7 +53,7 @@ Magic3D::GUILabel::~GUILabel()
     font = NULL;
 }
 
-Magic3D::GUILabel* Magic3D::GUILabel::spawn(std::string name) const
+void* Magic3D::GUILabel::spawn(std::string name) const
 {
     return (new GUILabel(*this, name));
 }

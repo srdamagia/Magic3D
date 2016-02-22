@@ -168,7 +168,7 @@ ENetAddress Magic3D::Network::getClient(enet_uint32 id)
     ENetAddress result;
     result.host = 0;
     result.port = 0;
-    typename std::map<enet_uint32, ENetAddress>::const_iterator it_a = clients.find(id);
+    std::map<enet_uint32, ENetAddress>::const_iterator it_a = clients.find(id);
     if (it_a != clients.end())
     {
         result = (*it_a).second;
@@ -263,7 +263,7 @@ void Magic3D::Network::update()
                         clients[event.peer->connectID] = event.peer->address;
                     }
 
-                    auto it_o = spawned.begin();
+                    std::map<std::string, enet_uint32>::const_iterator it_o = spawned.begin();
                     while (it_o != spawned.end())
                     {
                         spawnObject(getObjectBaseName((*it_o).first), (*it_o).second);
@@ -288,7 +288,7 @@ void Magic3D::Network::update()
 
                 case ENET_EVENT_TYPE_DISCONNECT:
                 {
-                    auto it_o = spawned.begin();
+                    std::map<std::string, enet_uint32>::const_iterator it_o = spawned.begin();
                     while (it_o != spawned.end())
                     {
                         enet_uint32 id = (*it_o).second;
@@ -501,7 +501,7 @@ void Magic3D::Network::sendObject(Object* object)
     }
 }
 
-void Magic3D::Network::sendInput(INPUT input, EVENT event, float x, float y, float z, float w)
+void Magic3D::Network::sendInput(INPUT /*input*/, EVENT /*event*/, float /*x*/, float /*y*/, float /*z*/, float /*w*/)
 {
 
 }
@@ -544,7 +544,7 @@ void Magic3D::Network::log(LOG type, const char* format, ...)
     }
 }
 
-// unpack method for retrieving data in network byte,
+/*// unpack method for retrieving data in network byte,
 //   big endian, order (MSB first)
 // increments index i by the number of bytes unpacked
 // usage:
@@ -587,4 +587,4 @@ int packFloat(void *buf, float x) {
     b[3] = p[3];
 #endif
     return 4;
-}
+}*/

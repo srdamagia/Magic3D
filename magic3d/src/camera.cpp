@@ -103,7 +103,7 @@ Magic3D::Camera::~Camera()
 
 }
 
-Magic3D::Camera* Magic3D::Camera::spawn(std::string name) const
+void* Magic3D::Camera::spawn(std::string name) const
 {
     return (new Camera(*this, name));
 }
@@ -1100,20 +1100,20 @@ void Magic3D::Camera::render()
     Vector3 nbr = nc - (getDirectionUp() * nh * 0.5f) + (getDirectionRight() * nw * 0.5f);
 
     ColorRGBA color = ColorRGBA(1.0f, 1.0f, 0.0f, 1.0f);
-    Renderer::getInstance()->drawLine(ntl, ntr, false, color);
-    Renderer::getInstance()->drawLine(ntr, nbr, false, color);
-    Renderer::getInstance()->drawLine(nbr, nbl, false, color);
-    Renderer::getInstance()->drawLine(nbl, ntl, false, color);
+    Renderer::getInstance()->addLine(ntl, ntr, false, color);
+    Renderer::getInstance()->addLine(ntr, nbr, false, color);
+    Renderer::getInstance()->addLine(nbr, nbl, false, color);
+    Renderer::getInstance()->addLine(nbl, ntl, false, color);
 
-    Renderer::getInstance()->drawLine(ftl, ftr, false, color);
-    Renderer::getInstance()->drawLine(ftr, fbr, false, color);
-    Renderer::getInstance()->drawLine(fbr, fbl, false, color);
-    Renderer::getInstance()->drawLine(fbl, ftl, false, color);
+    Renderer::getInstance()->addLine(ftl, ftr, false, color);
+    Renderer::getInstance()->addLine(ftr, fbr, false, color);
+    Renderer::getInstance()->addLine(fbr, fbl, false, color);
+    Renderer::getInstance()->addLine(fbl, ftl, false, color);
 
-    Renderer::getInstance()->drawLine(ntl, ftl, false, color);
-    Renderer::getInstance()->drawLine(ntr, ftr, false, color);
-    Renderer::getInstance()->drawLine(nbl, fbl, false, color);
-    Renderer::getInstance()->drawLine(nbr, fbr, false, color);
+    Renderer::getInstance()->addLine(ntl, ftl, false, color);
+    Renderer::getInstance()->addLine(ntr, ftr, false, color);
+    Renderer::getInstance()->addLine(nbl, fbl, false, color);
+    Renderer::getInstance()->addLine(nbr, fbr, false, color);
 }
 
 Magic3D::XMLElement* Magic3D::Camera::save(XMLElement* root)

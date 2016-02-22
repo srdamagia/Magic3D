@@ -52,7 +52,7 @@ protected:
 public:
     GUILabel(std::string name, float size);
     virtual ~GUILabel();
-    virtual GUILabel* spawn(std::string name) const;
+    virtual void* spawn(std::string name) const;
 
     virtual bool updateMeshes();
 

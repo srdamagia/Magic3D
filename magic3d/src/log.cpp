@@ -152,7 +152,6 @@ void Magic3D::Log::log(LOG type, const char* text)
 
 void Magic3D::Log::logMatrix(LOG type, float* matrix)
 {
-    int inc = sizeof(float);
     float* value = matrix;
     for (int r = 0; r < 4; r++)
     {

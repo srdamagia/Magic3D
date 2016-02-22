@@ -44,7 +44,7 @@ void Magic3D::Skeleton::copyFrom(const Skeleton* skeleton)
         while (it_b != skeleton->bones.end())
         {
             Bone* bone = *it_b++;
-            this->bones.push_back(bone->spawn(this));
+            this->bones.push_back(bone->spawnBone(this));
             this->skin.push_back(Matrix4::identity());
         }
 
@@ -313,7 +313,7 @@ Magic3D::Bone::~Bone()
 
 }
 
-Magic3D::Bone* Magic3D::Bone::spawn(Skeleton* skeleton) const
+Magic3D::Bone* Magic3D::Bone::spawnBone(Skeleton* skeleton) const
 {
     return (new Bone(*this, skeleton));
 }

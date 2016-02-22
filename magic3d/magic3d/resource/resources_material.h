@@ -56,7 +56,7 @@ public:
     virtual bool remove(std::string name);
 
     Material* load(std::string name, bool& created);
-    std::string getPath(std::string material);
+    virtual std::string getPath(std::string path);
 
     virtual void addDefault();
 };

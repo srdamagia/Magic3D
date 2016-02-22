@@ -68,7 +68,7 @@ const std::string& Magic3D::Texture::getName()
 
 std::string Magic3D::Texture::getSpriteFile()
 {
-    std::string fileName = ResourceManager::getTextures()->getPath(type, file);
+    std::string fileName = ResourceManager::getTextures()->getTexturePath(type, file);
     if (fileName.find(".pvr") == fileName.size() - 4)
     {
         fileName = fileName.substr(0, fileName.size() - 4);
@@ -176,7 +176,7 @@ Magic3D::Texture* Magic3D::Texture::load(TEXTURE type, std::string name, std::st
     created = false;
     Texture* texture = NULL;
 
-    std::string fileName = ResourceManager::getTextures()->getPath(type, file);
+    std::string fileName = ResourceManager::getTextures()->getTexturePath(type, file);
 
     DataBuffer* io;
     bool ready = false;
@@ -319,7 +319,7 @@ std::string Magic3D::ResourcesTexture::getPrefix(TEXTURE type)
     return prefix;
 }
 
-std::string Magic3D::ResourcesTexture::getPath(TEXTURE type, std::string texture)
+std::string Magic3D::ResourcesTexture::getTexturePath(TEXTURE type, std::string texture)
 {
     std::string fileName = Resources<Texture>::getPath() + getPrefix(type) + texture;
 

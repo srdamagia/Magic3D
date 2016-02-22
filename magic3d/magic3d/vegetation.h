@@ -150,7 +150,7 @@ public:
     Vegetation(std::string name);
     Vegetation(OBJECT type, std::string name);
     virtual ~Vegetation();
-    virtual Vegetation* spawn(std::string name) const;
+    virtual void* spawn(std::string name) const;
 
     virtual bool updateMeshes();
 

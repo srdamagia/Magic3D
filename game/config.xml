@@ -2,8 +2,8 @@
 <Magic3D>
     <!-- Magic3D Configuration -->
     <TITLE>Magic3D</TITLE>
-    <WINDOW_WIDTH>1600</WINDOW_WIDTH>
-    <WINDOW_HEIGHT>900</WINDOW_HEIGHT>
+    <WINDOW_WIDTH>1024</WINDOW_WIDTH>
+    <WINDOW_HEIGHT>768</WINDOW_HEIGHT>
     <FULLSCREEN>0</FULLSCREEN>
     <CURSOR>1</CURSOR>
     <selected>default</selected>

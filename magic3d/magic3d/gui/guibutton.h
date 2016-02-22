@@ -41,7 +41,7 @@ protected:
 public:
     GUIButton(std::string name);
     virtual ~GUIButton();
-    virtual GUIButton* spawn(std::string name) const;
+    virtual void* spawn(std::string name) const;
 
     virtual bool updateMeshes();
 

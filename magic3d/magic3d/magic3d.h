@@ -177,6 +177,7 @@ public:
     static bool start(std::string applicationPath, LogCallBack* callback = NULL);
     static bool start(std::string applicationPath, Magic3DConfiguration* configuration, LogCallBack* callback = NULL);
     static bool finish();
+    static std::string getApplicationPath(std::string path);
 
     const Magic3DConfiguration& getConfiguration();
     void setConfiguration(std::string selected);

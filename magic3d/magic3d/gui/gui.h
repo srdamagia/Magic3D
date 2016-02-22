@@ -55,7 +55,7 @@ protected:
 public:
     GUI(OBJECT type, std::string name);
     virtual ~GUI();
-    virtual GUI* spawn(std::string name) const;
+    virtual void* spawn(std::string name) const;
 
     Material* getMaterial();
 

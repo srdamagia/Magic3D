@@ -67,7 +67,7 @@ protected:
 public:
     Sound(std::string name);
     ~Sound();
-    virtual Sound* spawn(std::string name) const;
+    virtual void* spawn(std::string name) const;
 
     void setFileName(std::string name);
     const std::string& getFileName();

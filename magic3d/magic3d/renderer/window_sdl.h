@@ -25,10 +25,7 @@ subject to the following restrictions:
 #define MAGIC3D_RENDERER_WINDOW_SDL_H
 
 #if !defined(MAGIC3D_OES2)
-#if defined(__WIN32__)
-#include <windows.h>
 #include <magic3d/renderer/renderer.h>
-#include <SDL.h>
 
 namespace Magic3D
 {
@@ -50,11 +47,11 @@ public:
     virtual bool finish();
     virtual bool render();
 
+    virtual void showCursor(bool show);
+
     static WindowSDL* getInstance();
 };
 
 }
-#endif
-
 #endif // MAGIC3D_RENDERER_WINDOW_SDL_H
 #endif

@@ -326,8 +326,8 @@ public:
     virtual bool updateShaderUserVariables(Shader* shader) = 0;
 
     virtual void addDistortion(Vector3 position, DISTORTION type, float radius, float frequency, float factor, float wave);
-    virtual void drawLine(Vector3 start, Vector3 finish, bool orthographic, ColorRGBA color = ColorRGBA(1.0f, 1.0f, 1.0f, 1.0f));
-    virtual void drawPoint(Vector3 position, float size, bool orthographic, ColorRGBA color = ColorRGBA(1.0f, 1.0f, 1.0f, 1.0f));
+    virtual void addLine(Vector3 start, Vector3 finish, bool orthographic, ColorRGBA color = ColorRGBA(1.0f, 1.0f, 1.0f, 1.0f));
+    virtual void addPoint(Vector3 position, float size, bool orthographic, ColorRGBA color = ColorRGBA(1.0f, 1.0f, 1.0f, 1.0f));
 
     virtual bool isProfileObject(Object* object);
 
@@ -336,7 +336,7 @@ public:
 
     virtual void drawLine(const btVector3& from, const btVector3& to, const btVector3& color)
     {
-        drawLine(Vector3(from.getX(), from.getY(), from.getZ()), Vector3(to.getX(), to.getY(), to.getZ()), false, ColorRGBA(color.getX(), color.getY(), color.getZ(), 1.0f));
+        addLine(Vector3(from.getX(), from.getY(), from.getZ()), Vector3(to.getX(), to.getY(), to.getZ()), false, ColorRGBA(color.getX(), color.getY(), color.getZ(), 1.0f));
     }
 
     virtual void drawTransform(const btTransform& transform, btScalar orthoLen)
@@ -345,7 +345,7 @@ public:
         btVector3 start = transform.getOrigin();
         if (orthoLen < 1.0f)
         {
-            drawPoint(Vector3(start.x(), start.y(), start.z()), 5.0f, false, ColorRGBA(0.0f, 0.5f, 0.0f, 1.0f));
+            addPoint(Vector3(start.x(), start.y(), start.z()), 5.0f, false, ColorRGBA(0.0f, 0.5f, 0.0f, 1.0f));
         }
     }
 
@@ -353,8 +353,8 @@ public:
     {
         if (lifeTime > 0)
         {
-            drawPoint(Vector3(PointOnB.x(), PointOnB.y(), PointOnB.z()), 5.0f, false, ColorRGBA(color.x(), color.y(), color.z(), 1.0f));
-            drawLine(Vector3(PointOnB.x(), PointOnB.y(), PointOnB.z()), Vector3(PointOnB.x(), PointOnB.y(), PointOnB.z()) + Vector3(normalOnB.x(), normalOnB.y(), normalOnB.z()) * distance, false, ColorRGBA(color.x(), color.y(), color.z(), 1.0f));
+            addPoint(Vector3(PointOnB.x(), PointOnB.y(), PointOnB.z()), 5.0f, false, ColorRGBA(color.x(), color.y(), color.z(), 1.0f));
+            addLine(Vector3(PointOnB.x(), PointOnB.y(), PointOnB.z()), Vector3(PointOnB.x(), PointOnB.y(), PointOnB.z()) + Vector3(normalOnB.x(), normalOnB.y(), normalOnB.z()) * distance, false, ColorRGBA(color.x(), color.y(), color.z(), 1.0f));
         }
     }
 
@@ -399,7 +399,7 @@ public:
 
     virtual void drawLine(const btVector3& from, const btVector3& to, const btVector3& color)
     {
-        Renderer::getInstance()->drawLine(Vector3(from.getX(), -from.getY(), from.getZ()), Vector3(to.getX(), -to.getY(), to.getZ()), true, ColorRGBA(color.getX(), color.getY(), color.getZ(), 1.0f));
+        Renderer::getInstance()->addLine(Vector3(from.getX(), -from.getY(), from.getZ()), Vector3(to.getX(), -to.getY(), to.getZ()), true, ColorRGBA(color.getX(), color.getY(), color.getZ(), 1.0f));
     }
 
     virtual void drawTransform(const btTransform& transform, btScalar orthoLen)
@@ -411,7 +411,7 @@ public:
         drawLine(start, start + transform.getBasis() * btVector3(0, 0, l), btVector3(0,0,0.7f));
         if (orthoLen < 1.0f)
         {
-            Renderer::getInstance()->drawPoint(Vector3(start.x(), -start.y(), start.z()), 5.0f, true, ColorRGBA(0.0f, 0.5f, 0.0f, 1.0f));
+            Renderer::getInstance()->addPoint(Vector3(start.x(), -start.y(), start.z()), 5.0f, true, ColorRGBA(0.0f, 0.5f, 0.0f, 1.0f));
         }
     }
 
@@ -419,8 +419,8 @@ public:
     {
         if (lifeTime > 0)
         {
-            Renderer::getInstance()->drawPoint(Vector3(PointOnB.x(), -PointOnB.y(), PointOnB.z()), 5.0f, true, ColorRGBA(color.x(), color.y(), color.z(), 1.0f));
-            Renderer::getInstance()->drawLine(Vector3(PointOnB.x(), -PointOnB.y(), PointOnB.z()), Vector3(PointOnB.x(), -PointOnB.y(), PointOnB.z()) + Vector3(normalOnB.x(), -normalOnB.y(), normalOnB.z()) * distance, true, ColorRGBA(color.x(), color.y(), color.z(), 1.0f));
+            Renderer::getInstance()->addPoint(Vector3(PointOnB.x(), -PointOnB.y(), PointOnB.z()), 5.0f, true, ColorRGBA(color.x(), color.y(), color.z(), 1.0f));
+            Renderer::getInstance()->addLine(Vector3(PointOnB.x(), -PointOnB.y(), PointOnB.z()), Vector3(PointOnB.x(), -PointOnB.y(), PointOnB.z()) + Vector3(normalOnB.x(), -normalOnB.y(), normalOnB.z()) * distance, true, ColorRGBA(color.x(), color.y(), color.z(), 1.0f));
         }
     }
     virtual void reportErrorWarning(const char* warningString)

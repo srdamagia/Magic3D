@@ -1,5 +1,13 @@
 INCLUDEPATH += $$MAGIC3D/magic3d
 
+#MEMORY_MANAGER *****************************************************************
+SOURCES += \
+    $$MEMORY_MANAGER_SOURCE/*.cpp \
+
+HEADERS += \
+    $$MEMORY_MANAGER_INCLUDE/*.h
+#********************************************************************************
+
 #Magic3D ************************************************************************
 MAGIC3D_SOURCE  = $$MAGIC3D/magic3d/src
 MAGIC3D_INCLUDE = $$MAGIC3D/magic3d/magic3d

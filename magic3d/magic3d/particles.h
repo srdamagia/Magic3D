@@ -190,7 +190,7 @@ private:
     bool distortion;
 
     void createParticle(Particle* particle, bool reset);
-    void updateBoundingBox(Vector3& v1, Vector3& v2, Vector3& v3, Vector3& v4, bool reset);
+    void updateBounds(Vector3& v1, Vector3& v2, Vector3& v3, Vector3& v4, bool reset);
 
 protected:
 
@@ -202,7 +202,7 @@ protected:
 public:
     Particles(std::string name);
     virtual ~Particles();
-    virtual Particles* spawn(std::string name) const;
+    virtual void* spawn(std::string name) const;
 
     virtual bool update();
     virtual bool updateMeshes();

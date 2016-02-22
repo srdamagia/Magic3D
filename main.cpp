@@ -30,26 +30,12 @@ public:
 
 int main(int argc, char *argv[])
 {
-    std::string applicationPath = argv[0];
-    size_t pos = applicationPath.find_last_of('/');
-    if (pos == std::string::npos)
+    if (argc)
     {
-        pos = applicationPath.find_last_of('\\');
+
     }
-    if (pos == std::string::npos)
-    {
-        applicationPath.clear();
-    }
-    else
-    {
-        applicationPath = applicationPath.substr(0, pos + 1);
-        pos = applicationPath.find('\\');
-        while (pos != applicationPath.npos)
-        {
-            applicationPath.replace(pos, 1, "/");
-            pos = applicationPath.find('\\');
-        }
-    }
+    std::string applicationPath = Magic3D::Magic3D::getApplicationPath(argv[0]);
+
     if (Magic3D::Magic3D::start(applicationPath))
     {        
         Magic3D::Input::getInstance()->addEventListener(new Event());

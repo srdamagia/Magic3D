@@ -253,7 +253,7 @@ Magic3D::Sprite::~Sprite()
     spriteMesh = NULL;
 }
 
-Magic3D::Sprite* Magic3D::Sprite::spawn(std::string name) const
+void* Magic3D::Sprite::spawn(std::string name) const
 {
     return (new Sprite(*this, name));
 }

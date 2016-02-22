@@ -77,6 +77,11 @@ bool Magic3D::WindowInternal::render()
     return true;
 }
 
+void Magic3D::WindowInternal::showCursor(bool show)
+{
+    cursor = show;
+}
+
 Magic3D::WindowInternal* Magic3D::WindowInternal::getInstance()
 {
     if (!instance)

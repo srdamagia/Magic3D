@@ -127,19 +127,19 @@ void Magic3D::Octree::render()
             verts[5] = Vector3(region.corners[1].getX(), region.corners[0].getY(), region.corners[1].getZ()); //Y
             verts[6] = Vector3(region.corners[0].getX(), region.corners[1].getY(), region.corners[1].getZ()); //X
 
-            Renderer::getInstance()->drawLine(verts[0], verts[1], false, lime);
-            Renderer::getInstance()->drawLine(verts[0], verts[2], false, lime);
-            Renderer::getInstance()->drawLine(verts[0], verts[3], false, lime);
-            Renderer::getInstance()->drawLine(verts[7], verts[4], false, lime);
-            Renderer::getInstance()->drawLine(verts[7], verts[5], false, lime);
-            Renderer::getInstance()->drawLine(verts[7], verts[6], false, lime);
+            Renderer::getInstance()->addLine(verts[0], verts[1], false, lime);
+            Renderer::getInstance()->addLine(verts[0], verts[2], false, lime);
+            Renderer::getInstance()->addLine(verts[0], verts[3], false, lime);
+            Renderer::getInstance()->addLine(verts[7], verts[4], false, lime);
+            Renderer::getInstance()->addLine(verts[7], verts[5], false, lime);
+            Renderer::getInstance()->addLine(verts[7], verts[6], false, lime);
 
-            Renderer::getInstance()->drawLine(verts[1], verts[6], false, lime);
-            Renderer::getInstance()->drawLine(verts[1], verts[5], false, lime);
-            Renderer::getInstance()->drawLine(verts[4], verts[2], false, lime);
-            Renderer::getInstance()->drawLine(verts[4], verts[3], false, lime);
-            Renderer::getInstance()->drawLine(verts[2], verts[6], false, lime);
-            Renderer::getInstance()->drawLine(verts[3], verts[5], false, lime);
+            Renderer::getInstance()->addLine(verts[1], verts[6], false, lime);
+            Renderer::getInstance()->addLine(verts[1], verts[5], false, lime);
+            Renderer::getInstance()->addLine(verts[4], verts[2], false, lime);
+            Renderer::getInstance()->addLine(verts[4], verts[3], false, lime);
+            Renderer::getInstance()->addLine(verts[2], verts[6], false, lime);
+            Renderer::getInstance()->addLine(verts[3], verts[5], false, lime);
         }
 
         for (int flags = activeNodes, index = 0; flags > 0; flags >>= 1, index++)
@@ -165,19 +165,19 @@ void Magic3D::Octree::render()
                 verts[5] = Vector3(b.corners[1].getX(), b.corners[0].getY(), b.corners[1].getZ()); //Y
                 verts[6] = Vector3(b.corners[0].getX(), b.corners[1].getY(), b.corners[1].getZ()); //X
 
-                Renderer::getInstance()->drawLine(verts[0], verts[1], false, red);
-                Renderer::getInstance()->drawLine(verts[0], verts[2], false, red);
-                Renderer::getInstance()->drawLine(verts[0], verts[3], false, red);
-                Renderer::getInstance()->drawLine(verts[7], verts[4], false, red);
-                Renderer::getInstance()->drawLine(verts[7], verts[5], false, red);
-                Renderer::getInstance()->drawLine(verts[7], verts[6], false, red);
+                Renderer::getInstance()->addLine(verts[0], verts[1], false, red);
+                Renderer::getInstance()->addLine(verts[0], verts[2], false, red);
+                Renderer::getInstance()->addLine(verts[0], verts[3], false, red);
+                Renderer::getInstance()->addLine(verts[7], verts[4], false, red);
+                Renderer::getInstance()->addLine(verts[7], verts[5], false, red);
+                Renderer::getInstance()->addLine(verts[7], verts[6], false, red);
 
-                Renderer::getInstance()->drawLine(verts[1], verts[6], false, red);
-                Renderer::getInstance()->drawLine(verts[1], verts[5], false, red);
-                Renderer::getInstance()->drawLine(verts[4], verts[2], false, red);
-                Renderer::getInstance()->drawLine(verts[4], verts[3], false, red);
-                Renderer::getInstance()->drawLine(verts[2], verts[6], false, red);
-                Renderer::getInstance()->drawLine(verts[3], verts[5], false, red);
+                Renderer::getInstance()->addLine(verts[1], verts[6], false, red);
+                Renderer::getInstance()->addLine(verts[1], verts[5], false, red);
+                Renderer::getInstance()->addLine(verts[4], verts[2], false, red);
+                Renderer::getInstance()->addLine(verts[4], verts[3], false, red);
+                Renderer::getInstance()->addLine(verts[2], verts[6], false, red);
+                Renderer::getInstance()->addLine(verts[3], verts[5], false, red);
             }
         }
     }

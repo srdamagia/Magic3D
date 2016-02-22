@@ -54,7 +54,7 @@ protected:
 public:
     Model(std::string name);
     virtual ~Model();
-    virtual Model* spawn(std::string name) const;
+    virtual void* spawn(std::string name) const;
 
     virtual bool update();
 

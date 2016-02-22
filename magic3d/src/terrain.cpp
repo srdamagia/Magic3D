@@ -132,7 +132,7 @@ Magic3D::Terrain::~Terrain()
     }
 }
 
-Magic3D::Terrain* Magic3D::Terrain::spawn(std::string name) const
+void* Magic3D::Terrain::spawn(std::string name) const
 {
     return (new Terrain(*this, name));
 }
@@ -240,7 +240,7 @@ void Magic3D::Terrain::generateTerrain()
         if (!heightMap.empty() && heightMap.rfind(".raw") != std::string::npos)
         {
 
-            std::string fileName = ResourceManager::getTextures()->getPath(eTEXTURE_DIFFUSE, heightMap);
+            std::string fileName = ResourceManager::getTextures()->getTexturePath(eTEXTURE_DIFFUSE, heightMap);
             if (ResourceManager::getInstance()->getPackage())
             {
                 Memory mem;
@@ -287,7 +287,7 @@ void Magic3D::Terrain::generateTerrain()
         float* heights = NULL;
         if (!heightMap.empty())
         {
-            std::string fileName = ResourceManager::getTextures()->getPath(eTEXTURE_DIFFUSE, heightMap + TERRAIN_FILE);
+            std::string fileName = ResourceManager::getTextures()->getTexturePath(eTEXTURE_DIFFUSE, heightMap + TERRAIN_FILE);
             DataBuffer* io;
             bool ready = false;
 
@@ -681,7 +681,7 @@ int Magic3D::Terrain::saveToHeightMap(std::string name)
     png_infop info_ptr = NULL;    
 
     // Open file for writing (binary mode)
-    fp = fopen(ResourceManager::getTextures()->getPath(eTEXTURE_DIFFUSE, name + ".terrain").c_str(), "wb");
+    fp = fopen(ResourceManager::getTextures()->getTexturePath(eTEXTURE_DIFFUSE, name + ".terrain").c_str(), "wb");
     if (fp == NULL)
     {
         Log::logFormat(eLOG_FAILURE, "Could not open file %s for writing", name.c_str());

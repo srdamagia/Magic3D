@@ -1173,6 +1173,10 @@ void Magic3D::RendererOpenGL_Shaders::renderSoundsGizmos(Camera* camera, ViewPor
 
 bool Magic3D::RendererOpenGL_Shaders::renderLights(GLSLShader* shader, const RenderObject* object)
 {
+    if (object)
+    {
+
+    }
     lastLightsCount = 0;
     bool hasLights = false;
     std::list<Object*>* lights = scene->getLights();
@@ -1265,6 +1269,10 @@ bool Magic3D::RendererOpenGL_Shaders::prepareMatrix(Camera* camera, const Render
 
 bool Magic3D::RendererOpenGL_Shaders::renderObject(Camera* camera, const RenderObject *object, bool textures, bool lights, bool gizmos)
 {
+    if (gizmos)
+    {
+
+    }
     Object* finalObject = object->object->getType() == eOBJECT_INSTANCE ? static_cast<ObjectInstance*>(object->object)->getInstance() : object->object;
     if (object->object->getType() == eOBJECT_INSTANCE && !finalObject)
     {
@@ -2175,9 +2183,9 @@ bool Magic3D::RendererOpenGL_Shaders::renderAxis(Camera* camera, Object* object)
     float size = object->getRender() == eRENDER_2D ? 0.1f : 1.0f;
     float alpha = 1.0f;
     bool ortho = camera->getProjectionType() == ePROJECTION_ORTHOGRAPHIC;
-    Renderer::drawLine(m.getTranslation(), m.getTranslation() + normalize(m.getCol0().getXYZ()) * size, ortho, ColorRGBA(1.0f, 0.0f, 0.0f, alpha));
-    Renderer::drawLine(m.getTranslation(), m.getTranslation() + normalize(m.getCol1().getXYZ()) * size, ortho, ColorRGBA(0.0f, 1.0f, 0.0f, alpha));
-    Renderer::drawLine(m.getTranslation(), m.getTranslation() + normalize(m.getCol2().getXYZ()) * size, ortho, ColorRGBA(0.0f, 0.0f, 1.0f, alpha));
+    Renderer::addLine(m.getTranslation(), m.getTranslation() + normalize(m.getCol0().getXYZ()) * size, ortho, ColorRGBA(1.0f, 0.0f, 0.0f, alpha));
+    Renderer::addLine(m.getTranslation(), m.getTranslation() + normalize(m.getCol1().getXYZ()) * size, ortho, ColorRGBA(0.0f, 1.0f, 0.0f, alpha));
+    Renderer::addLine(m.getTranslation(), m.getTranslation() + normalize(m.getCol2().getXYZ()) * size, ortho, ColorRGBA(0.0f, 0.0f, 1.0f, alpha));
 
     return true;
 }
@@ -2597,22 +2605,22 @@ bool Magic3D::RendererOpenGL_Shaders::renderBoundingBox(Camera* camera, Object* 
     Vector3 bottomBackRight  = (matrix * Vector4(max.getX(), min.getY(), min.getZ(), 1.0f)).getXYZ();
 
     //horizontal
-    Renderer::drawLine(topFrontLeft,    topFrontRight,    ortho, color);
-    Renderer::drawLine(topBackLeft,     topBackRight,     ortho, color);
-    Renderer::drawLine(bottomFrontLeft, bottomFrontRight, ortho, color);
-    Renderer::drawLine(bottomBackLeft,  bottomBackRight,  ortho, color);
+    Renderer::addLine(topFrontLeft,    topFrontRight,    ortho, color);
+    Renderer::addLine(topBackLeft,     topBackRight,     ortho, color);
+    Renderer::addLine(bottomFrontLeft, bottomFrontRight, ortho, color);
+    Renderer::addLine(bottomBackLeft,  bottomBackRight,  ortho, color);
 
     //Vertical
-    Renderer::drawLine(topFrontLeft,  bottomFrontLeft,  ortho, color);
-    Renderer::drawLine(topFrontRight, bottomFrontRight, ortho, color);
-    Renderer::drawLine(topBackLeft,   bottomBackLeft,   ortho, color);
-    Renderer::drawLine(topBackRight,  bottomBackRight,  ortho, color);
+    Renderer::addLine(topFrontLeft,  bottomFrontLeft,  ortho, color);
+    Renderer::addLine(topFrontRight, bottomFrontRight, ortho, color);
+    Renderer::addLine(topBackLeft,   bottomBackLeft,   ortho, color);
+    Renderer::addLine(topBackRight,  bottomBackRight,  ortho, color);
 
     //Z
-    Renderer::drawLine(topFrontLeft,     topBackLeft,     ortho, color);
-    Renderer::drawLine(topFrontRight,    topBackRight,    ortho, color);
-    Renderer::drawLine(bottomFrontLeft,  bottomBackLeft,  ortho, color);
-    Renderer::drawLine(bottomFrontRight, bottomBackRight, ortho, color);
+    Renderer::addLine(topFrontLeft,     topBackLeft,     ortho, color);
+    Renderer::addLine(topFrontRight,    topBackRight,    ortho, color);
+    Renderer::addLine(bottomFrontLeft,  bottomBackLeft,  ortho, color);
+    Renderer::addLine(bottomFrontRight, bottomBackRight, ortho, color);
 
     renderAxis(camera, object);
 
@@ -2648,6 +2656,10 @@ bool Magic3D::RendererOpenGL_Shaders::renderSkeleton(Camera* camera, Object* obj
 
 bool Magic3D::RendererOpenGL_Shaders::renderBone(Camera* camera, Object* object, Bone* bone)
 {
+    if (camera)
+    {
+
+    }
     Matrix4 p = object->getMatrixFromParent() * (bone->getParent() ? bone->getParent()->getMatrixFromParent() : bone->getMatrixFromParent());
     Matrix4 m = object->getMatrixFromParent() * bone->getMatrixFromParent();
 
@@ -2667,7 +2679,7 @@ bool Magic3D::RendererOpenGL_Shaders::renderBone(Camera* camera, Object* object,
 
     if (bone->getChilds()->size() == 0)
     {
-        Renderer::drawPoint(m.getTranslation(), 5.0f, false, color);
+        Renderer::addPoint(m.getTranslation(), 5.0f, false, color);
     }
 
     if (bone->getParent() && bone->getParent()->isSelected())
@@ -2683,8 +2695,8 @@ bool Magic3D::RendererOpenGL_Shaders::renderBone(Camera* camera, Object* object,
         color = ColorRGBA(1.0f, 1.0f, 0.0f, 1.0f);
     }
 
-    Renderer::drawPoint(p.getTranslation(), 5.0f, false, color);
-    Renderer::drawLine(p.getTranslation(), m.getTranslation(), false, color);
+    Renderer::addPoint(p.getTranslation(), 5.0f, false, color);
+    Renderer::addLine(p.getTranslation(), m.getTranslation(), false, color);
 
     return true;
 }

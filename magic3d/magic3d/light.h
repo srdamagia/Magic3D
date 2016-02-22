@@ -98,7 +98,7 @@ protected:
 public:
     Light(std::string name);
     ~Light();
-    virtual Light* spawn(std::string name) const;
+    virtual void* spawn(std::string name) const;
 
     virtual bool update();
 
