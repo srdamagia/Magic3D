@@ -528,9 +528,9 @@ void Magic3D::Network::sendText(std::string nick, std::string text)
 
 void Magic3D::Network::log(LOG type, const char* format, ...)
 {
+    char szParsedString[1024];
     va_list va;
-    va_start(va, format);
-    char szParsedString[4096];
+    va_start(va, format);    
     vsprintf(szParsedString, format, va);
     va_end(va);
 

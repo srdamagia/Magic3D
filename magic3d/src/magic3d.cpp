@@ -214,6 +214,7 @@ void Magic3D::Magic3D::loadConfiguration()
             configuration.WINDOW_HEIGHT = Xml::loadInt(cfg, CFG_XML_WINDOW_HEIGHT);
             configuration.FULLSCREEN    = Xml::loadBool(cfg, CFG_XML_FULLSCREEN);
             configuration.CURSOR        = Xml::loadBool(cfg, CFG_XML_CURSOR);
+            configuration.VSYNC         = Xml::loadBool(cfg, CFG_XML_VSYNC);
 
             configuration.SERVER        = Xml::loadBool(cfg, CFG_XML_SERVER);
             configuration.ADDRESS       = Xml::loadString(cfg, CFG_XML_ADDRESS);
@@ -270,6 +271,7 @@ void Magic3D::Magic3D::loadConfiguration()
         configuration.WINDOW_HEIGHT = 600;
         configuration.FULLSCREEN    = false;
         configuration.CURSOR        = true;
+        configuration.VSYNC         = false;
 
         configuration.NAME                 = "default";
         configuration.FBO_MAP_SIZE         = 512;

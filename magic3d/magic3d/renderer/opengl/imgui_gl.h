@@ -21,19 +21,25 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef IMGUI_SDL_GL_H
-#define IMGUI_SDL_GL_H
+#ifndef IMGUI_GL_H
+#define IMGUI_GL_H
 
-struct SDL_Window;
-typedef union SDL_Event SDL_Event;
+#include <magic3d/input_define.h>
 
-IMGUI_API bool        ImGui_SDL_GL_Init(SDL_Window *window);
-IMGUI_API void        ImGui_SDL_GL_Shutdown();
-IMGUI_API void        ImGui_SDL_GL_NewFrame();
-IMGUI_API bool        ImGui_SDL_GL_ProcessEvent(SDL_Event* event);
+namespace Magic3D {
+
+IMGUI_API bool        ImGui_GL_Init();
+IMGUI_API void        ImGui_GL_Shutdown();
+IMGUI_API void        ImGui_GL_NewFrame(float ticks);
+IMGUI_API bool        ImGui_GL_ProcessEvent(EVENT event, int x, int y, int z, int button);
+IMGUI_API void        ImGui_GL_RenderDrawLists(ImDrawData* draw_data);
+IMGUI_API const char* ImGui_GL_GetClipboardText();
+IMGUI_API void        ImGui_GL_SetClipboardText(const char* text);
+IMGUI_API void        ImGui_GL_CreateFontsTexture();
 
 // Use if you want to reset your rendering device without losing ImGui state.
-IMGUI_API void        ImGui_SDL_GL_InvalidateDeviceObjects();
-IMGUI_API bool        ImGui_SDL_GL_CreateDeviceObjects();
+IMGUI_API void ImGui_GL_InvalidateDeviceObjects();
+IMGUI_API bool ImGui_GL_CreateDeviceObjects();
 
-#endif //IMGUI_SDL_GL_H
+}
+#endif //IMGUI_GL_H

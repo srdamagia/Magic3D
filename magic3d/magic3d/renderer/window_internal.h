@@ -43,7 +43,18 @@ public:
     virtual bool finish();
     virtual bool render();
 
-    virtual void showCursor(bool show);
+    virtual void* getWindowHandle();
+    virtual void showCursor(bool show);        
+    virtual void setClipboardText(const char* text);
+    virtual const char* getClipboardText();
+
+    virtual void grabInput(bool grabbed);
+    virtual bool hasGrabbedInput();
+    virtual bool hasInputFocus();
+    virtual bool hasMouseFocus();
+
+    virtual void mapGUIKeys(void* gui);
+    virtual int getMouseState(int* x, int* y, bool* left, bool* right, bool* middle);
 
     static WindowInternal* getInstance();
 };

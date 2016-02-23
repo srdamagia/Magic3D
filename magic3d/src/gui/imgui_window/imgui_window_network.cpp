@@ -44,7 +44,7 @@ Magic3D::GUINetwork::~GUINetwork()
     clearLog();
     for (int i = 0; i < items.Size; i++)
     {
-        free(history[i]);
+        ImGui::MemFree(history[i]);
     }
 }
 
@@ -81,7 +81,7 @@ void Magic3D::GUINetwork::clearLog()
 {
     for (int i = 0; i < items.Size; i++)
     {
-        free(items[i]);
+        ImGui::MemFree(items[i]);
     }
     items.clear();
     scrollToBottom = true;
@@ -101,7 +101,7 @@ void Magic3D::GUINetwork::addLog(const char* fmt, ...)
 
 void Magic3D::GUINetwork::draw(const char* title, bool* opened)
 {
-    //ImGui::ShowTestWindow();
+    ImGui::ShowTestWindow();
     ImGui::SetNextWindowPos(ImVec2(5.0f, Renderer::getInstance()->getWindow()->getHeight() - 325.0f), ImGuiSetCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2(480.0f, 320.0f), ImGuiSetCond_FirstUseEver);
     if (!ImGui::Begin(title, opened))
@@ -124,7 +124,7 @@ void Magic3D::GUINetwork::draw(const char* title, bool* opened)
     ImGui::SameLine();
     ImGui::Text(":"); ImGui::SameLine();
     ImGui::PushItemWidth(100.0f);
-    ImGui::InputInt("##port", &port, 1);
+    ImGui::DragInt("##port", &port, 1.0f, 0, 999999);
     ImGui::PopItemWidth();
     ImGui::SameLine();
     if (ImGui::Button("Connect", ImVec2(100.0f, ImGui::GetItemsLineHeightWithSpacing() - ImGui::GetStyle().ItemSpacing.y)))
@@ -227,7 +227,7 @@ void Magic3D::GUINetwork::execCommand(const char* command_line)
     {
         if (stricmp(history[i], command_line) == 0)
         {
-            free(history[i]);
+            ImGui::MemFree(history[i]);
             history.erase(history.begin() + i);
             break;
         }

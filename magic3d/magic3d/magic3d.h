@@ -39,7 +39,6 @@ subject to the following restrictions:
 #include <magic3d/tween/tweens.h>
 #include <magic3d/network.h>
 
-//Use this to remove file warnings #pragma GCC diagnostic ignored "-Wunused-variable"
 //PRECOMPILER MACROS*******************************
 //MAGIC3D_OES1
 //MAGIC3D_OES2
@@ -63,6 +62,7 @@ namespace Magic3D
 #define CFG_XML_WINDOW_HEIGHT       "WINDOW_HEIGHT"
 #define CFG_XML_FULLSCREEN          "FULLSCREEN"
 #define CFG_XML_CURSOR              "CURSOR"
+#define CFG_XML_VSYNC               "VSYNC"
 #define CFG_XML_FBO_MAP_SIZE        "FBO_MAP_SIZE"
 #define CFG_XML_SHADOW_MAP_SIZE     "SHADOW_MAP_SIZE"
 #define CFG_XML_REFLECTION_MAP_SIZE "REFLECTION_MAP_SIZE"
@@ -103,6 +103,7 @@ struct Magic3DConfiguration
     int WINDOW_HEIGHT;
     bool FULLSCREEN;
     bool CURSOR;
+    bool VSYNC;
 
     int FBO_MAP_SIZE;
     int SHADOW_MAP_SIZE;

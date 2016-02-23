@@ -10,8 +10,9 @@ OBJECTS_DIR = ./build
 UI_DIR = ./build
 MOC_DIR = ./build
 
+QT -= gui
 CONFIG -= exceptions
-CONFIG += c++11
+CONFIG += console c++11
 
 QMAKE_LFLAGS += -F/Library/Frameworks
 

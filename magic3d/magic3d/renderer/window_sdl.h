@@ -26,6 +26,14 @@ subject to the following restrictions:
 
 #if !defined(MAGIC3D_OES2)
 #include <magic3d/renderer/renderer.h>
+#if defined(__linux__)
+#include <SDL2/SDL.h>
+#else
+#include <SDL.h>
+#endif
+#ifdef _WIN32
+#include <SDL_syswm.h>
+#endif
 
 namespace Magic3D
 {
@@ -47,7 +55,20 @@ public:
     virtual bool finish();
     virtual bool render();
 
+    virtual void* getWindowHandle();
     virtual void showCursor(bool show);
+    virtual void setClipboardText(const char* text);
+    virtual const char* getClipboardText();
+
+    virtual void grabInput(bool grabbed);
+    virtual bool hasGrabbedInput();
+    virtual bool hasInputFocus();
+    virtual bool hasMouseFocus();
+
+    virtual void mapGUIKeys(void* gui);
+    virtual int getMouseState(int* x, int* y, bool* left, bool* right, bool* middle);
+
+    virtual void setFullScreen(bool fullscreen);
 
     static WindowSDL* getInstance();
 };

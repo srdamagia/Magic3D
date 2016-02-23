@@ -137,9 +137,9 @@ void Magic3D::Log::write(LOG type, const char* text) {
 
 void Magic3D::Log::logFormat(LOG type, const char* text, ...)
 {
-    va_list va;
-    va_start(va, text);
     char szParsedString[4096];
+    va_list va;
+    va_start(va, text);    
     vsprintf(szParsedString, text, va);
     getInstance()->write(type, szParsedString);
     va_end(va);

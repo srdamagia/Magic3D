@@ -6,6 +6,7 @@
     <WINDOW_HEIGHT>768</WINDOW_HEIGHT>
     <FULLSCREEN>0</FULLSCREEN>
     <CURSOR>1</CURSOR>
+    <VSYNC>1</VSYNC>
     <selected>default</selected>
     <default>
         <FBO_MAP_SIZE>512</FBO_MAP_SIZE>
@@ -24,8 +25,8 @@
         <GLOW>1</GLOW>
         <STEREOSCOPY>0</STEREOSCOPY>
     </default>
-	<SERVER>1</SERVER>
-	<ADDRESS>null</ADDRESS>
-	<PORT>31234</PORT>
-	<CLIENTS>64</CLIENTS>
+    <SERVER>0</SERVER>
+    <ADDRESS>null</ADDRESS>
+    <PORT>31234</PORT>
+    <CLIENTS>64</CLIENTS>
 </Magic3D>

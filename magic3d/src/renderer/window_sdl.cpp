@@ -24,7 +24,7 @@ subject to the following restrictions:
 #if !defined(MAGIC3D_OES)
 #include <magic3d/magic3d.h>
 #include <magic3d/renderer/window_sdl.h>
-#include <magic3d/renderer/opengl/imgui_sdl_gl.h>
+#include <magic3d/renderer/opengl/imgui_gl.h>
 
 Magic3D::WindowSDL* Magic3D::WindowSDL::instance = NULL;
 
@@ -73,7 +73,7 @@ bool Magic3D::WindowSDL::finish()
     bool result = true;
 
     SDL_ShowCursor(true);
-    ImGui_SDL_GL_Shutdown();
+    ImGui_GL_Shutdown();
     SDL_GL_DeleteContext(glcontext);
     SDL_DestroyWindow(window);
     SDL_Quit();
@@ -88,7 +88,59 @@ bool Magic3D::WindowSDL::render()
     SDL_Event event;
     while (SDL_PollEvent(&event))
     {
-        ImGui_SDL_GL_ProcessEvent(&event);
+        EVENT evt = eEVENT_KEYBOARD_PRESSED;
+        int button  = 0;
+        int x = 0;
+        int y = 0;
+        int z = 0;
+        switch (event.type)
+        {
+            case SDL_MOUSEWHEEL:
+            {
+                y = event.wheel.y;
+                evt = eEVENT_MOUSE_WHEEL;
+                break;
+            }
+            case SDL_MOUSEBUTTONDOWN:
+            {
+                x = event.button.x;
+                y = event.button.y;
+                switch(event.button.button)
+                {
+                    case SDL_BUTTON_LEFT: button = 0; break;
+                    case SDL_BUTTON_RIGHT: button = 1; break;
+                    case SDL_BUTTON_MIDDLE: button = 2; break;
+                }
+                evt = eEVENT_MOUSE_DOWN;
+                break;
+            }
+            case SDL_KEYDOWN:
+            case SDL_KEYUP:
+            {
+                button = event.key.keysym.sym & ~SDLK_SCANCODE_MASK;
+                x = (SDL_GetModState() & KMOD_SHIFT) != 0;
+                y = (SDL_GetModState() & KMOD_CTRL) != 0;
+                z = (SDL_GetModState() & KMOD_ALT) != 0;
+                evt = event.type == SDL_KEYDOWN ? eEVENT_KEYBOARD_DOWN : eEVENT_KEYBOARD_UP;
+
+                if (z && button == SDLK_RETURN)
+                {
+                    setFullScreen(!fullscreen);
+                }
+                break;
+            }
+            case SDL_TEXTINPUT:
+            {
+                ImGuiIO& io = ImGui::GetIO();
+                io.AddInputCharactersUTF8(event.text.text);
+                break;
+            }
+
+            default: break;
+        }
+
+        ImGui_GL_ProcessEvent(evt, x, y, z, button);
+
         if (!ImGui::IsAnyItemActive() && !ImGui::IsAnyItemHovered() && !ImGui::IsMouseHoveringAnyWindow())
         {
             switch (event.type)
@@ -144,13 +196,13 @@ bool Magic3D::WindowSDL::render()
             {
                 case SDL_KEYDOWN:
                 {
-                    Input::getInstance()->dispatchEvent(eINPUT_KEYBOARD, eEVENT_KEYBOARD_DOWN, event.key.keysym.sym);
+                    Input::getInstance()->dispatchEvent(eINPUT_KEYBOARD, eEVENT_KEYBOARD_DOWN, event.key.keysym.sym & ~SDLK_SCANCODE_MASK);
                     break;
                 }
 
                 case SDL_KEYUP:
                 {
-                    Input::getInstance()->dispatchEvent(eINPUT_KEYBOARD, eEVENT_KEYBOARD_UP, event.key.keysym.sym);
+                    Input::getInstance()->dispatchEvent(eINPUT_KEYBOARD, eEVENT_KEYBOARD_UP, event.key.keysym.sym & ~SDLK_SCANCODE_MASK);
                     break;
                 }
             }
@@ -176,7 +228,7 @@ bool Magic3D::WindowSDL::render()
 
     if (!Scene::getInstance()->isLoading())
     {
-        ImGui_SDL_GL_NewFrame();
+        ImGui_GL_NewFrame(SDL_GetTicks());
 
         Network::getInstance()->render();
 
@@ -185,6 +237,14 @@ bool Magic3D::WindowSDL::render()
     SDL_GL_SwapWindow(window);
 
     return true;
+}
+
+void* Magic3D::WindowSDL::getWindowHandle()
+{
+    SDL_SysWMinfo wmInfo;
+    SDL_VERSION(&wmInfo.version);
+    SDL_GetWindowWMInfo(window, &wmInfo);
+    return wmInfo.info.win.window;
 }
 
 void Magic3D::WindowSDL::showCursor(bool show)
@@ -200,6 +260,79 @@ void Magic3D::WindowSDL::showCursor(bool show)
         ImGui::GetIO().MouseDrawCursor = false;
         SDL_ShowCursor(false);
     }
+}
+
+void Magic3D::WindowSDL::setClipboardText(const char* text)
+{
+    SDL_SetClipboardText(text);
+}
+
+const char* Magic3D::WindowSDL::getClipboardText()
+{
+    return SDL_GetClipboardText();
+}
+
+void Magic3D::WindowSDL::grabInput(bool grabbed)
+{
+    SDL_SetWindowGrab(window, grabbed ? SDL_TRUE : SDL_FALSE);
+}
+
+bool Magic3D::WindowSDL::hasGrabbedInput()
+{
+    return SDL_GetWindowGrab(window);
+}
+
+bool Magic3D::WindowSDL::hasInputFocus()
+{
+    return SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS;
+}
+
+bool Magic3D::WindowSDL::hasMouseFocus()
+{
+    return SDL_GetWindowFlags(window) & SDL_WINDOW_MOUSE_FOCUS;
+}
+
+void Magic3D::WindowSDL::mapGUIKeys(void* gui)
+{
+    if (gui)
+    {
+    }
+    ImGuiIO& io = ImGui::GetIO();
+    io.KeyMap[ImGuiKey_Tab] = SDLK_TAB; // Keyboard mapping. ImGui will use those indices to peek into the io.KeyDown[] array.
+    io.KeyMap[ImGuiKey_LeftArrow] = SDL_SCANCODE_LEFT;
+    io.KeyMap[ImGuiKey_RightArrow] = SDL_SCANCODE_RIGHT;
+    io.KeyMap[ImGuiKey_UpArrow] = SDL_SCANCODE_UP;
+    io.KeyMap[ImGuiKey_DownArrow] = SDL_SCANCODE_DOWN;
+    io.KeyMap[ImGuiKey_PageUp] = SDL_SCANCODE_PAGEUP;
+    io.KeyMap[ImGuiKey_PageDown] = SDL_SCANCODE_PAGEDOWN;
+    io.KeyMap[ImGuiKey_Home] = SDL_SCANCODE_HOME;
+    io.KeyMap[ImGuiKey_End] = SDL_SCANCODE_END;
+    io.KeyMap[ImGuiKey_Delete] = SDLK_DELETE;
+    io.KeyMap[ImGuiKey_Backspace] = SDLK_BACKSPACE;
+    io.KeyMap[ImGuiKey_Enter] = SDLK_RETURN;
+    io.KeyMap[ImGuiKey_Escape] = SDLK_ESCAPE;
+    io.KeyMap[ImGuiKey_A] = SDLK_a;
+    io.KeyMap[ImGuiKey_C] = SDLK_c;
+    io.KeyMap[ImGuiKey_V] = SDLK_v;
+    io.KeyMap[ImGuiKey_X] = SDLK_x;
+    io.KeyMap[ImGuiKey_Y] = SDLK_y;
+    io.KeyMap[ImGuiKey_Z] = SDLK_z;
+}
+
+int Magic3D::WindowSDL::getMouseState(int* x, int* y, bool* left, bool* right, bool* middle)
+{
+    Uint32 flags = SDL_GetMouseState(x, y);
+    *left = (flags & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
+    *right = (flags & SDL_BUTTON(SDL_BUTTON_RIGHT)) != 0;
+    *middle = (flags & SDL_BUTTON(SDL_BUTTON_MIDDLE)) != 0;
+
+    return flags;
+}
+
+void Magic3D::WindowSDL::setFullScreen(bool fullscreen)
+{
+    this->fullscreen = fullscreen;
+    SDL_SetWindowFullscreen(window, this->fullscreen ? SDL_WINDOW_FULLSCREEN : 0);
 }
 
 Magic3D::WindowSDL* Magic3D::WindowSDL::getInstance()
@@ -230,20 +363,22 @@ bool Magic3D::WindowSDL::create()
     //SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
     SDL_DisplayMode current;
     SDL_GetCurrentDisplayMode(0, &current);
-    Uint32 flags = SDL_WINDOW_OPENGL;
+    Uint32 flags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
     if (fullscreen)
     {
-        flags = flags|SDL_WINDOW_FULLSCREEN;
+        flags = flags | SDL_WINDOW_FULLSCREEN;
     }
-    else
-    {
-        flags = flags|SDL_WINDOW_RESIZABLE;
-    }
-    window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, flags);
+
+    window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, flags);    
     glcontext = SDL_GL_CreateContext(window);
 
+    if (SDL_GL_SetSwapInterval(Magic3D::getInstance()->getConfiguration().VSYNC ? 1 : 0))
+    {
+        Log::logFormat(eLOG_FAILURE, "Warning: Unable to set VSync! SDL Error: %s\n", SDL_GetError());
+    }
+
     // Setup ImGui binding
-    ImGui_SDL_GL_Init(window);
+    ImGui_GL_Init();
 
     // Load Fonts
     // (there is a default font, this is only if you want to change it. see extra_fonts/README.txt for more details)

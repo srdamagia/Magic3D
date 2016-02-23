@@ -39,18 +39,14 @@ subject to the following restrictions:
 #include <enet/enet.h>
 #include <tinyxml2.h>
 
-#if defined(__linux__)
-#include <SDL2/SDL.h>
-#else
-#include <SDL.h>
-#endif
-
 namespace Magic3D
 {
     typedef tinyxml2::XMLDocument XMLDocument;
 }
 
 #pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 #pragma GCC diagnostic ignored "-Wall"
 #pragma GCC diagnostic ignored "-Wextra"
 #include <btBulletDynamicsCommon.h>

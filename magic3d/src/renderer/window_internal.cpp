@@ -77,9 +77,66 @@ bool Magic3D::WindowInternal::render()
     return true;
 }
 
+void* Magic3D::WindowInternal::getWindowHandle()
+{
+    return NULL;
+}
+
 void Magic3D::WindowInternal::showCursor(bool show)
 {
     cursor = show;
+}
+
+void Magic3D::WindowInternal::setClipboardText(const char* text)
+{
+    if (text)
+    {
+
+    }
+}
+
+const char* Magic3D::WindowInternal::getClipboardText()
+{
+    return NULL;
+}
+
+void Magic3D::WindowInternal::grabInput(bool grabbed)
+{
+    if (grabbed)
+    {
+    }
+}
+
+bool Magic3D::WindowInternal::hasGrabbedInput()
+{
+    return true;
+}
+
+bool Magic3D::WindowInternal::hasInputFocus()
+{
+    return true;
+}
+
+bool Magic3D::WindowInternal::hasMouseFocus()
+{
+    return true;
+}
+
+void Magic3D::WindowInternal::mapGUIKeys(void* gui)
+{
+    if (gui)
+    {
+
+    }
+}
+
+int Magic3D::WindowInternal::getMouseState(int* x, int* y, bool* left, bool* right, bool* middle)
+{
+    if (x && y && left && right && middle)
+    {
+
+    }
+    return -1;
 }
 
 Magic3D::WindowInternal* Magic3D::WindowInternal::getInstance()

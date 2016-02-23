@@ -66,7 +66,18 @@ public:
     virtual bool finish() = 0;
     virtual bool render() = 0;    
 
+    virtual void* getWindowHandle() = 0;
     virtual void showCursor(bool show) = 0;
+    virtual void setClipboardText(const char* text) = 0;
+    virtual const char* getClipboardText() = 0;
+
+    virtual void grabInput(bool grabbed) = 0;
+    virtual bool hasGrabbedInput() = 0;
+    virtual bool hasInputFocus() = 0;
+    virtual bool hasMouseFocus() = 0;
+
+    virtual void mapGUIKeys(void* gui) = 0;
+    virtual int getMouseState(int* x, int* y, bool* left, bool* right, bool* middle) = 0;
 
     bool isShowingCursor()
     {
@@ -171,7 +182,7 @@ public:
         return cursorY;
     }
 
-    void setFullScreen(bool fullscreen)
+    virtual void setFullScreen(bool fullscreen)
     {
         this->fullscreen = fullscreen;
     }
