@@ -40,6 +40,8 @@ HEADERS += \
     $$MAGIC3D_INCLUDE/tween/*.h \
     $$MAGIC3D_INCLUDE/physics/*.h \
 
+macx:SOURCES -= \
+    $$MAGIC3D_SOURCE/image/image_pvr.cpp \
 macx:OBJECTIVE_SOURCES += \
     $$MAGIC3D_SOURCE/image/*.mm \
 #********************************************************************************

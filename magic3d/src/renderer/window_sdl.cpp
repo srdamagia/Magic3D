@@ -241,10 +241,14 @@ bool Magic3D::WindowSDL::render()
 
 void* Magic3D::WindowSDL::getWindowHandle()
 {
+#ifdef _WIN32
     SDL_SysWMinfo wmInfo;
     SDL_VERSION(&wmInfo.version);
     SDL_GetWindowWMInfo(window, &wmInfo);
     return wmInfo.info.win.window;
+#else
+    return NULL;
+#endif
 }
 
 void Magic3D::WindowSDL::showCursor(bool show)
