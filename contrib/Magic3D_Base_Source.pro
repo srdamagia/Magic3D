@@ -40,9 +40,12 @@ SOURCES += \
 
 #MINIZIP ***************************************************************************
 SOURCES += \
-    $$MINIZIP_SOURCE/*.c
-unix:SOURCES -= \
-    $$MINIZIP_SOURCE/iowin32.c
+    $$MINIZIP_SOURCE/ioapi.c \
+    $$MINIZIP_SOURCE/ioapi_buf.c \
+    $$MINIZIP_SOURCE/ioapi_mem.c \
+    $$MINIZIP_SOURCE/unzip.c \
+    $$MINIZIP_SOURCE/zip.c
+win32:SOURCES += $$MINIZIP_SOURCE/iowin32.c
 #********************************************************************************
 
 #VECTORMATH *********************************************************************

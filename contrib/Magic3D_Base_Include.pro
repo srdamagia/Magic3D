@@ -47,9 +47,13 @@ HEADERS += \
 
 #MINIZIP ***************************************************************************
 HEADERS += \
-    $$MINIZIP_INCLUDE/*.h
-unix:HEADERS -= \
-    $$MINIZIP_INCLUDE/iowin32.h
+    $$MINIZIP_INCLUDE/crypt.h \
+    $$MINIZIP_INCLUDE/ioapi.h \
+    $$MINIZIP_INCLUDE/ioapi_buf.h \
+    $$MINIZIP_INCLUDE/ioapi_mem.h \
+    $$MINIZIP_INCLUDE/unzip.h \
+    $$MINIZIP_INCLUDE/zip.h
+win32:HEADERS += $$MINIZIP_INCLUDE/iowin32.h
 #********************************************************************************
 
 #VECTORMATH *********************************************************************
