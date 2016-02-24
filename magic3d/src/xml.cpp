@@ -456,7 +456,7 @@ void Magic3D::Xml::removeReference(Xml* reference)
             break;
         }
 
-        it_x++;
+        ++it_x;
     }
 }
 
@@ -475,7 +475,7 @@ bool Magic3D::Xml::hasReference(Xml* reference)
             break;
         }
 
-        it_x++;
+        ++it_x;
     }
     return result;
 }

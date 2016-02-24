@@ -267,7 +267,6 @@ bool Magic3D::Math::isOnlyDigits(std::string str)
 
 Magic3D::Vector3 Magic3D::Math::intersectLinePlane(Vector3 linePoint, Vector3 lineVec, Vector3 planeNormal, Vector3 planePoint)
 {
-    float length;
     float dotNumerator;
     float dotDenominator;
 
@@ -276,9 +275,9 @@ Magic3D::Vector3 Magic3D::Math::intersectLinePlane(Vector3 linePoint, Vector3 li
     dotDenominator = dot(lineVec, planeNormal);
 
     //line and plane are not parallel
-    if(dotDenominator != 0.0f)
+    if (dotDenominator != 0.0f)
     {
-        length =  dotNumerator / dotDenominator;
+        float length =  dotNumerator / dotDenominator;
 
         //create a vector from the linePoint to the intersection point
         return linePoint + lineVec * length;

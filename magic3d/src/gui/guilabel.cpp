@@ -136,7 +136,6 @@ bool Magic3D::GUILabel::updateMeshes()
     float fsize = (textSize / 512.0f) / font->getLineHeightInPixels();
     float lineHeight = fsize * (font->getLineHeightInPixels() + 2.0f);
 
-    int quad = -1;
     int quadCount = data->getVerticesCount() / 4;
 
     if (quadCount < (int)text.size() - lastReturns)
@@ -163,11 +162,11 @@ bool Magic3D::GUILabel::updateMeshes()
     width = 0.0f;
     height = lineHeight;
 
-    float startX = 0.0f;
-    float startY = 0.0f;
-
     if (data->getVerticesCount() > 0)
-    {
+    {        
+        int quad = -1;
+        float startX = 0.0f;
+        float startY = 0.0f;
         float* buffer = data->mapBuffer();
 
         int lastIndex = 0;
@@ -300,11 +299,11 @@ Magic3D::XMLElement* Magic3D::GUILabel::load(XMLElement* root)
         if (text.compare(M3D_XML_NULL) == 0)
         {
             text.clear();
-        }
-        bool created;
+        }        
         std::string fontName = loadString(root, M3D_GUI_LABEL_XML_FONT);
         if (fontName.compare(M3D_XML_NULL) != 0)
         {
+            bool created;
             font = ResourceManager::getFonts()->load(fontName, created);
         }
         textAlignment = (HORIZONTAL_ALIGN)loadInt(root, M3D_GUI_LABEL_XML_ALIGNMENT);

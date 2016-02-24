@@ -133,19 +133,7 @@ bool Magic3D::MeshData::update(Object* object)
 
         float& px = *v; v++;
         float& py = *v; v++;
-        float& pz = *v; v++;
-
-        v = buffer + i * inc + vec;
-
-        float& nx = *v; v++;
-        float& ny = *v; v++;
-        float& nz = *v; v++;
-
-        v = buffer + i * inc + vec * 2;
-
-        float& tx = *v; v++;
-        float& ty = *v; v++;
-        float& tz = *v; v++;
+        float& pz = *v;
 
         if (skinning && skeleton)
         {
@@ -176,6 +164,18 @@ bool Magic3D::MeshData::update(Object* object)
 
             if (havebone)
             {
+                v = buffer + i * inc + vec;
+
+                float& nx = *v; v++;
+                float& ny = *v; v++;
+                float& nz = *v;
+
+                v = buffer + i * inc + vec * 2;
+
+                float& tx = *v; v++;
+                float& ty = *v; v++;
+                float& tz = *v;
+
                 if (w != 0.0f)
                 {
                     w = 1.0f / w;
@@ -634,14 +634,14 @@ void Magic3D::MeshData::setQuad(float* buffer, int index, const Vector3& vertex1
 
             *b = v[i]->getX(); b++;
             *b = v[i]->getY(); b++;
-            *b = v[i]->getZ(); b++;
+            *b = v[i]->getZ();
 
             b = buffer + stride * inc + (sizeof(Vector3) / sizeof(float)) * 3;
 
             *b = c[i]->r; b++;
             *b = c[i]->g; b++;
             *b = c[i]->b; b++;
-            *b = c[i]->a; b++;
+            *b = c[i]->a;
         }
     }
 }
@@ -983,27 +983,27 @@ void Magic3D::MeshData::updatePlaneStripNormals(float* vertices, int vcount, vin
                     Vector3 An;
                     Ap.setX(*v); v++;
                     Ap.setY(*v); v++;
-                    Ap.setZ(*v); v++;
+                    Ap.setZ(*v);
                     v = vertices + incv * q0 + inc;
                     An.setX(*v); v++;
                     An.setY(*v); v++;
-                    An.setZ(*v); v++;
+                    An.setZ(*v);
                     v = vertices + incv * q1;
                     Vector3 Bp;
                     Vector3 Bn;
                     Bp.setX(*v); v++;
                     Bp.setY(*v); v++;
-                    Bp.setZ(*v); v++;
+                    Bp.setZ(*v);
                     v = vertices + incv * q1 + inc;
                     Bn.setX(*v); v++;
                     Bn.setY(*v); v++;
-                    Bn.setZ(*v); v++;
+                    Bn.setZ(*v);
                     v = vertices + incv * q2;
                     Vector3 Cp;
                     Vector3 Cn;
                     Cp.setX(*v); v++;
                     Cp.setY(*v); v++;
-                    Cp.setZ(*v); v++;
+                    Cp.setZ(*v);
                     v = vertices + incv * q2 + inc;
                     Cn.setX(*v); v++;
                     Cn.setY(*v); v++;
@@ -1022,11 +1022,11 @@ void Magic3D::MeshData::updatePlaneStripNormals(float* vertices, int vcount, vin
                     v = vertices + incv * q0 + inc;
                     *v = NA.getX(); v++;
                     *v = NA.getY(); v++;
-                    *v = NA.getZ(); v++;
+                    *v = NA.getZ();
                     v = vertices + incv * q1 + inc;
                     *v = NB.getX(); v++;
                     *v = NB.getY(); v++;
-                    *v = NB.getZ(); v++;
+                    *v = NB.getZ();
                     v = vertices + incv * q2 + inc;
                     *v = NC.getX(); v++;
                     *v = NC.getY(); v++;
@@ -1056,15 +1056,15 @@ void Magic3D::MeshData::updateTangent(float* vertices, int vcount, vindex index0
             float* v = vertices + inc * index;
             vs[i].position.setX(*v); v++;
             vs[i].position.setY(*v); v++;
-            vs[i].position.setZ(*v); v++;
+            vs[i].position.setZ(*v);
             v = vertices + inc * index + incv;
             vs[i].normal.setX(*v); v++;
             vs[i].normal.setY(*v); v++;
-            vs[i].normal.setZ(*v); v++;
+            vs[i].normal.setZ(*v);
             v = vertices + inc * index + incv * 2;
             vs[i].tangent.setX(*v); v++;
             vs[i].tangent.setY(*v); v++;
-            vs[i].tangent.setZ(*v); v++;
+            vs[i].tangent.setZ(*v);
             v = vertices + inc * index + incv * 3 + incc;
             vs[i].uv[0].u = *v; v++;
             vs[i].uv[0].v = *v; v++;
@@ -1100,7 +1100,7 @@ void Magic3D::MeshData::updateTangent(float* vertices, int vcount, vindex index0
             float* v = vertices + inc * index + incv;
             vc.normal.setX(*v); v++;
             vc.normal.setY(*v); v++;
-            vc.normal.setZ(*v); v++;
+            vc.normal.setZ(*v);
             v = vertices + inc * index + incv * 2;
             vc.tangent.setX(*v); v++;
             vc.tangent.setY(*v); v++;

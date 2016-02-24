@@ -1123,7 +1123,6 @@ bool Magic3D::Scene::update()
 {
     uniqueUpdate = !uniqueUpdate;
     bool result = true;
-    bool update = false;
 
     Renderer* renderer = Renderer::getInstance();
 
@@ -1411,14 +1410,10 @@ bool Magic3D::Scene::update()
 
             if (layer)
             {
-                update = updateObjects(layer->getCameras());
-                result = result && update;
-                update = updateObjects(layer->getObjects2D());
-                result = result && update;
-                update = updateObjects(layer->getLights());
-                result = result && update;
-                update = updateObjects(layer->getObjects3D());
-                result = result && update;
+                result = updateObjects(layer->getCameras())   && result;
+                result = updateObjects(layer->getObjects2D()) && result;
+                result = updateObjects(layer->getLights())    && result;
+                result = updateObjects(layer->getObjects3D()) && result;
             }
         }
     }
@@ -1429,15 +1424,13 @@ bool Magic3D::Scene::update()
 bool Magic3D::Scene::updateObjects(std::vector<Object*>* objects)
 {
     bool result = true;
-    bool update = false;
 
     std::vector<Object*>::const_iterator it_o = objects->begin();
     while (it_o != objects->end())
     {
         Object* object = *it_o++;
 
-        update = object->update();
-        result = result && update;
+        result = object->update() && result;
 
         object->setInEffectFrustum(false);
     }
@@ -1950,7 +1943,7 @@ void Magic3D::Scene::spawnInstances()
             ResourceManager::getObjects()->replace(obj->getName(), spawn);
         }
 
-        it_i++;
+        ++it_i;
     }
 
     spawns.clear();

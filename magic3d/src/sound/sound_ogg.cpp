@@ -446,16 +446,13 @@ void Magic3D::SoundOGG::render()
     }
 }
 
-unsigned long Magic3D::SoundOGG::decode(OggVorbis_File *psOggVorbisFile, char *pDecodeBuffer, unsigned long ulBufferSize, unsigned long ulChannels) {
+unsigned long Magic3D::SoundOGG::decode(OggVorbis_File *psOggVorbisFile, char *pDecodeBuffer, unsigned long ulBufferSize, unsigned long ulChannels)
+{
     int current_section;
-    long lDecodeSize;
-    unsigned long ulSamples;
-    short *pSamples;
-
     unsigned long ulBytesDone = 0;
     while (true)
     {
-        lDecodeSize = ov_read(psOggVorbisFile, pDecodeBuffer + ulBytesDone, ulBufferSize - ulBytesDone, 0, 2, 1, &current_section);
+        long lDecodeSize = ov_read(psOggVorbisFile, pDecodeBuffer + ulBytesDone, ulBufferSize - ulBytesDone, 0, 2, 1, &current_section);
         if (lDecodeSize > 0)
         {
             ulBytesDone += lDecodeSize;
@@ -475,7 +472,8 @@ unsigned long Magic3D::SoundOGG::decode(OggVorbis_File *psOggVorbisFile, char *p
     // however 6-Channels files need to be re-ordered
     if (ulChannels == 6)
     {
-        pSamples = (short*)pDecodeBuffer;
+        unsigned long ulSamples;
+        short* pSamples = (short*)pDecodeBuffer;
         for (ulSamples = 0; ulSamples < (ulBufferSize >> 1); ulSamples += 6)
         {
             // WAVEFORMATEXTENSIBLE Order : FL, FR, FC, LFE, RL, RR

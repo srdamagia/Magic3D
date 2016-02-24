@@ -1091,7 +1091,7 @@ void Magic3D::Renderer_OpenGL::createPlaneVBO(RENDER_ID &id, int vcount, void* v
 
     glVertexAttribPointer(eVERTEX_UV0, 2, GL_FLOAT, GL_FALSE, sizeof(PlaneVertex), reinterpret_cast<void*>(stride));
     check_gl_error();
-    stride += sizeof(Texture2D);
+    //stride += sizeof(Texture2D);
 
     glGenBuffers(1, &id.index);
     check_gl_error();
@@ -1316,7 +1316,7 @@ Magic3D::RENDER_ID Magic3D::Renderer_OpenGL::createVBO(void* vertices, int vcoun
 
         glVertexAttribPointer(eVERTEX_BONES, 4, GL_FLOAT, GL_FALSE, inc, reinterpret_cast<void*>(stride));
         check_gl_error();
-        stride += incVec4;
+        //stride += incVec4;
 
         glGenBuffers(1, &result.index);
         check_gl_error();

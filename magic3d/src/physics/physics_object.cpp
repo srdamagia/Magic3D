@@ -151,15 +151,13 @@ void Magic3D::PhysicsObject::updateOctree()
 bool Magic3D::PhysicsObject::updateTweens()
 {
     bool result = true;
-    bool update = false;
 
     std::vector<Tween*>::const_iterator it_m = tweens.begin();
     while (it_m != tweens.end())
     {
         Tween* tween = *it_m++;
 
-        update = tween->update();
-        result = result && update;
+        result = tween->update() && result;
     }
 
     return result;

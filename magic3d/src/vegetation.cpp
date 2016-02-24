@@ -605,7 +605,6 @@ void Magic3D::Vegetation::createTwigs(Vector3 position, Branch* branch)
     {
         Vector3 tangent = normalize(cross(branch->parent->child0->head - branch->parent->head, branch->parent->child1->head - branch->parent->head));
         Vector3 binormal = normalize(branch->head - branch->parent->head);
-        Vector3 normal = cross(tangent, binormal);
 
         int index = vertices->size();
         Vertex3D vert1;
@@ -627,7 +626,7 @@ void Magic3D::Vegetation::createTwigs(Vector3 position, Branch* branch)
         vert6.position = position + ((branch->head + (tangent * -properties.twigScale)) + (binormal * -branch->length));
         vert5.position = position + ((branch->head + (tangent * properties.twigScale)) + (binormal * -branch->length));*/
 
-        normal = normalize(cross(vert1.position - vert3.position, vert2.position - vert3.position));
+        Vector3 normal = normalize(cross(vert1.position - vert3.position, vert2.position - vert3.position));
         //Vector3 normal2 = normalize(cross(vert7.position - vert6.position, vert8.position - vert6.position));
 
         vert1.normal = normal;
@@ -711,8 +710,7 @@ void Magic3D::Vegetation::createGrass(Vector3 position, float tileLength, float 
             n = cross(n, Vector3(0.0f, 1.0f, 0.0f));
         }
         Vector3 tangent = n;
-        Vector3 binormal = Vector3(0.0f, 1.0f, 0.0f);
-        Vector3 normal = cross(tangent, binormal);
+        Vector3 binormal = Vector3(0.0f, 1.0f, 0.0f);        
 
         int index = vertices->size();
         Vertex3D vert1;
@@ -739,7 +737,7 @@ void Magic3D::Vegetation::createGrass(Vector3 position, float tileLength, float 
         vert6.position = pos + (((tangent * -grassSize)) + (binormal * -grassSize));
         vert5.position = pos + (((tangent * grassSize)) + (binormal * -grassSize));*/
 
-        normal = normalize(cross(vert1.position - vert3.position, vert2.position - vert3.position));
+        Vector3 normal = normalize(cross(vert1.position - vert3.position, vert2.position - vert3.position));
         //Vector3 normal2 = normalize(cross(vert7.position - vert6.position, vert8.position - vert6.position));
 
         vert1.normal = normal;

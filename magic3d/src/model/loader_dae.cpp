@@ -83,7 +83,7 @@ bool Magic3D::LoaderDAE::loadModel(Model* model)
             Memory mem;
             result = ResourceManager::getInstance()->unpack(dae, &mem);
             std::string str = mem.getBuffer()->str();
-            result = result && doc->Parse(str.c_str(), str.size()) == XML_SUCCESS;
+            result = doc->Parse(str.c_str(), str.size()) == XML_SUCCESS && result;
         }
         else
         {
@@ -117,8 +117,6 @@ bool Magic3D::LoaderDAE::loadModel(Model* model)
                 }
 
                 firstObjectXML = true;
-
-                result = true;
             }
             else
             {
@@ -203,7 +201,7 @@ void Magic3D::LoaderDAE::loadNode(XMLElement* root, XMLElement* node)
 {
     if (node)
     {
-        std::string objectName;
+        /*std::string objectName;
 
         const char* objName = node->Attribute("id");
         if (objName)
@@ -217,7 +215,7 @@ void Magic3D::LoaderDAE::loadNode(XMLElement* root, XMLElement* node)
             {
                 objectName = std::string(objName);
             }
-        }
+        }*/
 
         //Object* obj = ResourceManager::getObjects()->get(objectName);
         Object* obj = NULL;
@@ -540,11 +538,11 @@ void Magic3D::LoaderDAE::addMesh(XMLElement* root, XMLElement* skin, XMLElement*
                     uv[1].clear();
                     color.clear();
 
-                    float hasVertex = false;
-                    float hasNormal = false;
-                    float hasUV1    = false;
-                    float hasUV2    = false;
-                    float hasColor  = false;
+                    bool hasVertex = false;
+                    bool hasNormal = false;
+                    bool hasUV1    = false;
+                    bool hasUV2    = false;
+                    bool hasColor  = false;
 
                     int vertices = 0;
                     XMLElement* poly = geometry->FirstChildElement("polylist");
@@ -792,7 +790,7 @@ bool Magic3D::LoaderDAE::addSkeleton(XMLElement* root, const char* rootBone, boo
                 const char* joint = subNode->Attribute("type");
                 bool isJoint = joint && strcmp(joint, "JOINT") == 0;
 
-                if (isJoint && (!compareRoot || (compareRoot && ((strcmp(subNode->Attribute("id"), &rootBone[1]) == 0 || found)))))
+                if (isJoint && (!compareRoot || ((strcmp(subNode->Attribute("id"), &rootBone[1]) == 0 || found))))
                 {
                     Skeleton* skeleton = getModelInfo()->getSkeleton();
 
@@ -943,7 +941,7 @@ void Magic3D::LoaderDAE::addBone(XMLElement* root, Skeleton* skeleton, int paren
         while (attribute)
         {
             const char* sid = attribute->Attribute("sid");
-            if (sid[0] == 'j')
+            if (sid && sid[0] == 'j')
             {
                 j = true;
             }
@@ -1265,7 +1263,6 @@ void Magic3D::LoaderDAE::loadAnimations(XMLElement* root, Skeleton* skeleton)
                     sampler = sampler->NextSiblingElement("sampler");
                 }
 
-                float t;
                 Matrix4 m;
 
                 int keys = time.size();
@@ -1274,7 +1271,7 @@ void Magic3D::LoaderDAE::loadAnimations(XMLElement* root, Skeleton* skeleton)
                 {
                     for (int i = 0; i < keys; i++)
                     {
-                        t = time[i];
+                        float t = time[i];
                         m = matrix[i];
 
                         if (bone.size() > 0 && boneList.size() > 0)
@@ -1727,12 +1724,10 @@ void Magic3D::LoaderDAE::loadVertexPosition(XMLElement* root, const char* positi
 
                 while(tokken.good())
                 {
-                    float x = 0.0f;
+                    tokken >> value;
+                    float x = atof(value.c_str());
                     float y = 0.0f;
                     float z = 0.0f;
-
-                    tokken >> value;
-                    x = atof(value.c_str());
 
                     if (tokken.good())
                     {
@@ -1785,12 +1780,10 @@ void Magic3D::LoaderDAE::loadNormal(XMLElement* root, const char* normal)
 
                 while(tokken.good())
                 {
-                    float x = 0.0f;
+                    tokken >> value;
+                    float x = atof(value.c_str());
                     float y = 0.0f;
                     float z = 0.0f;
-
-                    tokken >> value;
-                    x = atof(value.c_str());
 
                     if (tokken.good())
                     {
@@ -1842,11 +1835,9 @@ void Magic3D::LoaderDAE::loadUV(XMLElement* root, const char* uv, int uvIndex)
 
                 while(tokken.good())
                 {
-                    float u = 0.0f;
-                    float v = 0.0f;
-
                     tokken >> value;
-                    u = atof(value.c_str());
+                    float u = atof(value.c_str());
+                    float v = 0.0f;
 
                     if (tokken.good())
                     {
@@ -1892,12 +1883,10 @@ void Magic3D::LoaderDAE::loadColor(XMLElement* root, const char* color)
 
                 while(tokken.good())
                 {
-                    float r = 0.0f;
+                    tokken >> value;
+                    float r = atof(value.c_str());
                     float g = 0.0f;
                     float b = 0.0f;
-
-                    tokken >> value;
-                    r = atof(value.c_str());
 
                     if (tokken.good())
                     {

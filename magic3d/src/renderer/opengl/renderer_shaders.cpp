@@ -1301,8 +1301,8 @@ bool Magic3D::RendererOpenGL_Shaders::renderObject(Camera* camera, const RenderO
             Vector3 pos = getCurrentViewPort()->getPerspective()->getPosition2D(object->model.getTranslation(), getCurrentViewPort());
             GLfloat bufferZ;
 
-            int x = 0;
-            int y = 0;
+            /*int x = 0;
+            int y = 0;*/
 
             if (isRenderingScreenEffects())
             {
@@ -1314,8 +1314,8 @@ bool Magic3D::RendererOpenGL_Shaders::renderObject(Camera* camera, const RenderO
             }
             else
             {
-                x = pos.getX() * getWindow()->getWidth();
-                y = getWindow()->getHeight() - pos.getY() * getWindow()->getHeight();
+                int x = pos.getX() * getWindow()->getWidth();
+                int y = getWindow()->getHeight() - pos.getY() * getWindow()->getHeight();
 
                 glReadPixels(x, y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &bufferZ);
                 check_gl_error();
@@ -1559,11 +1559,11 @@ bool Magic3D::RendererOpenGL_Shaders::renderObject(Camera* camera, const RenderO
         }
     }
 
+#if defined(_MGE_) || defined(DEBUG)
     if (object->object->getType() == eOBJECT_INSTANCE && finalObject)
     {
         finalObject = object->object;
     }
-#if defined(_MGE_) || defined(DEBUG)
     if (gizmos && (finalObject->isSelected() || getRenderMode() == eRENDER_MODE_WIREFRAME) && !isProfileObject(finalObject))
     {
         selectedObjects.push_back(finalObject);

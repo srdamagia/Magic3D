@@ -330,15 +330,13 @@ bool Magic3D::Object::update()
 bool Magic3D::Object::updateMeshes()
 {
     bool result = true;
-    bool update = false;
 
     std::vector<Mesh*>::const_iterator it_m = meshes.begin();
     while (it_m != meshes.end())
     {
         Mesh* mesh = *it_m++;
 
-        update = mesh->update(this);
-        result = result && update;
+        result = mesh->update(this) && result;
     }
 
     return result;
@@ -504,7 +502,7 @@ void Magic3D::Object::removeChild(Object* child)
             break;
         }
 
-        it_o++;
+        ++it_o;
     }
 }
 
@@ -525,7 +523,7 @@ void Magic3D::Object::removeInstance(ObjectInstance* instance)
             break;
         }
 
-        it_o++;
+        ++it_o;
     }
 }
 
@@ -873,8 +871,6 @@ const Magic3D::Box& Magic3D::Object::getBoundingBox()
 Magic3D::Box Magic3D::Object::getBoundingBoxAlignedAxis()
 {
     Box b = getBoundingBox();
-    Vector3 min = b.corners[0];
-    Vector3 max = b.corners[1];
 
     Matrix4 matrix = getMatrixFromParent();
     Matrix3 dir = matrix.getUpper3x3();
@@ -891,8 +887,8 @@ Magic3D::Box Magic3D::Object::getBoundingBoxAlignedAxis()
     corners[4] = position + dir.getCol1() * -dimensions.getY();
     corners[5] = position + dir.getCol2() * -dimensions.getZ();
 
-    min = corners[0];
-    max = corners[0];
+    Vector3 min = corners[0];
+    Vector3 max = corners[0];
 
     for (int i = 1; i < 6; i++)
     {

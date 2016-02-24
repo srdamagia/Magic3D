@@ -472,7 +472,7 @@ Magic3D::XMLElement* Magic3D::Config::save(XMLElement* root)
                 case eCONFIG_STRING:  xmlItem->SetAttribute(M3D_CONFIG_XML_VALUE, static_cast<ConfigItemString*>(item)->getValue().c_str()); break;
             }
 
-            it_c++;
+            ++it_c;
         }
     }
     return root;

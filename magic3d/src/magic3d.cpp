@@ -83,8 +83,7 @@ bool Magic3D::Magic3D::start(std::string applicationPath, LogCallBack* callback)
 
 bool Magic3D::Magic3D::start(std::string applicationPath, Magic3DConfiguration* configuration, LogCallBack* callback)
 {
-    bool result = false;
-    bool started = false;
+    bool result = true;
 
     if (!instance)
     {
@@ -115,32 +114,15 @@ bool Magic3D::Magic3D::start(std::string applicationPath, Magic3DConfiguration* 
             instance->loadConfiguration();
         }
 
-        started = Input::start();
-        result = result && started;
-        
-        started = Renderer::start();
-        result = result && started;
-        
-        started = Sound::start();
-        result = result && started;
-        
-        started = Physics::start();
-        result = result && started;
-        
-        started = ResourceManager::start();
-        result = result && started;
-        
-        started = Script::start();
-        result = started;
-        
-        started = Scene::start();
-        result = result && started;
-        
-        started = Config::start();
-        result = result && started;
-
-        started = Network::start();
-        result = result && started;
+        result = Input::start() && result;
+        result = Renderer::start() && result;
+        result = Sound::start() && result;
+        result = Physics::start() && result;
+        result = ResourceManager::start() && result;
+        result = Script::start() && result;
+        result = Scene::start() && result;
+        result = Config::start() && result;
+        result = Network::start() && result;
 
         instance->setStereoscopy(instance->configuration.STEREOSCOPY);
     }

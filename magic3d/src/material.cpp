@@ -510,7 +510,7 @@ void Magic3D::Material::setShader(Shader* shader, XMLElement* root)
                 Memory mem;
                 result = ResourceManager::getInstance()->unpack(getMaterialFile(), &mem);
                 std::string str = mem.getBuffer()->str();
-                result = result && doc->Parse(str.c_str(), str.size()) == XML_SUCCESS;
+                result = doc->Parse(str.c_str(), str.size()) == XML_SUCCESS && result;
             }
             else
             {
@@ -717,7 +717,6 @@ Magic3D::XMLElement* Magic3D::Material::load(XMLElement* root)
 
 bool Magic3D::Material::save()
 {
-    bool result = false;
     XMLDocument doc;
     XMLDeclaration* decl = doc.NewDeclaration( MAGIC3D_VERSION );
     doc.LinkEndChild( decl );
@@ -730,7 +729,7 @@ bool Magic3D::Material::save()
 
     save(root);
 
-    result = doc.SaveFile( getMaterialFile().c_str() ) == XML_SUCCESS;
+    bool result = doc.SaveFile( getMaterialFile().c_str() ) == XML_SUCCESS;
     return result;
 }
 
@@ -744,7 +743,7 @@ bool Magic3D::Material::load()
         Memory mem;
         result = ResourceManager::getInstance()->unpack(getMaterialFile(), &mem);
         std::string str = mem.getBuffer()->str();
-        result = result && doc->Parse(str.c_str(), str.size()) == XML_SUCCESS;
+        result = doc->Parse(str.c_str(), str.size()) == XML_SUCCESS && result;
     }
     else
     {

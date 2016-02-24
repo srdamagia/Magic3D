@@ -267,7 +267,6 @@ bool Magic3D::Light::update()
 
             for (int i = 0; i < M3D_LIGHT_FLARES; i++)
             {
-                float alpha = 0.0f;
                 float sizeX = 0.0f;
                 float sizeY = 0.0f;
                 Vector3 pos = Vector3(0.0f, 0.0f, 0.0f);
@@ -289,16 +288,15 @@ bool Magic3D::Light::update()
                 Vector3 a = Renderer::getInstance()->getWindow()->getWindowScreenAspect();
                 if ( (i > 1 && isShowingLens()) || (((i == 0 && ang < 5) || i == 1) && isShowingFlare()))
                 {                    
-                    alpha = (1.0f - ( ang / camera->getFovy()));
+                    float alpha = (1.0f - ( ang / camera->getFovy()));
                     sizeX = a.getX() /* 0.5f*/ * flares[i].scale * aspectY * aspect;
                     sizeY = a.getY() /* 0.5f*/ * flares[i].scale * aspectX * aspect;
 
                     color.a = alpha * (i > 1 ? 0.3f : 1.0f) ;
 
-                    float factor = 1.0f;
                     float scale = maxElem(getScale());
                     float frac = 1.0f / scale;
-                    factor = (scale - distance / getFar() * 0.75f) * frac;
+                    float factor = (scale - distance / getFar() * 0.75f) * frac;
 
                     if (factor < 0.0f)
                     {
@@ -579,7 +577,7 @@ Magic3D::Matrix4 Magic3D::Light::computeShadowProjection()
          Matrix4 result = Matrix4::orthographic(box.corners[0].getX(), box.corners[1].getX(), box.corners[0].getY(), box.corners[1].getY(), -box.corners[1].getZ(), -box.corners[0].getZ());
 
          //_shadowProjections[i] = projection;
-         zNear = splitFar[i];
+         //zNear = splitFar[i];
     //}
 
     return result;

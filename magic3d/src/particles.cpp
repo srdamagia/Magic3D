@@ -289,8 +289,7 @@ bool Magic3D::Particles::updateMeshes()
         }
     }
 
-    float step = Magic3D::Magic3D::getInstance()->getElapsedTime();
-    bool first = true;
+    float step = Magic3D::Magic3D::getInstance()->getElapsedTime();    
     if (particlesMesh)
     {
         MeshData* data = particlesMesh->getData();
@@ -303,6 +302,7 @@ bool Magic3D::Particles::updateMeshes()
         bool moved = false;
         Vector3 lastPos = Vector3(0.0f, 0.0f, 0.0f);
 
+        bool first = true;
         bool hasAlive = false;
         for (int i = 0; i < getMaxParticlesCount(); i++)
         {
@@ -1380,7 +1380,7 @@ void Magic3D::Particles::load(std::string fileName)
         Memory mem;
         result = ResourceManager::getInstance()->unpack(path, &mem);
         std::string str = mem.getBuffer()->str();
-        result = result && doc->Parse(str.c_str(), str.size()) == XML_SUCCESS;
+        result = doc->Parse(str.c_str(), str.size()) == XML_SUCCESS && result;
     }
     else
     {

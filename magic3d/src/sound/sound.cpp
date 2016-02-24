@@ -114,14 +114,14 @@ void Magic3D::Sound::load()
 bool Magic3D::Sound::start()
 {
     Log::log(eLOG_PLAINTEXT, "Start Initializing OpenAL...");
-    ALCcontext *context;
-    ALCdevice *device;
+    ALCdevice* device;
 
     //Open device
     device = alcOpenDevice(NULL);
-    if (device != NULL) {
+    if (device != NULL)
+    {
         //Create context(s)
-        context = alcCreateContext(device,NULL);
+        ALCcontext* context = alcCreateContext(device,NULL);
         //Set active context
         if (alcMakeContextCurrent(context)) {
             enabled = true;
@@ -129,7 +129,9 @@ bool Magic3D::Sound::start()
         char* defaultDeviceName = (char*)alcGetString(NULL, ALC_DEFAULT_DEVICE_SPECIFIER);
         Log::log(eLOG_RENDERER, defaultDeviceName);
         //delete[] defaultDeviceName;
-    } else {
+    }
+    else
+    {
         Log::log(eLOG_FAILURE, "Default sound device not found...");
     }
     Log::log(eLOG_SUCCESS, "OpenAL sucessfully started.");

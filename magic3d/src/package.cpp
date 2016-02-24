@@ -94,8 +94,7 @@ void Magic3D::Package::close()
 void Magic3D::Package::pack(std::string filesPath, void(*callBack)(std::string, bool))
 {
     std::string packFileName = package;
-    bool zipok = false;
-    int err = 0;
+    bool zipok = false;    
     int size_buf = WRITEBUFFERSIZE;
     void* buf = (void*)malloc(size_buf);
 
@@ -117,6 +116,7 @@ void Magic3D::Package::pack(std::string filesPath, void(*callBack)(std::string, 
 
     if (zipok)
     {
+        int err = 0;
         zipFile zf;
         int errclose;
 #ifdef USEWIN32IOAPI
@@ -143,7 +143,6 @@ void Magic3D::Package::pack(std::string filesPath, void(*callBack)(std::string, 
             std::string fileNameInPack = *it_f++;
             std::string fullFileName = filesPath + fileNameInPack;
             FILE* fin = NULL;
-            int size_read;
             zip_fileinfo zi;
             unsigned long crcFile=0;
             int zip64 = 0;
@@ -164,7 +163,7 @@ void Magic3D::Package::pack(std::string filesPath, void(*callBack)(std::string, 
 
 
             std::string savedFile = fileNameInPack;
-            while (savedFile.find('\\') == 0 || savedFile.find('/') == 0)
+            while (savedFile.at(0) == '\\' || savedFile.at(0) == '/')
             {
                 savedFile = savedFile.substr(1, savedFile.size() - 1);
             }
@@ -204,6 +203,7 @@ void Magic3D::Package::pack(std::string filesPath, void(*callBack)(std::string, 
 
             if (err == ZIP_OK)
             {
+                int size_read = 0;
                 do
                 {
                     err = ZIP_OK;
@@ -276,17 +276,13 @@ bool Magic3D::Package::unpack(std::string fileName, DataBuffer* memory)
     {
         if (unzLocateFile(packageFile, fileName.c_str(), 0) == UNZ_OK)
         {
-            int err = UNZ_OK;
-            void* buf;
-            uInt size_buf;
-
             unz_file_info64 file_info;
-            err = unzGetCurrentFileInfo64(packageFile, &file_info, (char*)fileName.c_str(), fileName.size(), NULL, 0, NULL, 0);
+            int err = unzGetCurrentFileInfo64(packageFile, &file_info, (char*)fileName.c_str(), fileName.size(), NULL, 0, NULL, 0);
 
             if (err == UNZ_OK)
             {
-                size_buf = WRITEBUFFERSIZE;
-                buf = (void*)malloc(size_buf);
+                uInt size_buf = WRITEBUFFERSIZE;
+                void* buf = (void*)malloc(size_buf);
                 if (buf == NULL)
                 {
                     Log::logFormat(eLOG_FAILURE, "Error allocating memory %d.", UNZ_INTERNALERROR);
@@ -474,9 +470,7 @@ int Magic3D::Package::getFileCrc(std::string& filenameinzip, void* buf, unsigned
 {
    unsigned long calculate_crc = 0;
    int err = ZIP_OK;
-   FILE * fin = fopen64(filenameinzip.c_str(), "rb");
-   unsigned long size_read = 0;
-   unsigned long total_read = 0;
+   FILE * fin = fopen64(filenameinzip.c_str(), "rb");   
    if (fin == NULL)
    {
        err = ZIP_ERRNO;
@@ -484,6 +478,8 @@ int Magic3D::Package::getFileCrc(std::string& filenameinzip, void* buf, unsigned
 
     if (err == ZIP_OK)
     {
+        unsigned long size_read = 0;
+        unsigned long total_read = 0;
         do
         {
             err = ZIP_OK;

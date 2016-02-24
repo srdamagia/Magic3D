@@ -710,6 +710,7 @@ int Magic3D::Terrain::saveToHeightMap(std::string name)
         code = 4;
     }
 
+    result = code;
     if (result == 0)
     {
         png_bytep row = NULL;

@@ -75,10 +75,10 @@ bool Magic3D::Model::update()
     if (needUpdate && (isInParentFrustum() || isInEffectFrustum()) && getSkeleton())
     {
         uniqueUpdate = !uniqueUpdate;
-        result = result && getSkeleton()->update();
+        result = getSkeleton()->update() && result;
         if (result)
         {
-            result = result && updateMeshes();
+            result = updateMeshes() && result;
         }
         Object::updateBoundingBox(false);
         box = Object::getBoundingBox();

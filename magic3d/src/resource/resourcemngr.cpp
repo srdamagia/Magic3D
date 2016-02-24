@@ -226,10 +226,10 @@ Magic3D::Package* Magic3D::ResourceManager::getPackage()
 
 bool Magic3D::ResourceManager::unpack(std::string fileName, DataBuffer* buffer)
 {
-    bool result = false;
-    bool opened = false;
+    bool result = false;    
     if (package)
     {
+        bool opened = false;
         if (package->isOpen())
         {
             opened = true;

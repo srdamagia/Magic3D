@@ -580,8 +580,7 @@ float Magic3D::Tween::calculateTween()
         };
 
         case eTween_Elastic_Easing_In:
-        {
-            float fator = 0.0f;
+        {            
             if (t == 0.0f)
             {
                 result = b;
@@ -596,6 +595,7 @@ float Magic3D::Tween::calculateTween()
                 }
                 else
                 {
+                    float fator = 0.0f;
                     float p = d * 0.3f;
 
                     float a = 0.0f;
@@ -619,8 +619,7 @@ float Magic3D::Tween::calculateTween()
         }
 
         case eTween_Elastic_Easing_Out:
-        {
-            float fator = 0.0f;
+        {            
             if (t == 0.0f)
             {
                 result = b;
@@ -635,6 +634,7 @@ float Magic3D::Tween::calculateTween()
                 }
                 else
                 {
+                    float fator = 0.0f;
                     float p = d * 0.3f;
 
                     float a = 0.0f;
@@ -655,8 +655,7 @@ float Magic3D::Tween::calculateTween()
         }
 
         case eTween_Elastic_Easing_In_Out:
-        {
-            float fator = 0.0f;
+        {            
             if (t == 0.0f)
             {
                 result = b;
@@ -671,6 +670,7 @@ float Magic3D::Tween::calculateTween()
                 }
                 else
                 {
+                    float fator = 0.0f;
                     float p = d * (0.3f * 1.5f);
 
                     float a = 0.0f;

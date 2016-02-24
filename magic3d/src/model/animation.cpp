@@ -388,7 +388,7 @@ bool Magic3D::Animation::removeFrame(float time)
             break;
         }
 
-        it_f++;
+        ++it_f;
     }
 
     return result;
@@ -529,7 +529,7 @@ void Magic3D::Animation::removeSequence(std::string name)
             break;
         }
 
-        it_s++;
+        ++it_s;
     }
 }
 

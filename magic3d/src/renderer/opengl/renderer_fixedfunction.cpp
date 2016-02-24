@@ -190,7 +190,7 @@ void Magic3D::RendererOpenGL_FixedFunction::drawLighting(Camera* camera, std::li
     std::list<Object*>::const_iterator it_l = lights->begin();
     while (it_l != lights->end())
     {
-        Light* light = static_cast<Light*>(*it_l++);
+        //Light* light = static_cast<Light*>(*it_l++);
 
         glDisable(GL_BLEND); // We don't want lighting. We are only writing in stencil buffer for now
         glClear(GL_STENCIL_BUFFER_BIT); // We clear the stencil buffer

@@ -181,7 +181,7 @@ void Magic3D::Input::removeEventListener(EventListener* listener)
                     events->erase(itor);
                     break;
                 }
-                itor++;
+                ++itor;
             }
         }
     }

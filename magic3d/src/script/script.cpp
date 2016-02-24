@@ -157,7 +157,7 @@ void Magic3D::Script::play(bool startScript)
     }
     else
     {
-        log("Play()");
+        this->log("Play()");
     }
 
     ScriptClass<ScriptMagic3D>::Register(lua);
@@ -391,7 +391,7 @@ bool Magic3D::Script::startCall(const std::string& functionName, const std::stri
             {
                 lua_pop(lua, 1);
             }
-            log(std::string("NOT a function: ") + functionName);
+            this->log(std::string("NOT a function: ") + functionName);
             Scene::getInstance()->addScriptMS(Magic3D::getInstance()->getTimeSinceReference());
         }
     }
@@ -421,7 +421,7 @@ bool Magic3D::Script::call(const std::string& functionName, int params, const st
             l += "Function: ";
             l += functionName;
 
-            log(l);
+            this->log(l);
 
             result = false;
         }
@@ -499,7 +499,7 @@ bool Magic3D::Script::load(std::string script)
     if (ResourceManager::getInstance()->getPackage())
     {
         Memory mem;
-        ready = ResourceManager::getInstance()->unpack(script, &mem);
+        ResourceManager::getInstance()->unpack(script, &mem);
         std::stringstream str;
         str << mem.getBuffer();
 
@@ -514,7 +514,7 @@ bool Magic3D::Script::load(std::string script)
     {
         hasErrors = true;
         result = false;
-        log(std::string("Load: ") + script);
+        this->log(std::string("Load: ") + script);
     }
     else
     {
@@ -589,7 +589,7 @@ bool Magic3D::Script::loadObject(std::string name)
     {
         hasErrors = true;
         result = false;
-        log(std::string("Load Object error: ") + name);
+        this->log(std::string("Load Object error: ") + name);
     }
 
     lua_pcall(lua, 0, 0, 0);
@@ -646,7 +646,7 @@ bool Magic3D::Script::collectObject(const std::string& name)
     if (luaL_loadstring(lua, script.str().c_str()) != 0)
     {
         result = false;
-        log(std::string("Collect Object: ") + name);
+        this->log(std::string("Collect Object: ") + name);
     }
 
     lua_pcall(lua, 0, 0, 0);

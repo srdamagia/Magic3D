@@ -357,11 +357,9 @@ int Magic3D::ScriptObject::setParent(lua_State *lua)
 
 int Magic3D::ScriptObject::getParent(lua_State *lua)
 {
-    ScriptObject* object = NULL;
-
     if (this->object->getParent())
     {
-        object = new ScriptObject(this->object->getParent());
+        ScriptObject* object = new ScriptObject(this->object->getParent());
         ScriptClass<ScriptObject>::push(lua, object, true);
     }
     else

@@ -266,7 +266,7 @@ void Magic3D::Network::update()
                     while (it_o != spawned.end())
                     {
                         spawnObject(getObjectBaseName((*it_o).first), (*it_o).second);
-                        it_o++;
+                        ++it_o;
                     }
 
                     break;
@@ -302,7 +302,7 @@ void Magic3D::Network::update()
                         }
                         else
                         {
-                            it_o++;
+                            ++it_o;
                         }
                     }
                     if (getClient(event.peer->connectID).host == event.peer->address.host)

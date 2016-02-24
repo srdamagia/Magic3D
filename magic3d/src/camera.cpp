@@ -692,11 +692,10 @@ bool Magic3D::Camera::frustumBox(Vector3 pos, float width, float height, float d
 bool Magic3D::Camera::frustumSphere(Vector3 pos, float radius, bool ignoreNear)
 {
     int c = 0;
-    float d;
     int faces = ignoreNear ? 5 : 6;
     for( int i = 0; i < faces; i++ )
     {
-        d = frustum[i][0] * pos.getX() + frustum[i][1] * pos.getY() + frustum[i][2] * pos.getZ() + frustum[i][3];
+        float d = frustum[i][0] * pos.getX() + frustum[i][1] * pos.getY() + frustum[i][2] * pos.getZ() + frustum[i][3];
         if( d <= -radius )
             return false;
         if( d > radius )

@@ -124,7 +124,7 @@ bool Magic3D::AnimationSequences::load()
             Memory mem;
             result = ResourceManager::getInstance()->unpack(fileName, &mem);
             std::string str = mem.getBuffer()->str();
-            result = result && doc->Parse(str.c_str(), str.size()) == XML_SUCCESS;
+            result = doc->Parse(str.c_str(), str.size()) == XML_SUCCESS && result;
         }
         else
         {
