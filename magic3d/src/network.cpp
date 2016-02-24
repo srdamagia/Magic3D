@@ -246,8 +246,7 @@ void Magic3D::Network::update()
             connect(ip, port);
         }
 
-        ENetEvent event;
-        ENetPacket* packet;
+        ENetEvent event;        
         if (enet_host_service(server, &event, 0) > 0)
         {
             switch(event.type)
@@ -277,9 +276,7 @@ void Magic3D::Network::update()
                 {
                     if (isServer())
                     {
-                        packet = enet_packet_create(event.packet->data, event.packet->dataLength, ENET_PACKET_FLAG_RELIABLE);
-                        enet_host_broadcast(server, 0, packet);
-                        enet_host_flush(server);
+                        broadcastPacket(event.packet);
                     }
                     openPacket(event.packet);
 
@@ -376,6 +373,11 @@ void Magic3D::Network::openPacket(ENetPacket* packet)
                         {
                             object = object->spawn(name, object->getLayer()->getName(), true);
                             spawned[name] = peerID;
+                            Log::logFormat(eLOG_SUCCESS, "Object: %s spawned.", name);
+                        }
+                        else
+                        {
+                            Log::logFormat(eLOG_RENDERER, "Object: %s already exists.", name);
                         }
                     }
 
@@ -392,6 +394,11 @@ void Magic3D::Network::openPacket(ENetPacket* packet)
                         memcpy(&matrix[0], &packet->data[NETWORK_HEADER + 256], sizeof(Matrix4));
                         object->applyMatrix(matrix);
                         object->resetPhysics();
+                        Log::logFormat(eLOG_SUCCESS, "Object: %s updated.", name);
+                    }
+                    else
+                    {
+                        Log::logFormat(eLOG_FAILURE, "Object: %s not found.", name);
                     }
                     break;
                 }
@@ -417,17 +424,38 @@ void Magic3D::Network::sendPacket(ENetPacket* packet)
 {
     if (packet)
     {
+        int channel = 0;
+        if (packet->data[0] == eNETWORK_TEXT)
+        {
+            channel = 1;
+        }
         if (isServer() || isConnected())
         {
             if (isServer())
             {
-                enet_host_broadcast(server, 0, packet);
+                enet_host_broadcast(server, channel, packet);
             }
             else
             {
-                enet_peer_send(peer, 0, packet);
+                enet_peer_send(peer, channel, packet);
             }
         }
+        enet_host_flush(server);
+    }
+}
+
+void Magic3D::Network::broadcastPacket(ENetPacket* packet)
+{
+    if (packet)
+    {
+        int channel = 0;
+        if (packet->data[0] == eNETWORK_TEXT)
+        {
+            channel = 1;
+        }
+        ENetPacket* newPacket;
+        newPacket = enet_packet_create(packet->data, packet->dataLength, ENET_PACKET_FLAG_RELIABLE);
+        enet_host_broadcast(server, channel, newPacket);
         enet_host_flush(server);
     }
 }

@@ -49,6 +49,7 @@ namespace Magic3D
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #pragma GCC diagnostic ignored "-Woverloaded-virtual"
 #pragma GCC diagnostic ignored "-Wignored-qualifiers"
+#define BT_INFINITY INFINITY
 #include <btBulletDynamicsCommon.h>
 #pragma GCC diagnostic pop
 

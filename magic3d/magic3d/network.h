@@ -94,6 +94,7 @@ private:
 
     void openPacket(ENetPacket* packet);
     void sendPacket(ENetPacket* packet);
+    void broadcastPacket(ENetPacket* packet);
 
     Object* spawnObject(std::string name, enet_uint32 id);
 

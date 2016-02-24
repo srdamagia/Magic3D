@@ -150,7 +150,7 @@ bool Magic3D::GUILabel::updateMeshes()
                 lastReturns++;
                 continue;
             }
-            else if (renderer->hasMapBuffer() || (!renderer->hasMapBuffer() && (int)i >= quadCount))
+            else if (renderer->hasMapBuffer() || ((int)i >= quadCount))
             {
                 data->addQuad(0.0f, 0.0f, 1.0f, 1.0f, eAXIS_Z, false);
             }
