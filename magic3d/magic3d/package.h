@@ -61,6 +61,13 @@ extern "C" {
     #include "iowin32.h"
 #endif
 
+#if defined(__APPLE__)
+    #define off64_t off_t
+    #define fopen64 fopen
+    #define fseeko64 fseeko
+    #define ftello64 ftello
+#endif
+
 namespace Magic3D
 {
 #define WRITEBUFFERSIZE (16384)
