@@ -50,6 +50,7 @@ NETWORK_INPUT  byte               type
 
 NETWORK_TEXT   byte               type
                enet_uint32        clientID
+               unsigned char*     nick
                unsigned char*     text
 */
 

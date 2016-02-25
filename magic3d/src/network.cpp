@@ -87,7 +87,12 @@ bool Magic3D::Network::initialize()
 {    
     server = NULL;
     peer = NULL;
+
+#if defined(_MGE_)
+    showConsole = false;
+#else
     showConsole = true;
+#endif
 
     ip = Magic3D::getInstance()->getConfiguration().ADDRESS;
     port = Magic3D::getInstance()->getConfiguration().PORT;
@@ -522,7 +527,7 @@ void Magic3D::Network::sendObject(Object* object)
 {
     if (object)
     {
-        if (isServer() || isConnected() && timeUpdate == 0.0f)
+        if ((isServer() || isConnected()) && timeUpdate == 0.0f)
         {
             Matrix4 matrix = object->getMatrix();
             unsigned int size = NETWORK_HEADER + sizeof(byte) * 256 + sizeof(Matrix4);
