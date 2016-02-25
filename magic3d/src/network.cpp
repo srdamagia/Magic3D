@@ -298,11 +298,27 @@ void Magic3D::Network::update()
 
                 case ENET_EVENT_TYPE_DISCONNECT:
                 {
+                    enet_uint32 id = 0;
+                    std::map<enet_uint32, ENetAddress>::const_iterator it_c = clients.begin();
+                    while (it_c != clients.end())
+                    {
+                        ENetAddress peerAddress = (*it_c).second;
+                        if (peerAddress.host == event.peer->address.host && peerAddress.port == event.peer->address.port)
+                        {
+                            id = (*it_c).first;
+                            break;
+                        }
+                        ++it_c;
+                    }
+                    if (id != 0)
+                    {
+                        clients.erase(it_c);
+                    }
                     std::map<std::string, enet_uint32>::const_iterator it_o = spawned.begin();
                     while (it_o != spawned.end())
                     {
-                        enet_uint32 id = (*it_o).second;
-                        if (id == event.peer->connectID)
+                        enet_uint32 objID = (*it_o).second;
+                        if (objID == id)
                         {
                             Object* object = ResourceManager::getObjects()->get((*it_o).first);
                             if (object)
@@ -317,10 +333,6 @@ void Magic3D::Network::update()
                         {
                             ++it_o;
                         }
-                    }
-                    if (getClient(event.peer->connectID).host == event.peer->address.host)
-                    {
-                        clients.erase(event.peer->connectID);
                     }
                     char name[256];
                     enet_address_get_host_ip(&event.peer->address, name, 255);
