@@ -373,11 +373,11 @@ void Magic3D::Network::openPacket(ENetPacket* packet)
                         {
                             object = object->spawn(name, object->getLayer()->getName(), true);
                             spawned[name] = peerID;
-                            Log::logFormat(eLOG_SUCCESS, "Object: %s spawned.", name);
+                            log(eLOG_SUCCESS, "Object: %s spawned.", name);
                         }
                         else
                         {
-                            Log::logFormat(eLOG_RENDERER, "Object: %s already exists.", name);
+                            log(eLOG_RENDERER, "Object: %s already exists.", name);
                         }
                     }
 
@@ -394,11 +394,11 @@ void Magic3D::Network::openPacket(ENetPacket* packet)
                         memcpy(&matrix[0], &packet->data[NETWORK_HEADER + 256], sizeof(Matrix4));
                         object->applyMatrix(matrix);
                         object->resetPhysics();
-                        Log::logFormat(eLOG_SUCCESS, "Object: %s updated.", name);
+                        log(eLOG_SUCCESS, "Object: %s updated.", name);
                     }
                     else
                     {
-                        Log::logFormat(eLOG_FAILURE, "Object: %s not found.", name);
+                        log(eLOG_FAILURE, "Object: %s not found.", name);
                     }
                     break;
                 }
@@ -440,7 +440,7 @@ void Magic3D::Network::sendPacket(ENetPacket* packet)
                 enet_peer_send(peer, channel, packet);
             }
         }
-        enet_host_flush(server);
+        //enet_host_flush(server);
     }
 }
 
@@ -456,7 +456,7 @@ void Magic3D::Network::broadcastPacket(ENetPacket* packet)
         ENetPacket* newPacket;
         newPacket = enet_packet_create(packet->data, packet->dataLength, ENET_PACKET_FLAG_RELIABLE);
         enet_host_broadcast(server, channel, newPacket);
-        enet_host_flush(server);
+        //enet_host_flush(server);
     }
 }
 
