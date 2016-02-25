@@ -92,6 +92,8 @@ bool Magic3D::Network::initialize()
     ip = Magic3D::getInstance()->getConfiguration().ADDRESS;
     port = Magic3D::getInstance()->getConfiguration().PORT;
 
+    timeUpdate = 0.0f;
+
     bool result = true;
     int error = enet_initialize ();
     if (error != 0)
@@ -241,6 +243,12 @@ void Magic3D::Network::update()
 {
     if (Physics::getInstance()->isPlaying())
     {
+        timeUpdate += Magic3D::getInstance()->getElapsedTime();
+        if (timeUpdate > 1.0f / ((float)Magic3D::getInstance()->getFPS() * 0.5f))
+        {
+            timeUpdate = 0.0f;
+        }
+
         if (!showConsole)
         {
             connect(ip, port);
@@ -440,7 +448,7 @@ void Magic3D::Network::sendPacket(ENetPacket* packet)
                 enet_peer_send(peer, channel, packet);
             }
         }
-        //enet_host_flush(server);
+        enet_host_flush(server);
     }
 }
 
@@ -456,7 +464,7 @@ void Magic3D::Network::broadcastPacket(ENetPacket* packet)
         ENetPacket* newPacket;
         newPacket = enet_packet_create(packet->data, packet->dataLength, ENET_PACKET_FLAG_RELIABLE);
         enet_host_broadcast(server, channel, newPacket);
-        //enet_host_flush(server);
+        enet_host_flush(server);
     }
 }
 
@@ -514,7 +522,7 @@ void Magic3D::Network::sendObject(Object* object)
 {
     if (object)
     {
-        if (isServer() || isConnected())
+        if (isServer() || isConnected() && timeUpdate == 0.0f)
         {
             Matrix4 matrix = object->getMatrix();
             unsigned int size = NETWORK_HEADER + sizeof(byte) * 256 + sizeof(Matrix4);

@@ -78,6 +78,8 @@ private:
     std::string ip;
     int port;
 
+    float timeUpdate;
+
     GUINetwork console;
     bool showConsole;
 
