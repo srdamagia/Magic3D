@@ -249,7 +249,7 @@ void Magic3D::Network::update()
     if (Physics::getInstance()->isPlaying())
     {
         timeUpdate += Magic3D::getInstance()->getElapsedTime();
-        if (timeUpdate > (1.0f / (float)Magic3D::getInstance()->getFPS()) * 0.25f)
+        if (timeUpdate > 0.0666f)
         {
             timeUpdate = 0.0f;
         }
@@ -415,9 +415,18 @@ void Magic3D::Network::openPacket(ENetPacket* packet)
                     Object* object = ResourceManager::getObjects()->get(name);
                     if (object)
                     {
-                        Matrix4 matrix;
-                        memcpy(&matrix[0], &packet->data[NETWORK_HEADER + 256], sizeof(Matrix4));
-                        object->applyMatrix(matrix);
+                        Vector4 pos;
+                        Quaternion rot;
+                        Vector4 scale;
+                        int stride = 0;
+                        memcpy(&pos[0], &packet->data[NETWORK_HEADER + 256 + stride], sizeof(Vector4));
+                        stride += sizeof(Vector4);
+                        memcpy(&rot[0], &packet->data[NETWORK_HEADER + 256 + stride], sizeof(Quaternion));
+                        stride += sizeof(Quaternion);
+                        memcpy(&scale[0], &packet->data[NETWORK_HEADER + 256 + stride], sizeof(Vector4));
+                        object->setPosition(pos.getXYZ());
+                        object->setRotation(rot);
+                        object->setScale(scale.getXYZ());
                         object->resetPhysics();
                         //log(eLOG_SUCCESS, "Object: %s updated.", name);
                     }
@@ -541,13 +550,21 @@ void Magic3D::Network::sendObject(Object* object)
     {
         if ((isServer() || isConnected()) && timeUpdate == 0.0f)
         {
-            Matrix4 matrix = object->getMatrix();
-            unsigned int size = NETWORK_HEADER + sizeof(byte) * 256 + sizeof(Matrix4);
+            //Matrix4 matrix = object->getMatrix();
+            Vector4 pos = Vector4(object->getPosition(), 1.0f);
+            Quaternion rot = object->getRotation();
+            Vector4 scale = Vector4(object->getScale(), 1.0f);
+            unsigned int size = NETWORK_HEADER + sizeof(byte) * 256 + sizeof(Vector4) + sizeof(Quaternion) + sizeof(Vector4);
             byte* data = new byte[size];
             prepareHeader(eNETWORK_OBJECT, data);
             memcpy(&data[NETWORK_HEADER], object->getName().c_str(), object->getName().size());
             data[NETWORK_HEADER + object->getName().size()] = '\0';
-            memcpy(&data[NETWORK_HEADER + 256], reinterpret_cast<float*>(&matrix), sizeof(Matrix4));
+            int stride = 0;
+            memcpy(&data[NETWORK_HEADER + 256 + stride], reinterpret_cast<float*>(&pos), sizeof(Vector4));
+            stride += sizeof(Vector4);
+            memcpy(&data[NETWORK_HEADER + 256 + stride], reinterpret_cast<float*>(&rot), sizeof(Quaternion));
+            stride += sizeof(Quaternion);
+            memcpy(&data[NETWORK_HEADER + 256 + stride], reinterpret_cast<float*>(&scale), sizeof(Vector4));
             ENetPacket* packet = enet_packet_create(data, size, ENET_PACKET_FLAG_RELIABLE);
             sendPacket(packet);
         }
