@@ -488,7 +488,14 @@ void Magic3D::Network::broadcastPacket(ENetPacket* packet)
             channel = 1;
         }
         ENetPacket* newPacket;
-        newPacket = enet_packet_create(packet->data, packet->dataLength, ENET_PACKET_FLAG_RELIABLE);
+        if (packet->data[0] == eNETWORK_OBJECT)
+        {
+            newPacket = enet_packet_create(packet->data, packet->dataLength, ENET_PACKET_FLAG_UNSEQUENCED);
+        }
+        else
+        {
+            newPacket = enet_packet_create(packet->data, packet->dataLength, ENET_PACKET_FLAG_RELIABLE);
+        }
         enet_host_broadcast(server, channel, newPacket);
         enet_host_flush(server);
     }
@@ -565,7 +572,7 @@ void Magic3D::Network::sendObject(Object* object)
             memcpy(&data[NETWORK_HEADER + 256 + stride], reinterpret_cast<float*>(&rot), sizeof(Quaternion));
             stride += sizeof(Quaternion);
             memcpy(&data[NETWORK_HEADER + 256 + stride], reinterpret_cast<float*>(&scale), sizeof(Vector4));
-            ENetPacket* packet = enet_packet_create(data, size, ENET_PACKET_FLAG_RELIABLE);
+            ENetPacket* packet = enet_packet_create(data, size, ENET_PACKET_FLAG_UNSEQUENCED);
             sendPacket(packet);
         }
     }
