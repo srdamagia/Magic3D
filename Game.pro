@@ -12,7 +12,7 @@ MOC_DIR = ./build
 
 QT -= gui
 CONFIG -= exceptions
-CONFIG += console c++11
+CONFIG += c++11
 
 QMAKE_LFLAGS += -F/Library/Frameworks
 

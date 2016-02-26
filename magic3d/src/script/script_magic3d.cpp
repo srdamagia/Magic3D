@@ -582,9 +582,13 @@ int Magic3D::ScriptMagic3D::sendObject(lua_State* lua)
 
 int Magic3D::ScriptMagic3D::sendInput(lua_State* lua)
 {
-    if (lua)
-    {
+    INPUT input = (INPUT)luaL_checkinteger(lua, 1);
+    EVENT event = EVENT(luaL_checkinteger(lua, 2));
+    float x = luaL_checknumber(lua, 3);
+    float y = luaL_checknumber(lua, 4);
+    float z = luaL_checknumber(lua, 5);
+    float w = luaL_checknumber(lua, 6);
 
-    }
+    Input::getInstance()->dispatchEvent(input, event, x, y, z, w);
     return 0;
 }

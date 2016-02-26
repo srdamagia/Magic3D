@@ -37,7 +37,11 @@ NETWORK Packets
 NETWORK_SPAWN  byte               type
                enet_uint32        clientID
                enet_uint32        peerID
-               unsigned char[256] name               
+               unsigned char[256] name
+
+NETWORK_KILL   byte               type
+               enet_uint32        clientID
+               unsigned char[256] name
 
 NETWORK_OBJECT byte               type
                enet_uint32        clientID
@@ -46,7 +50,9 @@ NETWORK_OBJECT byte               type
 
 NETWORK_INPUT  byte               type
                enet_uint32        clientID
-               TODO **********************
+               int                INPUT
+               int                EVENT
+               Vector4            x, y, z ,w
 
 NETWORK_TEXT   byte               type
                enet_uint32        clientID
@@ -59,6 +65,7 @@ NETWORK_TEXT   byte               type
 enum NETWORK_PACKET
 {
     eNETWORK_SPAWN,
+    eNETWORK_KILL,
     eNETWORK_OBJECT,
     eNETWORK_INPUT,
     eNETWORK_TEXT
@@ -124,8 +131,9 @@ public:
     bool isServer();
 
     Object* spawnObject(std::string name);
+    void killObject(std::string name);
     void sendObject(Object* object);
-    void sendInput(INPUT input, EVENT event, float x, float y, float z, float w);
+    void sendInput(INPUT input, EVENT event, Vector4 params);
     void sendText(std::string nick, std::string text);
 };
 

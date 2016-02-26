@@ -647,7 +647,7 @@ void Magic3D::RendererOpenGL_Shaders::renderScreen(Camera* camera)
 
         setUniform1i(glsl->uniforms[eUNIFORM_TEXTURE_DEPTH], 4);
         check_gl_error();
-        setUniform1i(glsl->uniforms[eUNIFORM_USE_TEXTURE_DEPTH], scene && scene->getGlows()->size() > 0 ? 1 : 0);
+        setUniform1i(glsl->uniforms[eUNIFORM_USE_TEXTURE_DEPTH], 1/*scene && scene->getGlows()->size() > 0 ? 1 : 0*/);
         check_gl_error();
 
         prepareMaterial(glsl, materialScreen, NULL);
@@ -979,17 +979,17 @@ bool Magic3D::RendererOpenGL_Shaders::renderGlow(Scene* scene, Camera *camera, V
     }
 
     std::list<RenderObject>* glows = scene ? scene->getGlows() : NULL;
-    if (glows && camera && fbo_glow && glows->size() > 0)
+    if (glows && camera && fbo_glow /*&& glows->size() > 0*/)
     {
         result = true;
         lastShader = NULL;
         toTexture = true;
 
         glBindFramebuffer(GL_FRAMEBUFFER, fbo_glow->getID());
-        check_gl_error();
+        check_gl_error();        
 
-        glDisable(GL_BLEND);
-        check_gl_error();
+        /*glDisable(GL_BLEND);
+        check_gl_error();*/
 
         fboViewPort->setArea(view->getArea());
         fboViewPort->setWidth(fbo_glow->getWidth());
@@ -1020,8 +1020,8 @@ bool Magic3D::RendererOpenGL_Shaders::renderGlow(Scene* scene, Camera *camera, V
             renderObject(camera, object, true, true, false);
         }       
 
-        glEnable(GL_BLEND);
-        check_gl_error();
+        /*glEnable(GL_BLEND);
+        check_gl_error();*/
 
         glDisable(GL_DEPTH_TEST);
         check_gl_error();
@@ -1354,7 +1354,7 @@ bool Magic3D::RendererOpenGL_Shaders::renderObject(Camera* camera, const RenderO
             finalObject->setInEffectFrustum(true);
         }
 
-        if ((shadows && !mesh->isCastingShadows()) || (reflection && mesh->isReflective()) || (glow && !mesh->isGlow() && finalObject->getRender() == eRENDER_3D))
+        if ((shadows && !mesh->isCastingShadows()) || (reflection && mesh->isReflective()) || (glow && !mesh->isGlow()/* && finalObject->getRender() == eRENDER_3D*/))
         {
             continue;
         }
@@ -1373,7 +1373,7 @@ bool Magic3D::RendererOpenGL_Shaders::renderObject(Camera* camera, const RenderO
 
             if (finalObject->getType() == eOBJECT_LIGHT || finalObject->getType() == eOBJECT_PARTICLES)
             {
-                if ((!shadows && !glow) || finalObject->getType() == eOBJECT_LIGHT)
+                if ((!shadows /*&& !glow*/) || finalObject->getType() == eOBJECT_LIGHT)
                 {
                     depthMaskChange = true;
                     glDepthMask(GL_FALSE);
