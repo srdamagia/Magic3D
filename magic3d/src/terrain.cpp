@@ -673,6 +673,8 @@ void pack (png_byte *ptr, float val)
     ptr[3] = (byte)(color.getW() * TERRAIN_COLOR_PACK);
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wclobbered"
 int Magic3D::Terrain::saveToHeightMap(std::string name)
 {
     int code = 0;
@@ -703,15 +705,14 @@ int Magic3D::Terrain::saveToHeightMap(std::string name)
         code = 3;
     }
 
-    int result = code;
     // Setup Exception handling
-    if (setjmp(png_jmpbuf(png_ptr))) {
+    if (setjmp(png_jmpbuf(png_ptr)))
+    {
         Log::log(eLOG_FAILURE, "Error during png creation");
         code = 4;
-    }
+    }    
 
-    result = code;
-    if (result == 0)
+    if (code == 0)
     {
         png_bytep row = NULL;
         png_init_io(png_ptr, fp);
@@ -768,8 +769,9 @@ int Magic3D::Terrain::saveToHeightMap(std::string name)
         png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
     }    
 
-    return result;
+    return code;
 }
+#pragma GCC diagnostic pop
 
 Magic3D::XMLElement* Magic3D::Terrain::save(XMLElement* root)
 {

@@ -91,8 +91,8 @@ private:
     std::vector<AnimationFrame> frames;
     std::vector<AnimationBone> lastFrame;
     AnimationSequences* sequences;
-    AnimationSequence* sequence;
-    AnimationSequence* nextSequence;
+    //AnimationSequence* sequence;
+    //AnimationSequence* nextSequence;
     Skeleton* skeleton;
 
     float elapsed;
@@ -102,6 +102,8 @@ private:
     float nextAnimationTime;
 
     int frame;
+    int sequenceIndex;
+    int nextSequenceIndex;
 
     bool reverse;
     bool nextReverse;
@@ -143,10 +145,13 @@ public:
     void setSequences(AnimationSequences *sequences);
     std::vector<AnimationSequence*>* getSequences();
     AnimationSequence* getSequence(std::string name);
+    int getSequenceIndex(std::string name);
 
     void setCurrentSequence(std::string name);
-    void setCurrentSequence(AnimationSequence* sequence);
+    void setCurrentSequence(int index);
     AnimationSequence* getCurrentSequence();
+    AnimationSequence* getNextSequence();
+    int getCurrentSequenceIndex();
     std::string getCurrentSequenceName();
 
     Skeleton* getSkeleton();

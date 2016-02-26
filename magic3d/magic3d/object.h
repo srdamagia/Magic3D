@@ -315,6 +315,9 @@ public:
     void setCurrentAnimation(std::string animation);
     std::string getCurrentAnimation();
 
+    void setCurrentAnimationIndex(int index);
+    int getCurrentAnimationIndex();
+
     void setAnimationFrame(int frame);
     int getAnimationFrame();
     int getAnimationFrameCount();

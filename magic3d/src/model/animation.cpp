@@ -96,8 +96,10 @@ Magic3D::Animation::Animation(const Animation& animation, Skeleton* skeleton)
 {
     this->frames = animation.frames;
     this->sequences = animation.sequences;
-    this->sequence = animation.sequence;
-    this->nextSequence = animation.nextSequence;
+    //this->sequence = animation.sequence;
+    this->sequenceIndex = animation.sequenceIndex;
+    //this->nextSequence = animation.nextSequence;
+    this->nextSequenceIndex = animation.nextSequenceIndex;
 
     this->elapsed = animation.elapsed;
     this->speed = animation.speed;
@@ -134,8 +136,10 @@ Magic3D::Animation::Animation(Skeleton* skeleton)
 
     nextAnimationTime = 0.0f;
 
-    sequence = NULL;
-    nextSequence = NULL;
+    //sequence = NULL;
+    sequenceIndex = -1;
+    //nextSequence = NULL;
+    nextSequenceIndex = -1;
     sequences = NULL;
     this->skeleton = skeleton;
 }
@@ -152,6 +156,8 @@ Magic3D::Animation* Magic3D::Animation::spawn(Skeleton* skeleton) const
 
 bool Magic3D::Animation::updateSequence()
 {
+    AnimationSequence* sequence = getCurrentSequence();
+    AnimationSequence* nextSequence = getNextSequence();
     bool result = (isPlaying() || nextSequence) && sequence && frame >= 0 && frame < getFrameCount();
 
     if (!result)
@@ -168,9 +174,12 @@ bool Magic3D::Animation::updateSequence()
         elapsedUpdate = 0.0f;
         if (playingNext && elapsed > nextAnimationTime)
         {
-            sequence = nextSequence;
-            nextSequence = NULL;
+            sequenceIndex = nextSequenceIndex;
+            nextSequenceIndex = -1;
             playingNext = false;
+
+            sequence = getCurrentSequence();
+            nextSequence = getNextSequence();
 
             frame = sequence->getStartFrame();
             speed = sequence->getSpeed();
@@ -407,7 +416,8 @@ void Magic3D::Animation::play(bool reverse)
         frame = getCurrentSequence()->getStartFrame();
         elapsed = 0.0f;
 
-        nextSequence = NULL;
+        //nextSequence = NULL;
+        nextSequenceIndex = -1;
         nextAnimationTime = 0.0f;
         nextReverse = false;
 
@@ -417,6 +427,8 @@ void Magic3D::Animation::play(bool reverse)
 
 void Magic3D::Animation::playAnimation(std::string animation, float interpolation, bool reverse)
 {
+    AnimationSequence* sequence = getCurrentSequence();
+    AnimationSequence* nextSequence = getNextSequence();
     if (!sequence || sequence->getName().compare(animation) != 0 || (nextSequence && nextSequence->getName().compare(animation) != 0))
     {
         if (!sequence || interpolation == 0.0f)
@@ -429,7 +441,7 @@ void Magic3D::Animation::playAnimation(std::string animation, float interpolatio
             elapsed = 0.0f;
             elapsedUpdate = 0.0f;
             playingNext = true;
-            nextSequence = getSequence(animation);
+            nextSequenceIndex = getSequenceIndex(animation);
             nextAnimationTime = interpolation;
             nextReverse = reverse;
         }
@@ -453,8 +465,10 @@ bool Magic3D::Animation::isReverse()
 
 void Magic3D::Animation::clear()
 {
-    sequence = NULL;
-    nextSequence = NULL;
+    //sequence = NULL;
+    //nextSequence = NULL;
+    sequenceIndex = -1;
+    nextSequenceIndex = -1;
 
     frames.clear();
 }
@@ -571,39 +585,87 @@ Magic3D::AnimationSequence* Magic3D::Animation::getSequence(std::string name)
     return result;
 }
 
+int Magic3D::Animation::getSequenceIndex(std::string name)
+{
+    int result = -1;
+
+    std::vector<AnimationSequence*>* allSequences = getSequences();
+    if (allSequences)
+    {
+        int size = allSequences->size();
+        for (int i = 0; i < size; i++)
+        {
+            AnimationSequence* sequence = allSequences->at(i);
+            if (sequence && sequence->getName().compare(name) == 0)
+            {
+                result = i;
+                break;
+            }
+        }
+    }
+
+    return result;
+}
+
 void Magic3D::Animation::setCurrentSequence(std::string name)
 {
+    AnimationSequence* sequence = getCurrentSequence();
     if (!sequence || sequence->getName().compare(name) != 0)
     {
-        setCurrentSequence(getSequence(name));
+        setCurrentSequence(getSequenceIndex(name));
     }
 }
 
-void Magic3D::Animation::setCurrentSequence(AnimationSequence* sequence)
+void Magic3D::Animation::setCurrentSequence(int index)
 {
     stop();
-    this->sequence = sequence;
-    if (this->sequence)
+    if (index >= 0 && getSequences() && index < (int)getSequences()->size())
     {
-        setCurrentFrame(this->sequence->getStartFrame());
+        this->sequenceIndex = index;
+        setCurrentFrame(getCurrentSequence()->getStartFrame());
+    }
+    else
+    {
+        this->sequenceIndex = -1;
     }
 }
 
 Magic3D::AnimationSequence* Magic3D::Animation::getCurrentSequence()
 {
-    return sequence;
+    AnimationSequence* result = NULL;
+    std::vector<AnimationSequence*>* allSequences = getSequences();
+    if (sequenceIndex >= 0 && allSequences && sequenceIndex < (int)allSequences->size())
+    {
+        result = allSequences->at(sequenceIndex);
+    }
+    return result;
+}
+
+Magic3D::AnimationSequence* Magic3D::Animation::getNextSequence()
+{
+    AnimationSequence* result = NULL;
+    std::vector<AnimationSequence*>* allSequences = getSequences();
+    if (nextSequenceIndex >= 0 && allSequences && nextSequenceIndex < (int)allSequences->size())
+    {
+        result = allSequences->at(nextSequenceIndex);
+    }
+    return result;
+}
+
+int Magic3D::Animation::getCurrentSequenceIndex()
+{
+    return sequenceIndex;
 }
 
 std::string Magic3D::Animation::getCurrentSequenceName()
 {
+    std::string result = "";
+    AnimationSequence* sequence = getCurrentSequence();
     if (sequence)
     {
-        return sequence->getName();
+        result = sequence->getName();
     }
-    else
-    {
-        return std::string("");
-    }
+    return result;
 }
 
 Magic3D::Skeleton* Magic3D::Animation::getSkeleton()

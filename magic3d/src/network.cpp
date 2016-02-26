@@ -428,6 +428,18 @@ void Magic3D::Network::openPacket(ENetPacket* packet)
                         object->setRotation(rot);
                         object->setScale(scale.getXYZ());
                         object->resetPhysics();
+
+                        if (object->getType() == eOBJECT_MODEL)
+                        {
+                            int index = (int)pos.getW();
+                            int frame = (int)scale.getW();
+                            static_cast<Model*>(object)->setCurrentAnimationIndex(index);
+                            static_cast<Model*>(object)->setAnimationFrame(frame);
+                            if (index >= 0 && !static_cast<Model*>(object)->isPlaying())
+                            {
+                                static_cast<Model*>(object)->play(false);
+                            }
+                        }
                         //log(eLOG_SUCCESS, "Object: %s updated.", name);
                     }
                     else
@@ -558,9 +570,16 @@ void Magic3D::Network::sendObject(Object* object)
         if ((isServer() || isConnected()) && timeUpdate == 0.0f)
         {
             //Matrix4 matrix = object->getMatrix();
-            Vector4 pos = Vector4(object->getPosition(), 1.0f);
+            Vector4 pos = Vector4(object->getPosition(), 1.0f);            
             Quaternion rot = object->getRotation();
             Vector4 scale = Vector4(object->getScale(), 1.0f);
+
+            if (object->getType() == eOBJECT_MODEL)
+            {
+                pos.setW(static_cast<Model*>(object)->getSkeleton()->getAnimation()->getCurrentSequenceIndex());
+                scale.setW(static_cast<Model*>(object)->getSkeleton()->getAnimation()->getCurrentFrame());
+            }
+
             unsigned int size = NETWORK_HEADER + sizeof(byte) * 256 + sizeof(Vector4) + sizeof(Quaternion) + sizeof(Vector4);
             byte* data = new byte[size];
             prepareHeader(eNETWORK_OBJECT, data);

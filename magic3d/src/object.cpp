@@ -1443,6 +1443,43 @@ std::string Magic3D::Object::getCurrentAnimation()
     return result;
 }
 
+void Magic3D::Object::setCurrentAnimationIndex(int index)
+{
+    switch (getType())
+    {
+        case eOBJECT_MODEL:
+        {
+            Model* m = (Model*)this;
+            if (m->getSkeleton() && m->getSkeleton()->getAnimation())
+            {
+                m->getSkeleton()->getAnimation()->setCurrentSequence(index);
+            }
+            break;
+        }
+        default: break;
+    }
+}
+
+int Magic3D::Object::getCurrentAnimationIndex()
+{
+    int result = -1;
+    switch (getType())
+    {
+        case eOBJECT_MODEL:
+        {
+            Model* m = (Model*)this;
+            if (m->getSkeleton() && m->getSkeleton()->getAnimation())
+            {
+                result = m->getSkeleton()->getAnimation()->getCurrentSequenceIndex();
+            }
+            break;
+        }
+        default: result = -1; break;
+    }
+
+    return result;
+}
+
 void Magic3D::Object::setAnimationFrame(int frame)
 {
     switch (getType())

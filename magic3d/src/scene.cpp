@@ -1691,7 +1691,7 @@ void Magic3D::Scene::stopAllModels(AnimationSequence* sequence, std::string sequ
                 {
                     if ((!sequence || sequence == current) && current->getName().compare(sequenceName) == 0)
                     {
-                        model->getSkeleton()->getAnimation()->setCurrentSequence(NULL);
+                        model->getSkeleton()->getAnimation()->setCurrentSequence(-1);
                     }
                 }
             }
