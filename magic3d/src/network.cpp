@@ -260,7 +260,7 @@ void Magic3D::Network::update()
         }
 
         ENetEvent event;        
-        if (enet_host_service(server, &event, 0) > 0)
+        if (server && enet_host_service(server, &event, 0) > 0)
         {
             switch(event.type)
             {
@@ -530,7 +530,7 @@ void Magic3D::Network::sendPacket(ENetPacket* packet)
         {
             channel = 1;
         }
-        if (isServer() || isConnected())
+        if ((isServer() && server) || isConnected())
         {
             if (isServer())
             {
@@ -540,8 +540,8 @@ void Magic3D::Network::sendPacket(ENetPacket* packet)
             {
                 enet_peer_send(peer, channel, packet);
             }
-        }
-        enet_host_flush(server);
+            enet_host_flush(server);
+        }        
     }
 }
 
