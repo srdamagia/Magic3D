@@ -249,7 +249,7 @@ void Magic3D::Network::update()
     if (Physics::getInstance()->isPlaying())
     {
         timeUpdate += Magic3D::getInstance()->getElapsedTime();
-        if (timeUpdate > 0.0333f)
+        if (timeUpdate > 0.0666f)
         {
             timeUpdate = 0.0f;
         }
@@ -417,7 +417,7 @@ void Magic3D::Network::openPacket(ENetPacket* packet)
                 case eNETWORK_KILL:
                 {
                     char name[NETWORK_TEXT_SIZE];
-                    memcpy(&name[0], &packet->data[NETWORK_HEADER + sizeof(enet_uint32)], NETWORK_TEXT_SIZE);
+                    memcpy(&name[0], &packet->data[NETWORK_HEADER], NETWORK_TEXT_SIZE);
 
                     Object* object = ResourceManager::getObjects()->get(name);
                     if (object)
