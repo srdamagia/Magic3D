@@ -599,6 +599,7 @@ Magic3D::Object* Magic3D::Network::spawnObject(std::string name, enet_uint32 id)
                     data[size - 1] = '\0';
                     ENetPacket* packet = enet_packet_create(data, size, ENET_PACKET_FLAG_RELIABLE);
                     sendPacket(packet);
+                    delete data;
                 }
             }
         }
@@ -620,6 +621,7 @@ void Magic3D::Network::killObject(std::string name)
             data[size - 1] = '\0';
             ENetPacket* packet = enet_packet_create(data, size, ENET_PACKET_FLAG_RELIABLE);
             sendPacket(packet);
+            delete data;
         }
     }
 }
@@ -654,6 +656,7 @@ void Magic3D::Network::sendObject(Object* object)
             memcpy(&data[NETWORK_HEADER + 256 + stride], reinterpret_cast<float*>(&scale), sizeof(Vector4));
             ENetPacket* packet = enet_packet_create(data, size, ENET_PACKET_FLAG_UNSEQUENCED);
             sendPacket(packet);
+            delete data;
         }
     }
 }
@@ -671,6 +674,7 @@ void Magic3D::Network::sendInput(INPUT input, EVENT event, Vector4 params)
 
         ENetPacket* packet = enet_packet_create(data, size, ENET_PACKET_FLAG_UNSEQUENCED);
         sendPacket(packet);
+        delete data;
     }
 }
 
@@ -690,6 +694,7 @@ void Magic3D::Network::sendText(std::string nick, std::string text)
             ENetPacket* packet = enet_packet_create(data, size, ENET_PACKET_FLAG_RELIABLE);
             sendPacket(packet);
             log(eLOG_PLAINTEXT, "%s: %s", nick.c_str(), text.c_str());
+            delete data;
         }
     }
 }
