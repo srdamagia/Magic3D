@@ -468,14 +468,9 @@ void Magic3D::Network::openPacket(ENetPacket* packet)
                         {
                             Model* model = static_cast<Model*>(object);
                             int index = (int)pos.getW();
-                            int frame = (int)scale.getW();
-                            bool play = model->getCurrentAnimationIndex() != index;
-                            model->setCurrentAnimationIndex(index);
-                            if (play)
-                            {
-                                model->play(false);
-                            }
-                            model->setAnimationFrame(frame);
+                            //int frame = (int)scale.getW();
+                            model->playAnimation(model->getSkeleton()->getAnimation()->getSequenceName(index), 0.25f, false);
+                            //model->setAnimationFrame(frame);
                         }
                         //log(eLOG_SUCCESS, "Object: %s updated.", name);
                     }

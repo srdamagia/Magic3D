@@ -429,14 +429,17 @@ void Magic3D::Animation::playAnimation(std::string animation, float interpolatio
 {
     AnimationSequence* sequence = getCurrentSequence();
     AnimationSequence* nextSequence = getNextSequence();
-    if (!sequence || sequence->getName().compare(animation) != 0 || (nextSequence && nextSequence->getName().compare(animation) != 0))
+
+    bool equalAnim = sequence && sequence->getName().compare(animation) == 0;
+    bool equalNext = nextSequence && nextSequence->getName().compare(animation) == 0;
+    if (!equalAnim && !equalNext)
     {
-        if (!sequence || interpolation == 0.0f)
+        if (!sequence)
         {
             setCurrentSequence(animation);
             play();
         }
-        else
+        else if (!equalNext)
         {
             elapsed = 0.0f;
             elapsedUpdate = 0.0f;
@@ -604,6 +607,17 @@ int Magic3D::Animation::getSequenceIndex(std::string name)
         }
     }
 
+    return result;
+}
+
+std::string Magic3D::Animation::getSequenceName(int index)
+{
+    std::string result = "";
+    std::vector<AnimationSequence*>* allSequences = getSequences();
+    if (allSequences && index >= 0 && index < (int)allSequences->size())
+    {
+        result = allSequences->at(index)->getName();
+    }
     return result;
 }
 

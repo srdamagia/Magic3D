@@ -146,6 +146,7 @@ public:
     std::vector<AnimationSequence*>* getSequences();
     AnimationSequence* getSequence(std::string name);
     int getSequenceIndex(std::string name);
+    std::string getSequenceName(int index);
 
     void setCurrentSequence(std::string name);
     void setCurrentSequence(int index);
