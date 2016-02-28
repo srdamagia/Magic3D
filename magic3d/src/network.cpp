@@ -249,7 +249,7 @@ void Magic3D::Network::update()
     if (Physics::getInstance()->isPlaying())
     {
         timeUpdate += Magic3D::getInstance()->getElapsedTime();
-        if (timeUpdate > 0.0666f)
+        if (timeUpdate > 0.0333f)
         {
             timeUpdate = 0.0f;
         }
@@ -469,8 +469,19 @@ void Magic3D::Network::openPacket(ENetPacket* packet)
                             Model* model = static_cast<Model*>(object);
                             int index = (int)pos.getW();
                             int frame = (int)scale.getW();
-                            model->playAnimation(model->getSkeleton()->getAnimation()->getSequenceName(index), 0.1f, false);
-                            model->setAnimationFrame(frame);
+                            if (model && model->getSkeleton() && model->getSkeleton()->getAnimation())
+                            {
+                                bool change = false;
+                                /*if (model->getSkeleton()->getAnimation()->getCurrentSequenceIndex() != index)
+                                {
+                                    change = true;
+                                }*/
+                                model->playAnimation(model->getSkeleton()->getAnimation()->getSequenceName(index), 0.1f, false);
+                                if (change)
+                                {
+                                    model->setAnimationFrame(frame);
+                                }
+                            }
                         }
                         //log(eLOG_SUCCESS, "Object: %s updated.", name);
                     }
@@ -544,7 +555,7 @@ void Magic3D::Network::broadcastPacket(ENetPacket* packet)
             channel = 1;
         }
         ENetPacket* newPacket;
-        if (packet->data[0] == eNETWORK_OBJECT)
+        if (packet->data[0] == eNETWORK_OBJECT || packet->data[0] == eNETWORK_INPUT)
         {
             newPacket = enet_packet_create(packet->data, packet->dataLength, ENET_PACKET_FLAG_UNSEQUENCED);
         }
@@ -624,11 +635,11 @@ void Magic3D::Network::killObject(std::string name)
     }
 }
 
-void Magic3D::Network::sendObject(Object* object)
+void Magic3D::Network::sendObject(Object* object, bool now)
 {
     if (object)
     {
-        if ((isServer() || isConnected()) && timeUpdate == 0.0f)
+        if ((isServer() || isConnected()) && (timeUpdate == 0.0f || now))
         {
             //Matrix4 matrix = object->getMatrix();
             Vector4 pos = Vector4(object->getPosition(), 1.0f);            

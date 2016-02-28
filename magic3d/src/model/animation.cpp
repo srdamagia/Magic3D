@@ -434,7 +434,7 @@ void Magic3D::Animation::playAnimation(std::string animation, float interpolatio
     bool equalNext = nextSequence && nextSequence->getName().compare(animation) == 0;
     if (!equalAnim && !equalNext)
     {
-        if (!sequence)
+        if (!sequence || interpolation == 0.0f)
         {
             setCurrentSequence(animation);
             play();
@@ -447,6 +447,11 @@ void Magic3D::Animation::playAnimation(std::string animation, float interpolatio
             nextSequenceIndex = getSequenceIndex(animation);
             nextAnimationTime = interpolation;
             nextReverse = reverse;
+        }
+
+        if (getSkeleton()->getObject()->isNetworkSpawn())
+        {
+            Network::getInstance()->sendObject(getSkeleton()->getObject(), true);
         }
     }
 }

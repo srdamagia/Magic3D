@@ -133,7 +133,7 @@ public:
 
     Object* spawnObject(std::string name);
     void killObject(std::string name);
-    void sendObject(Object* object);
+    void sendObject(Object* object, bool now);
     void sendInput(INPUT input, EVENT event, Vector4 params);
     void sendText(std::string nick, std::string text);
 };

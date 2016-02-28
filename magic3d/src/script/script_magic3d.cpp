@@ -575,7 +575,7 @@ int Magic3D::ScriptMagic3D::sendObject(lua_State* lua)
     Object* object = ResourceManager::getObjects()->get(luaL_checkstring(lua, 1));
     if (object)
     {
-        Network::getInstance()->sendObject(object);
+        Network::getInstance()->sendObject(object, true);
     }
     return 0;
 }

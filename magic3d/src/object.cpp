@@ -1011,7 +1011,7 @@ void Magic3D::Object::updateMatrix()
 
     if (isNetworkSpawn())
     {
-        Network::getInstance()->sendObject(this);
+        Network::getInstance()->sendObject(this, false);
     }
     needUpdateOctree = true;
 }
