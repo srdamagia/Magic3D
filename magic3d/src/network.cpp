@@ -266,7 +266,7 @@ void Magic3D::Network::update()
             {
                 case ENET_EVENT_TYPE_CONNECT:
                 {
-                    char name[256];
+                    char name[NETWORK_TEXT_SIZE];
                     enet_address_get_host_ip(&event.peer->address, name, 255);
                     log(eLOG_SUCCESS, "A new client connected from %s:%u.\n", name, event.peer->address.port);
 
@@ -340,8 +340,8 @@ void Magic3D::Network::update()
                         }
                     }
 
-                    char name[256];
-                    enet_address_get_host_ip(&event.peer->address, name, 255);
+                    char name[NETWORK_TEXT_SIZE];
+                    enet_address_get_host_ip(&event.peer->address, name, NETWORK_TEXT_SIZE - 1);
                     log(eLOG_PLAINTEXT, "%s disconnected %s:%u.\n", isServer() ? "Client" : "Host", name, event.peer->address.port);
                     event.peer->data = NULL;
 
@@ -392,7 +392,7 @@ void Magic3D::Network::openPacket(ENetPacket* packet)
                 {
                     enet_uint32 peerID;
                     memcpy(&peerID, &packet->data[NETWORK_HEADER], sizeof(enet_uint32));
-                    char name[256];
+                    char name[NETWORK_TEXT_SIZE];
                     memcpy(&name[0], &packet->data[NETWORK_HEADER + sizeof(enet_uint32)], packet->dataLength - (NETWORK_HEADER + sizeof(enet_uint32)));
 
                     Object* object = ResourceManager::getObjects()->get(name);
@@ -416,8 +416,8 @@ void Magic3D::Network::openPacket(ENetPacket* packet)
                 }
                 case eNETWORK_KILL:
                 {
-                    char name[256];
-                    memcpy(&name[0], &packet->data[NETWORK_HEADER + sizeof(enet_uint32)], packet->dataLength - (NETWORK_HEADER + sizeof(enet_uint32)));
+                    char name[NETWORK_TEXT_SIZE];
+                    memcpy(&name[0], &packet->data[NETWORK_HEADER + sizeof(enet_uint32)], NETWORK_TEXT_SIZE);
 
                     Object* object = ResourceManager::getObjects()->get(name);
                     if (object)
@@ -445,8 +445,8 @@ void Magic3D::Network::openPacket(ENetPacket* packet)
                 }
                 case eNETWORK_OBJECT:
                 {
-                    char name[256];
-                    memcpy(&name[0], &packet->data[NETWORK_HEADER], 256);
+                    char name[NETWORK_TEXT_SIZE];
+                    memcpy(&name[0], &packet->data[NETWORK_HEADER], NETWORK_TEXT_SIZE);
                     Object* object = ResourceManager::getObjects()->get(name);
                     if (object)
                     {
@@ -454,11 +454,11 @@ void Magic3D::Network::openPacket(ENetPacket* packet)
                         Quaternion rot;
                         Vector4 scale;
                         int stride = 0;
-                        memcpy(&pos[0], &packet->data[NETWORK_HEADER + 256 + stride], sizeof(Vector4));
+                        memcpy(&pos[0], &packet->data[NETWORK_HEADER + NETWORK_TEXT_SIZE + stride], sizeof(Vector4));
                         stride += sizeof(Vector4);
-                        memcpy(&rot[0], &packet->data[NETWORK_HEADER + 256 + stride], sizeof(Quaternion));
+                        memcpy(&rot[0], &packet->data[NETWORK_HEADER + NETWORK_TEXT_SIZE + stride], sizeof(Quaternion));
                         stride += sizeof(Quaternion);
-                        memcpy(&scale[0], &packet->data[NETWORK_HEADER + 256 + stride], sizeof(Vector4));
+                        memcpy(&scale[0], &packet->data[NETWORK_HEADER + NETWORK_TEXT_SIZE + stride], sizeof(Vector4));
                         object->setPosition(pos.getXYZ());
                         object->setRotation(rot);
                         object->setScale(scale.getXYZ());
@@ -468,9 +468,9 @@ void Magic3D::Network::openPacket(ENetPacket* packet)
                         {
                             Model* model = static_cast<Model*>(object);
                             int index = (int)pos.getW();
-                            //int frame = (int)scale.getW();
-                            model->playAnimation(model->getSkeleton()->getAnimation()->getSequenceName(index), 0.25f, false);
-                            //model->setAnimationFrame(frame);
+                            int frame = (int)scale.getW();
+                            model->playAnimation(model->getSkeleton()->getAnimation()->getSequenceName(index), 0.1f, false);
+                            model->setAnimationFrame(frame);
                         }
                         //log(eLOG_SUCCESS, "Object: %s updated.", name);
                     }
@@ -498,9 +498,9 @@ void Magic3D::Network::openPacket(ENetPacket* packet)
                 }
                 case eNETWORK_TEXT:
                 {
-                    char nick[256];
-                    memcpy(&nick[0], &packet->data[NETWORK_HEADER], 256);
-                    log(eLOG_RENDERER, "%s: %s", nick, &packet->data[NETWORK_HEADER + 256]);
+                    char nick[NETWORK_TEXT_SIZE];
+                    memcpy(&nick[0], &packet->data[NETWORK_HEADER], NETWORK_TEXT_SIZE);
+                    log(eLOG_RENDERER, "%s: %s", nick, &packet->data[NETWORK_HEADER + NETWORK_TEXT_SIZE]);
                     break;
                 }
             }
@@ -572,7 +572,7 @@ Magic3D::Object* Magic3D::Network::spawnObject(std::string name, enet_uint32 id)
             result = ResourceManager::getObjects()->get(name);
             if (result)
             {
-                char spawnName[256];
+                char spawnName[NETWORK_TEXT_SIZE];
                 sprintf(&spawnName[0], "%s#%d", name.c_str(), getID());
                 Object* tmp = ResourceManager::getObjects()->get(spawnName);
                 if (!tmp)
@@ -592,14 +592,13 @@ Magic3D::Object* Magic3D::Network::spawnObject(std::string name, enet_uint32 id)
                     }
                     result->setNetworkSpawn(true);
                     unsigned int size = NETWORK_HEADER + sizeof(enet_uint32) + name.size() + 1;
-                    byte* data = new byte[size];
-                    prepareHeader(eNETWORK_SPAWN, data);
-                    memcpy(&data[NETWORK_HEADER], &id, sizeof(enet_uint32));
-                    memcpy(&data[NETWORK_HEADER + sizeof(enet_uint32)], name.c_str(), name.size());
-                    data[size - 1] = '\0';
-                    ENetPacket* packet = enet_packet_create(data, size, ENET_PACKET_FLAG_RELIABLE);
+                    ENetPacket* packet = enet_packet_create(NULL, size, ENET_PACKET_FLAG_RELIABLE);
+                    prepareHeader(eNETWORK_SPAWN, packet->data);
+                    memcpy(&packet->data[NETWORK_HEADER], &id, sizeof(enet_uint32));
+                    memcpy(&packet->data[NETWORK_HEADER + sizeof(enet_uint32)], name.c_str(), name.size());
+                    packet->data[size - 1] = '\0';
+
                     sendPacket(packet);
-                    delete[] data;
                 }
             }
         }
@@ -615,13 +614,12 @@ void Magic3D::Network::killObject(std::string name)
         if (isServer() || isConnected())
         {
             unsigned int size = NETWORK_HEADER + name.size() + 1;
-            byte* data = new byte[size];
-            prepareHeader(eNETWORK_KILL, data);
-            memcpy(&data[NETWORK_HEADER + sizeof(enet_uint32)], name.c_str(), name.size());
-            data[size - 1] = '\0';
-            ENetPacket* packet = enet_packet_create(data, size, ENET_PACKET_FLAG_RELIABLE);
+            ENetPacket* packet = enet_packet_create(NULL, size, ENET_PACKET_FLAG_RELIABLE);
+            prepareHeader(eNETWORK_KILL, packet->data);
+            memcpy(&packet->data[NETWORK_HEADER + sizeof(enet_uint32)], name.c_str(), name.size());
+            packet->data[size - 1] = '\0';
+
             sendPacket(packet);
-            delete[] data;
         }
     }
 }
@@ -643,20 +641,19 @@ void Magic3D::Network::sendObject(Object* object)
                 scale.setW(static_cast<Model*>(object)->getSkeleton()->getAnimation()->getCurrentFrame());
             }
 
-            unsigned int size = NETWORK_HEADER + sizeof(byte) * 256 + sizeof(Vector4) + sizeof(Quaternion) + sizeof(Vector4);
-            byte* data = new byte[size];
-            prepareHeader(eNETWORK_OBJECT, data);
-            memcpy(&data[NETWORK_HEADER], object->getName().c_str(), object->getName().size());
-            data[NETWORK_HEADER + object->getName().size()] = '\0';
+            unsigned int size = NETWORK_HEADER + NETWORK_TEXT_SIZE + sizeof(Vector4) + sizeof(Quaternion) + sizeof(Vector4);
+            ENetPacket* packet = enet_packet_create(NULL, size, ENET_PACKET_FLAG_UNSEQUENCED);
+            prepareHeader(eNETWORK_OBJECT, packet->data);
+            memcpy(&packet->data[NETWORK_HEADER], object->getName().c_str(), object->getName().size());
+            packet->data[NETWORK_HEADER + object->getName().size()] = '\0';
             int stride = 0;
-            memcpy(&data[NETWORK_HEADER + 256 + stride], reinterpret_cast<float*>(&pos), sizeof(Vector4));
+            memcpy(&packet->data[NETWORK_HEADER + NETWORK_TEXT_SIZE + stride], reinterpret_cast<float*>(&pos), sizeof(Vector4));
             stride += sizeof(Vector4);
-            memcpy(&data[NETWORK_HEADER + 256 + stride], reinterpret_cast<float*>(&rot), sizeof(Quaternion));
+            memcpy(&packet->data[NETWORK_HEADER + NETWORK_TEXT_SIZE + stride], reinterpret_cast<float*>(&rot), sizeof(Quaternion));
             stride += sizeof(Quaternion);
-            memcpy(&data[NETWORK_HEADER + 256 + stride], reinterpret_cast<float*>(&scale), sizeof(Vector4));
-            ENetPacket* packet = enet_packet_create(data, size, ENET_PACKET_FLAG_UNSEQUENCED);
+            memcpy(&packet->data[NETWORK_HEADER + NETWORK_TEXT_SIZE + stride], reinterpret_cast<float*>(&scale), sizeof(Vector4));
+
             sendPacket(packet);
-            delete[] data;
         }
     }
 }
@@ -666,15 +663,13 @@ void Magic3D::Network::sendInput(INPUT input, EVENT event, Vector4 params)
     if (isServer() || isConnected())
     {
         unsigned int size = NETWORK_HEADER + sizeof(int) + sizeof(int) + sizeof(Vector4);
-        byte* data = new byte[size];
-        prepareHeader(eNETWORK_TEXT, data);
-        memcpy(&data[NETWORK_HEADER], reinterpret_cast<int*>(&input), sizeof(int));
-        memcpy(&data[NETWORK_HEADER + sizeof(int)], reinterpret_cast<int*>(&event), sizeof(int));
-        memcpy(&data[NETWORK_HEADER + sizeof(int) + sizeof(int)], reinterpret_cast<float*>(&params), sizeof(Vector4));
+        ENetPacket* packet = enet_packet_create(NULL, size, ENET_PACKET_FLAG_UNSEQUENCED);
+        prepareHeader(eNETWORK_TEXT, packet->data);
+        memcpy(&packet->data[NETWORK_HEADER], reinterpret_cast<int*>(&input), sizeof(int));
+        memcpy(&packet->data[NETWORK_HEADER + sizeof(int)], reinterpret_cast<int*>(&event), sizeof(int));
+        memcpy(&packet->data[NETWORK_HEADER + sizeof(int) + sizeof(int)], reinterpret_cast<float*>(&params), sizeof(Vector4));
 
-        ENetPacket* packet = enet_packet_create(data, size, ENET_PACKET_FLAG_UNSEQUENCED);
         sendPacket(packet);
-        delete[] data;
     }
 }
 
@@ -684,17 +679,16 @@ void Magic3D::Network::sendText(std::string nick, std::string text)
     {
         if (isServer() || isConnected())
         {
-            unsigned int size = NETWORK_HEADER + sizeof(byte) * 256 + text.size() + 1;
-            byte* data = new byte[size];
-            prepareHeader(eNETWORK_TEXT, data);
-            memcpy(&data[NETWORK_HEADER], nick.c_str(), nick.size());
-            data[NETWORK_HEADER + nick.size()] = '\0';
-            memcpy(&data[NETWORK_HEADER + 256], text.c_str(), text.size());
-            data[size - 1] = '\0';
-            ENetPacket* packet = enet_packet_create(data, size, ENET_PACKET_FLAG_RELIABLE);
+            unsigned int size = NETWORK_HEADER + NETWORK_TEXT_SIZE + text.size() + 1;
+            ENetPacket* packet = enet_packet_create(NULL, size, ENET_PACKET_FLAG_RELIABLE);
+            prepareHeader(eNETWORK_TEXT, packet->data);
+            memcpy(&packet->data[NETWORK_HEADER], nick.c_str(), nick.size());
+            packet->data[NETWORK_HEADER + nick.size()] = '\0';
+            memcpy(&packet->data[NETWORK_HEADER + NETWORK_TEXT_SIZE], text.c_str(), text.size());
+            packet->data[size - 1] = '\0';
+
             sendPacket(packet);
             log(eLOG_PLAINTEXT, "%s: %s", nick.c_str(), text.c_str());
-            delete[] data;
         }
     }
 }

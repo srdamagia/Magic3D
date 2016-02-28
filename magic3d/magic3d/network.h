@@ -61,6 +61,7 @@ NETWORK_TEXT   byte               type
 */
 
 #define NETWORK_HEADER (sizeof(byte) + sizeof(enet_uint32))
+#define NETWORK_TEXT_SIZE 256
 
 enum NETWORK_PACKET
 {
