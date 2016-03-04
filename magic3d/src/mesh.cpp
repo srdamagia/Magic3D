@@ -103,7 +103,7 @@ Magic3D::MeshData::~MeshData()
     }
 }
 
-Magic3D::MeshData* Magic3D::MeshData::spawn() const
+void* Magic3D::MeshData::spawn() const
 {
     return (new MeshData(*this));
 }
@@ -1126,6 +1126,24 @@ void Magic3D::MeshData::updateTangent(float* vertices, int vcount, vindex index0
     }
 }
 
+Magic3D::XMLElement* Magic3D::MeshData::save(XMLElement* root)
+{
+    if (root)
+    {
+
+    }
+    return root;
+}
+
+Magic3D::XMLElement* Magic3D::MeshData::load(XMLElement* root)
+{
+    if (root)
+    {
+
+    }
+    return root;
+}
+
 //******************************************************************************
 Magic3D::Mesh::Mesh(const Mesh& mesh)
 {
@@ -1147,24 +1165,24 @@ Magic3D::Mesh::Mesh(const Mesh& mesh)
         materials.push_back(material);
     }
 
-    data = mesh.data && mesh.owner ? mesh.data->spawn() : mesh.data;
+    data = mesh.data && mesh.owner ? static_cast<MeshData*>(mesh.data->spawn()) : mesh.data;
 }
 
 Magic3D::Mesh::Mesh(MESH type, std::string name, bool doubleSide)
 {
-    init(NULL, doubleSide, type, name);
+    init(NULL, true, doubleSide, type, name);
 }
 
-Magic3D::Mesh::Mesh(MeshData* data, bool doubleSide)
+Magic3D::Mesh::Mesh(MeshData* data, bool doubleSide, bool owner)
 {
-    init(data, doubleSide);
+    init(data, owner, doubleSide);
 }
 
-void Magic3D::Mesh::init(MeshData* data, bool doubleSide, MESH type, std::string name)
+void Magic3D::Mesh::init(MeshData* data, bool owner, bool doubleSide, MESH type, std::string name)
 {
     if (data)
     {
-        owner = false;
+        this->owner = owner;
         this->data = data;
     }
     else

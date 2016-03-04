@@ -67,10 +67,12 @@ public:
     virtual bool render() = 0;    
 
     virtual void* getWindowHandle() = 0;
-    virtual void showCursor(bool show) = 0;
+    virtual void showCursor(bool show) = 0;    
     virtual void setClipboardText(const char* text) = 0;
     virtual const char* getClipboardText() = 0;
 
+    virtual void setRelativeMouseMode(bool relative) = 0;
+    virtual bool isRelativeMouseMode() = 0;
     virtual void grabInput(bool grabbed) = 0;
     virtual bool hasGrabbedInput() = 0;
     virtual bool hasInputFocus() = 0;
@@ -166,7 +168,7 @@ public:
         return screenScale;
     }
 
-    void setCursorPosition(int x, int y)
+    void updateCursorPosition(int x, int y)
     {
         cursorX = x;
         cursorY = y;

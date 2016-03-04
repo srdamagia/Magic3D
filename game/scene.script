@@ -12,6 +12,10 @@ function finish()
     --Code here
 end;
 
+function network_command(command, value)
+    --Code here
+end;
+
 --[[********************************************************************************
 function on_keyboard_down(key)
     --Code here

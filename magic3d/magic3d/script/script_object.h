@@ -48,9 +48,11 @@ public:
 
     int setPosition(lua_State *lua);
     int getPosition(lua_State *lua);
+    int getPositionFromParent(lua_State *lua);
     int setRotation(lua_State *lua);
     int setQuaternion(lua_State *lua);
     int getRotation(lua_State *lua);
+    int getRotationFromParent(lua_State *lua);
     int setScale(lua_State *lua);
     int getScale(lua_State *lua);
     int lookAt(lua_State *lua);

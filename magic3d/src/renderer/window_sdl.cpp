@@ -45,6 +45,8 @@ Magic3D::WindowSDL::WindowSDL()
     cursor     = Magic3D::getInstance()->getConfiguration().CURSOR;
     active     = false;
     needUpdateView = false;    
+
+    relative = false;
 }
 
 Magic3D::WindowSDL::~WindowSDL()
@@ -84,7 +86,10 @@ bool Magic3D::WindowSDL::finish()
 }
 
 bool Magic3D::WindowSDL::render()
-{
+{    
+    int halfWidth = getWidth() / 2;
+    int halfHeight = getHeight() / 2;
+
     SDL_Event event;
     while (SDL_PollEvent(&event))
     {
@@ -148,7 +153,14 @@ bool Magic3D::WindowSDL::render()
                 case SDL_MOUSEMOTION:
                 {
                     Input::getInstance()->dispatchEvent(eINPUT_MOUSE, eEVENT_MOUSE_MOVE, event.button.x, event.button.y, event.button.button);
-                    Renderer::getInstance()->getWindow()->setCursorPosition(event.button.x, event.button.y);
+                    if (isRelativeMouseMode())
+                    {
+                        Renderer::getInstance()->getWindow()->updateCursorPosition(halfWidth, halfHeight);
+                    }
+                    else
+                    {
+                        Renderer::getInstance()->getWindow()->updateCursorPosition(event.button.x, event.button.y);
+                    }
                     break;
                 }
 
@@ -226,6 +238,11 @@ bool Magic3D::WindowSDL::render()
         }
     }
 
+    if (isRelativeMouseMode())
+    {
+        SDL_WarpMouseInWindow(window, halfWidth, halfHeight);
+    }
+
     if (!Scene::getInstance()->isLoading())
     {
         ImGui_GL_NewFrame(SDL_GetTicks());
@@ -274,6 +291,19 @@ void Magic3D::WindowSDL::setClipboardText(const char* text)
 const char* Magic3D::WindowSDL::getClipboardText()
 {
     return SDL_GetClipboardText();
+}
+
+void Magic3D::WindowSDL::setRelativeMouseMode(bool relative)
+{
+    this->relative = relative;
+    Renderer::getInstance()->getWindow()->updateCursorPosition(getWidth() / 2, getHeight() / 2);
+    //SDL_SetRelativeMouseMode(relative ? SDL_TRUE : SDL_FALSE);
+}
+
+bool Magic3D::WindowSDL::isRelativeMouseMode()
+{
+    return relative;
+    //return SDL_GetRelativeMouseMode();
 }
 
 void Magic3D::WindowSDL::grabInput(bool grabbed)

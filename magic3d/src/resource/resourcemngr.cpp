@@ -357,6 +357,19 @@ Magic3D::GUILabel* Magic3D::ResourceManager::addGUILabel(std::string name, int s
     return label;
 }
 
+Magic3D::Text* Magic3D::ResourceManager::addText(std::string name, int size, bool& created)
+{
+    Text* text = (Text*)objects->get(name);
+    created = !text;
+    if (!text)
+    {
+        text = new Text(name, size);
+        objects->add(text);
+    }
+
+    return text;
+}
+
 Magic3D::Joystick* Magic3D::ResourceManager::addJoystick(std::string name, bool& created)
 {
     Joystick* joystick = (Joystick*)objects->get(name);

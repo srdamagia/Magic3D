@@ -35,7 +35,7 @@ Magic3D::ScriptClass<Magic3D::ScriptMagic3D>::ScriptFunction Magic3D::ScriptMagi
     ScriptClassFunction(ScriptMagic3D, setLayerVisible, "void setLayerVisible(string name, bool visible)", "Set the visibility of a layer."),
     ScriptClassFunction(ScriptMagic3D, isLayerVisible, "bool isLayerVisible()", "Get the visibility of a layer."),
 
-    ScriptClassFunction(ScriptMagic3D, setCursorPosition, "void setCursorPosition(int x, int y)", "Set the cursor position."),
+    ScriptClassFunction(ScriptMagic3D, setRelativeMouseMode, "void setRelativeMouseMode(bool relative)", "Set the mouse position relative."),
     ScriptClassFunction(ScriptMagic3D, getCursorX, "int getCursorX()", "Get the cursor X position."),
     ScriptClassFunction(ScriptMagic3D, getCursorY, "int getCursorY()", "Get the cursor Y position."),
 
@@ -84,16 +84,26 @@ Magic3D::ScriptClass<Magic3D::ScriptMagic3D>::ScriptFunction Magic3D::ScriptMagi
 
     ScriptClassFunction(ScriptMagic3D, debugLine, "void debugLine(Vector3 pos1, Vector3 pos2, bool orthographic, Color color)", "Render a debug line."),
 
-    ScriptClassFunction(ScriptMagic3D, rayCast, "Object* rayCast(Vector3 start, Vector3 end, bool orthographic)", ""),
+    ScriptClassFunction(ScriptMagic3D, rayCastObject, "Object* rayCastObject(Vector3 start, Vector3 end, bool orthographic)", ""),
+    ScriptClassFunction(ScriptMagic3D, rayCastPoint, "Vector3 rayCastPoint(Vector3 start, Vector3 end, bool orthographic)", ""),
+    ScriptClassFunction(ScriptMagic3D, rayCastNormal, "Vector3 rayCastNormal(Vector3 start, Vector3 end, bool orthographic)", ""),
 
     ScriptClassFunction(ScriptMagic3D, rotateCamera, "void rotateCamera(float x, float y, float z, bool rotate)", ""),
 
     ScriptClassFunction(ScriptMagic3D, setStereoscopy, "void setStereoscopy(bool stereoscopy, bool screenEffects)", ""),
 
-    ScriptClassFunction(ScriptMagic3D, sendText, "void sendText(string nick, string text)", ""),
+    ScriptClassFunction(ScriptMagic3D, connect, "void connect(string ip, int port)", ""),
+    ScriptClassFunction(ScriptMagic3D, disconnect, "void disconnect(bool now)", ""),
+    ScriptClassFunction(ScriptMagic3D, isConnected, "bool isConnected()", ""),
+    ScriptClassFunction(ScriptMagic3D, setNick, "void setNick(string nick)", ""),
+    ScriptClassFunction(ScriptMagic3D, getNick, "string getNick()", ""),
+    ScriptClassFunction(ScriptMagic3D, sendCommand, "void sendCommand(string command, string value)", ""),
+    ScriptClassFunction(ScriptMagic3D, sendText, "void sendText(string text)", ""),
     ScriptClassFunction(ScriptMagic3D, spawnNetworkObject, "Object* spawnNetworkObject(string name)", ""),
     ScriptClassFunction(ScriptMagic3D, sendObject, "void sendObject(string name)", ""),
-    ScriptClassFunction(ScriptMagic3D, sendInput, "void sendInput(not working yet)", ""),
+    ScriptClassFunction(ScriptMagic3D, sendInput, "void sendInput(int input, int event, float x, float y, float z, float w)", ""),
+
+    ScriptClassFunction(ScriptMagic3D, getObjectNick, "string getObjectNick(string name)", ""),
 
     {NULL, NULL, NULL, NULL}
 };
@@ -183,9 +193,9 @@ int Magic3D::ScriptMagic3D::isLayerVisible(lua_State *lua)
     return 1;
 }
 
-int Magic3D::ScriptMagic3D::setCursorPosition(lua_State *lua)
+int Magic3D::ScriptMagic3D::setRelativeMouseMode(lua_State *lua)
 {
-    Renderer::getInstance()->getWindow()->setCursorPosition(luaL_checkinteger(lua, 1), luaL_checkinteger(lua, 2));
+    Renderer::getInstance()->getWindow()->setRelativeMouseMode(lua_toboolean(lua, 1));
     return 0;
 }
 
@@ -477,7 +487,7 @@ int Magic3D::ScriptMagic3D::debugLine(lua_State *lua)
     return 0;
 }
 
-int Magic3D::ScriptMagic3D::rayCast(lua_State *lua)
+int Magic3D::ScriptMagic3D::rayCastObject(lua_State *lua)
 {
     ScriptVector3* start = ScriptClass<ScriptVector3>::check(lua, 1);
     ScriptVector3* end = ScriptClass<ScriptVector3>::check(lua, 2);
@@ -489,6 +499,48 @@ int Magic3D::ScriptMagic3D::rayCast(lua_State *lua)
         ScriptObject* obj = new ScriptObject(static_cast<Object*>(ray.physicsObject));
 
         ScriptClass<ScriptObject>::push(lua, obj, true);
+    }
+    else
+    {
+        lua_pushnil(lua);
+    }
+
+    return 1;
+}
+
+int Magic3D::ScriptMagic3D::rayCastPoint(lua_State *lua)
+{
+    ScriptVector3* start = ScriptClass<ScriptVector3>::check(lua, 1);
+    ScriptVector3* end = ScriptClass<ScriptVector3>::check(lua, 2);
+
+    RayCastReturn ray = Physics::getInstance()->rayCast(start->getValue(), end->getValue(), lua_toboolean(lua, 3));
+
+    if (ray.physicsObject)
+    {
+        ScriptVector3* point = new ScriptVector3(ray.point);
+
+        ScriptClass<ScriptVector3>::push(lua, point, true);
+    }
+    else
+    {
+        lua_pushnil(lua);
+    }
+
+    return 1;
+}
+
+int Magic3D::ScriptMagic3D::rayCastNormal(lua_State *lua)
+{
+    ScriptVector3* start = ScriptClass<ScriptVector3>::check(lua, 1);
+    ScriptVector3* end = ScriptClass<ScriptVector3>::check(lua, 2);
+
+    RayCastReturn ray = Physics::getInstance()->rayCast(start->getValue(), end->getValue(), lua_toboolean(lua, 3));
+
+    if (ray.physicsObject)
+    {
+        ScriptVector3* normal = new ScriptVector3(ray.normal);
+
+        ScriptClass<ScriptVector3>::push(lua, normal, true);
     }
     else
     {
@@ -547,9 +599,45 @@ int Magic3D::ScriptMagic3D::setStereoscopy(lua_State* lua)
     return 0;
 }
 
+int Magic3D::ScriptMagic3D::connect(lua_State* lua)
+{
+    Network::getInstance()->connect(luaL_checkstring(lua, 1), luaL_checkinteger(lua, 2));
+    return 0;
+}
+
+int Magic3D::ScriptMagic3D::disconnect(lua_State* lua)
+{
+    Network::getInstance()->disconnect(lua_toboolean(lua, 1));
+    return 0;
+}
+
+int Magic3D::ScriptMagic3D::isConnected(lua_State* lua)
+{
+    lua_pushboolean(lua, Network::getInstance()->isConnected());
+    return 1;
+}
+
+int Magic3D::ScriptMagic3D::setNick(lua_State* lua)
+{
+    Network::getInstance()->setNick(luaL_checkstring(lua, 1));
+    return 0;
+}
+
+int Magic3D::ScriptMagic3D::getNick(lua_State* lua)
+{
+    lua_pushstring(lua, Network::getInstance()->getNick().c_str());
+    return 1;
+}
+
+int Magic3D::ScriptMagic3D::sendCommand(lua_State* lua)
+{
+    Network::getInstance()->sendCommand(luaL_checkstring(lua, 1), luaL_checkstring(lua, 2));
+    return 0;
+}
+
 int Magic3D::ScriptMagic3D::sendText(lua_State* lua)
 {
-    Network::getInstance()->sendText(luaL_checkstring(lua, 1), luaL_checkstring(lua, 2));
+    Network::getInstance()->sendText(luaL_checkstring(lua, 1));
     return 0;
 }
 
@@ -591,4 +679,11 @@ int Magic3D::ScriptMagic3D::sendInput(lua_State* lua)
 
     Input::getInstance()->dispatchEvent(input, event, x, y, z, w);
     return 0;
+}
+
+int Magic3D::ScriptMagic3D::getObjectNick(lua_State* lua)
+{
+    enet_uint32 id = Network::getInstance()->getObjectClientID(luaL_checkstring(lua, 1));
+    lua_pushstring(lua, Network::getInstance()->getClientNick(id).c_str());
+    return 1;
 }

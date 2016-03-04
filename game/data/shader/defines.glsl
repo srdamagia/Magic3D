@@ -12,8 +12,11 @@
     #define SHADOW_DEPTH 4.0
 #else
 
-    #define SHADOW_DEPTH 0.0002
+    #define SHADOW_DEPTH 0.0005
 #endif
+
+#define SHADOW_POISON 2048.0
+#define SHADOW_INTENSITY 0.15
 
 #define PI  3.14159265
 #define PI2 6.28318530

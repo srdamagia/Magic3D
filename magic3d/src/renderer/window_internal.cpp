@@ -39,6 +39,7 @@ Magic3D::WindowInternal::WindowInternal()
     fullscreen = Magic3D::getInstance()->getConfiguration().FULLSCREEN;
     cursor     = Magic3D::getInstance()->getConfiguration().CURSOR;
     active     = false;
+    relative   = false;
     needUpdateView = false;
 }
 
@@ -98,6 +99,16 @@ void Magic3D::WindowInternal::setClipboardText(const char* text)
 const char* Magic3D::WindowInternal::getClipboardText()
 {
     return NULL;
+}
+
+void Magic3D::WindowInternal::setRelativeMouseMode(bool relative)
+{
+    this->relative = relative;
+}
+
+bool Magic3D::WindowInternal::isRelativeMouseMode()
+{
+    return relative;
 }
 
 void Magic3D::WindowInternal::grabInput(bool grabbed)

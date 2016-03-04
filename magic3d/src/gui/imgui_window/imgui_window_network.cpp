@@ -35,7 +35,7 @@ Magic3D::GUINetwork::GUINetwork()
     commands.push_back("HISTORY");
     commands.push_back("CLEAR");
 
-    port = 0;
+    port = 31234;
     nickError = false;
 }
 
@@ -116,36 +116,98 @@ void Magic3D::GUINetwork::draw(const char* title, bool* opened)
     ImGui::PopStyleVar();
     ImGui::Separator();*/
 
+    ImGui::BeginGroup();
+
     ImGui::Text("Address:");
-    ImGui::SameLine(75.0f);
-    ImGui::PushItemWidth(150.0f);
-    ImGui::InputText("##ip", ip, IM_ARRAYSIZE(ip));
-    ImGui::PopItemWidth();
+
+    if (Network::getInstance()->isConnected())
+    {
+        ImGui::SameLine();
+        ImGui::Text(ip);
+    }
+    else
+    {
+        ImGui::SameLine(75.0f);
+        ImGui::PushItemWidth(150.0f);
+        ImGui::InputText("##ip", ip, IM_ARRAYSIZE(ip));
+        ImGui::PopItemWidth();
+    }
+
     ImGui::SameLine();
     ImGui::Text(":"); ImGui::SameLine();
-    ImGui::PushItemWidth(100.0f);
-    ImGui::DragInt("##port", &port, 1.0f, 0, 999999);
-    ImGui::PopItemWidth();
-    ImGui::SameLine();
-    if (ImGui::Button("Connect", ImVec2(100.0f, ImGui::GetItemsLineHeightWithSpacing() - ImGui::GetStyle().ItemSpacing.y)))
-    {
-        Network::getInstance()->connect(ip, port);
-    }
 
+    if (Network::getInstance()->isConnected())
+    {
+        ImGui::Text("%d", port);
+    }
+    else
+    {
+        ImGui::PushItemWidth(100.0f);
+        ImGui::DragInt("##port", &port, 1.0f, 0, 999999);
+        ImGui::PopItemWidth();
+    }
 
     ImGui::Text("Nick:");
-    ImGui::SameLine(75.0f);
-    ImGui::PushItemWidth(272.0f);
-    ImGui::InputText("##nick:", nick, IM_ARRAYSIZE(nick));
-    ImGui::PopItemWidth();
-    ImGui::SameLine();
-    if (ImGui::Button("Disconnect", ImVec2(100.0f, ImGui::GetItemsLineHeightWithSpacing() - ImGui::GetStyle().ItemSpacing.y)))
+    if (Network::getInstance()->isConnected())
     {
-        Network::getInstance()->disconnect(false);
+        ImGui::SameLine();
+        ImGui::Text(nick);
     }
+    else
+    {
+        ImGui::SameLine(75.0f);
+        ImGui::PushItemWidth(272.0f);
+        ImGui::InputText("##nick:", nick, IM_ARRAYSIZE(nick));
+        ImGui::PopItemWidth();
+    }
+
+    ImGui::EndGroup();
+
+    ImVec2 size = ImGui::GetItemRectSize();
+    int btnHeight = size.y;
+    ImGui::SameLine(355.0f);
+    if (!Network::getInstance()->isConnected())
+    {
+        if (strlen(ip) == 0)
+        {
+            if (ImGui::Button("Host", ImVec2(100.0f, btnHeight)))
+            {
+                if (stricmp(nick, "") == 0)
+                {
+                    nickError = true;
+                }
+                else
+                {
+                    Network::getInstance()->connect("", port);
+                    Network::getInstance()->setNick(nick);
+                }
+            }
+        }
+        else
+        {
+            if (ImGui::Button("Connect", ImVec2(100.0f, btnHeight)))
+            {
+                if (stricmp(nick, "") == 0)
+                {
+                    nickError = true;
+                }
+                else
+                {
+                    Network::getInstance()->connect(ip, port);
+                    Network::getInstance()->setNick(nick);
+                }
+            }
+        }
+    }
+    else
+    {
+        if (ImGui::Button("Disconnect", ImVec2(100.0f, btnHeight)))
+        {
+            Network::getInstance()->disconnect(false);
+        }
+    }
+
     ImGui::Separator();
-
-
 
     // Display every line as a separate entry so we can change their color or add custom widgets. If you only want raw text you can use ImGui::TextUnformatted(log.begin(), log.end());
     // NB- if you have thousands of entries this approach may be too inefficient. You can seek and display only the lines that are visible - CalcListClipping() is a helper to compute this information.
@@ -196,9 +258,12 @@ void Magic3D::GUINetwork::draw(const char* title, bool* opened)
     ImGui::PopItemWidth();
 
     // Demonstrate keeping auto focus on the input box
-    if (ImGui::IsItemHovered() || (ImGui::IsRootWindowOrAnyChildFocused() && !ImGui::IsAnyItemActive() && !ImGui::IsMouseClicked(0)))
+    if (!Renderer::getInstance()->getWindow()->isRelativeMouseMode())
     {
-        ImGui::SetKeyboardFocusHere(-1); // Auto focus previous widget
+        if (ImGui::IsItemHovered() || (ImGui::IsRootWindowOrAnyChildFocused() && !ImGui::IsAnyItemActive() && !ImGui::IsMouseClicked(0)))
+        {
+            ImGui::SetKeyboardFocusHere(-1); // Auto focus previous widget
+        }
     }
 
     ImGui::End();
@@ -209,7 +274,7 @@ void Magic3D::GUINetwork::draw(const char* title, bool* opened)
     }
     if (ImGui::BeginPopupModal("Nick Error"))
     {
-        ImGui::Text("You need a nick to send a message!");
+        ImGui::Text("You need a nick!");
         if (ImGui::Button("Close"))
         {
             nickError = false;
@@ -265,7 +330,7 @@ void Magic3D::GUINetwork::execCommand(const char* command_line)
         }
         else
         {
-            Network::getInstance()->sendText(nick, command_line);
+            Network::getInstance()->sendText(command_line);
         }
     }
 }

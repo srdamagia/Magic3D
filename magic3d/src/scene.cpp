@@ -1151,7 +1151,7 @@ bool Magic3D::Scene::update()
             //sprintf(profileText, "FPS.....: % 07d - Time....: % 01.6f - Time sin: % 01.6f", Magic3D::Magic3D::getInstance()->getFPS(), Magic3D::Magic3D::getInstance()->getTime(), Magic3D::Magic3D::getInstance()->getTimeSin());
             sprintf(profileText, "FPS: %4d", Magic3D::Magic3D::getInstance()->getFPS());
 
-            renderer->lblFPS->setText(profileText);
+            renderer->lblFPS->getText()->setText(profileText);
             renderer->lblFPS->setPosition(Vector3(-renderer->lblFPS->getWidth() * 0.5f - 0.01f, 0.025f, 0.0f));
             renderer->lblFPS->update();            
         }
@@ -1301,7 +1301,7 @@ bool Magic3D::Scene::update()
                         getOctree()->getRenderedNodes());
             }
             
-            renderer->lblINFO->setText(profileText);
+            renderer->lblINFO->getText()->setText(profileText);
             renderer->lblINFO->setPosition(Vector3(-renderer->lblINFO->getWidth() * 0.5f - 0.01f, renderer->lblINFO->getHeight() * 0.5f + 0.05f, 0.0f));
             renderer->lblINFO->update();            
         }
@@ -1330,7 +1330,7 @@ bool Magic3D::Scene::update()
         if (renderer->lblCURSOR && w)
         {
             sprintf(profileText, "x: %-4d - y: %-4d", w->getCursorX(), w->getCursorY());
-            renderer->lblCURSOR->setText(profileText);
+            renderer->lblCURSOR->getText()->setText(profileText);
             renderer->lblCURSOR->setPosition(Vector3(-windowAspect.getX() + renderer->lblCURSOR->getWidth() * 0.5f + 0.01f, windowAspect.getY() - renderer->lblCURSOR->getHeight() * 0.5f - 0.01f, 0.0f));
             renderer->lblCURSOR->update();
         }
@@ -1349,7 +1349,7 @@ bool Magic3D::Scene::update()
                 lblLoading->getMeshes()->at(0)->addMaterial(ResourceManager::getMaterials()->get(M3D_DEFAULT_MATERIAL_LOADING_FONT));
                 lblLoading->getMeshes()->at(0)->setIlluminated(false);
                 lblLoading->setRotationEuler(Vector3(0.0f, 180.0f, 0.0f));
-                lblLoading->setText("Loading...");
+                lblLoading->getText()->setText("Loading...");
                 lblLoading->setParent(Renderer::getInstance()->getCurrentViewPort()->getOrthographic());
             }
         }
@@ -1372,7 +1372,7 @@ bool Magic3D::Scene::update()
 
         if (w && lblLoading && sptLoading)
         {
-            lblLoading->setText("Loading...");
+            lblLoading->getText()->setText("Loading...");
             lblLoading->setPosition(Vector3(-sptLoading->getWidth() -sptLoading->getWidth() * 0.5f - lblLoading->getWidth() * 0.5f + 0.005f, windowAspect.getY() - lblLoading->getHeight() * 0.5f - 0.01f, 0.0f));
             lblLoading->update();
 
@@ -2330,6 +2330,7 @@ bool Magic3D::Scene::load()
                         case eOBJECT_SOUND:      object = mngr->addSound(objName, created); break;
                         case eOBJECT_JOYSTICK:   object = mngr->addJoystick(objName, created); break;
                         case eOBJECT_INSTANCE:   object = mngr->addInstance(objName, created); break;
+                        case eOBJECT_TEXT:       object = mngr->addText(objName, M3D_DEFAULT_FONT_SIZE, created); break;
                     }
 
                     if (object)

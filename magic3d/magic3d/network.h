@@ -37,6 +37,7 @@ NETWORK Packets
 NETWORK_SPAWN  byte               type
                enet_uint32        clientID
                enet_uint32        peerID
+               unsigned char[256] nick
                unsigned char[256] name
 
 NETWORK_KILL   byte               type
@@ -63,13 +64,26 @@ NETWORK_TEXT   byte               type
 #define NETWORK_HEADER (sizeof(byte) + sizeof(enet_uint32))
 #define NETWORK_TEXT_SIZE 256
 
+#define NETWORK_COMMAND_SPAWN      "SPAWN"
+#define NETWORK_COMMAND_KILL       "KILL"
+#define NETWORK_COMMAND_TEXT       "TEXT"
+#define NETWORK_COMMAND_DISCONNECT "DISCONNECT"
+
 enum NETWORK_PACKET
 {
     eNETWORK_SPAWN,
     eNETWORK_KILL,
     eNETWORK_OBJECT,
     eNETWORK_INPUT,
-    eNETWORK_TEXT
+    eNETWORK_TEXT,
+    eNETWORK_COMMAND,
+    eNETWORK_DISCONNECT
+};
+
+struct NetworkClient
+{
+    ENetAddress address;
+    std::string nick;
 };
 
 class Network
@@ -81,11 +95,13 @@ private:
     ENetHost* server;
     ENetPeer* peer;
 
-    std::map<enet_uint32, ENetAddress> clients;
+    std::map<enet_uint32, NetworkClient> clients;
     std::map<std::string, enet_uint32> spawned;
 
+    std::string nick;
     std::string ip;
     int port;
+    bool hosting;
 
     float timeUpdate;
 
@@ -95,11 +111,9 @@ private:
     Network();
     virtual ~Network();
 
-    std::string getObjectBaseName(std::string name);
-
+    void clear();
     void prepareAddress(std::string ip, int port);
-    enet_uint32 getID();
-    ENetAddress getClient(enet_uint32 id);
+    enet_uint32 getID();    
 
     void prepareHeader(NETWORK_PACKET type, byte* data);
 
@@ -124,9 +138,16 @@ public:
     void disconnect(bool now);
     bool isConnected();
 
+    void setNick(std::string nick);
+    const std::string& getNick();
+
     void update();
     void render();
 
+    std::string getObjectBaseName(std::string name);
+    enet_uint32 getObjectClientID(std::string name);
+    ENetAddress getClient(enet_uint32 id);
+    std::string getClientNick(enet_uint32 id);
     int getClientsCount();
 
     bool isServer();
@@ -135,7 +156,9 @@ public:
     void killObject(std::string name);
     void sendObject(Object* object, bool now);
     void sendInput(INPUT input, EVENT event, Vector4 params);
-    void sendText(std::string nick, std::string text);
+    void sendText(std::string text);
+    void sendCommand(std::string command, std::string value);
+    void sendDisconnect(enet_uint32 id);
 };
 
 }

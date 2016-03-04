@@ -45,7 +45,7 @@ public:
     int setLayerVisible(lua_State *lua);
     int isLayerVisible(lua_State *lua);
 
-    int setCursorPosition(lua_State *lua);
+    int setRelativeMouseMode(lua_State *lua);
     int getCursorX(lua_State *lua);
     int getCursorY(lua_State *lua);
 
@@ -94,16 +94,26 @@ public:
 
     int debugLine(lua_State *lua);
 
-    int rayCast(lua_State *lua);
+    int rayCastObject(lua_State *lua);
+    int rayCastPoint(lua_State *lua);
+    int rayCastNormal(lua_State *lua);
 
     int rotateCamera(lua_State* lua);
 
     int setStereoscopy(lua_State* lua);
     
+    int connect(lua_State* lua);
+    int disconnect(lua_State* lua);
+    int isConnected(lua_State* lua);
+    int setNick(lua_State* lua);
+    int getNick(lua_State* lua);
+    int sendCommand(lua_State* lua);
     int sendText(lua_State* lua);
     int spawnNetworkObject(lua_State* lua);
     int sendObject(lua_State* lua);
     int sendInput(lua_State* lua);
+
+    int getObjectNick(lua_State* lua);
 };
 }
 #endif /* SCRIPT_MAGIC3D_H */

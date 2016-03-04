@@ -416,6 +416,7 @@ public:
     bool checkNil(int index);
 
     void call_collision(PhysicsObject* object, PhysicsObject* collider, Vector3 selfPosition, Vector3 objectPosition, Vector3 objectNormal);
+    void call_network(std::string command, std::string value);
 
     void addToTemp(Object* object);
 };

@@ -407,7 +407,7 @@ bool Magic3D::Script::call(const std::string& functionName, int params, const st
 {
     bool result = !hasErrors;
 
-    if (!hasErrors)
+    if (isPlaying() && !hasErrors)
     {
         if (lua_pcall(lua, params, LUA_MULTRET, 0) != 0)
         {
@@ -939,7 +939,19 @@ void Magic3D::Script::call_collision(PhysicsObject* object, PhysicsObject* colli
     Scene::getInstance()->addScriptMS(Magic3D::getInstance()->getTimeSinceReference());
 }
 
+void Magic3D::Script::call_network(std::string command, std::string value)
+{
+    std::string function_command("network_command");
+    if (Script::getInstance()->on_keyboard_down && Script::getInstance()->startCall(function_command))
+    {
+        Script::getInstance()->pushString(command);
+        Script::getInstance()->pushString(value);
+        Script::getInstance()->call(function_command, 2);
+    }
+}
+
 void Magic3D::Script::addToTemp(Object* object)
 {
     temp[object->getName()] = object;
 }
+

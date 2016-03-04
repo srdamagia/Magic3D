@@ -1121,10 +1121,12 @@ Magic3D::Matrix4 Magic3D::Object::getMatrixFromParent()
             {
                 bb = view;
                 break;
-            }
+            }            
         }
 
-        m = m * Matrix4(inverse(bb), Vector3(0.0f, 0.0f, 0.0f));
+        bb = inverse(m.getUpper3x3()) * inverse(bb);
+
+        m = m * Matrix4(bb, Vector3(0.0f, 0.0f, 0.0f));
     }
 
     return m;

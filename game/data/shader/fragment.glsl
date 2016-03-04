@@ -205,7 +205,7 @@ vec4 shadow(vec4 color)
         factor = 1.0;
         for (int i = 0; i < 4; i++)
         {
-            float comp = texture2DProj(texture_Shadows, vec3(vertexShadow.xy + poissonDisk[i] / 500.0,  vertexShadow.w)).z;
+            float comp = texture2DProj(texture_Shadows, vec3(vertexShadow.xy + poissonDisk[i] / SHADOW_POISON,  vertexShadow.w)).z;
             if (lightShadow.position.w != 0.0)
             {
                 comp = linearShadowsDepth(comp);
@@ -215,7 +215,7 @@ vec4 shadow(vec4 color)
             {
                 z = linearShadowsDepth(comp);
             }
-            factor -= depthZ > comp + c ? 0.2 * (1.0 - z) : 0.0;
+            factor -= depthZ > comp + c ? SHADOW_INTENSITY * (1.0 - z) : 0.0;
         }
         #endif
 #endif

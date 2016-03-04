@@ -372,6 +372,14 @@ void Magic3D::ImGui_GL_NewFrame(float ticks)
 
     // Hide OS mouse cursor if ImGui is drawing it
     //SDL_ShowCursor(io.MouseDrawCursor ? 0 : 1);
+    if (Renderer::getInstance()->getWindow()->isRelativeMouseMode())
+    {
+        io.MouseDrawCursor = 0;
+    }
+    else
+    {
+        io.MouseDrawCursor = Renderer::getInstance()->getWindow()->isShowingCursor();
+    }
 
     // Start the frame
     ImGui::NewFrame();

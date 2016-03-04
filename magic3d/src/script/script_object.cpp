@@ -24,6 +24,7 @@ subject to the following restrictions:
 #include <magic3d/script/script_object.h>
 #include <magic3d/scene.h>
 #include <magic3d/tween/tween.h>
+#include <magic3d/text.h>
 
 const char Magic3D::ScriptObject::className[] = "Object";
 
@@ -56,9 +57,11 @@ Magic3D::ScriptClass<Magic3D::ScriptObject>::ScriptFunction Magic3D::ScriptObjec
 
     ScriptClassFunction(Magic3D::ScriptObject, setPosition, "void setPosition(Vector3 position)", ""),
     ScriptClassFunction(Magic3D::ScriptObject, getPosition, "Vector3 getPosition()", ""),
+    ScriptClassFunction(Magic3D::ScriptObject, getPositionFromParent, "Vector3 getPositionFromParent()", ""),
     ScriptClassFunction(Magic3D::ScriptObject, setRotation, "void setRotation(Vector3 rotation)", ""),
     ScriptClassFunction(Magic3D::ScriptObject, setQuaternion, "void setQuaternion(float x, float y, float z, float w)", ""),
     ScriptClassFunction(Magic3D::ScriptObject, getRotation, "Vector3 getRotation()", ""),
+    ScriptClassFunction(Magic3D::ScriptObject, getRotationFromParent, "Vector3 getRotationFromParent()", ""),
     ScriptClassFunction(Magic3D::ScriptObject, setScale,    "void setScale(Vector3 scale)", ""),
     ScriptClassFunction(Magic3D::ScriptObject, getScale,    "Vector3 getScale()", ""),
     ScriptClassFunction(Magic3D::ScriptObject, lookAt,      "void lookAt(Vector3 position, Vector3 up, float factor)", "Rotate to look at a position."),
@@ -226,6 +229,14 @@ int Magic3D::ScriptObject::getPosition(lua_State *lua)
     return 1;
 }
 
+int Magic3D::ScriptObject::getPositionFromParent(lua_State *lua)
+{
+    ScriptVector3* vec = new ScriptVector3(object->getPositionFromParent());
+
+    ScriptClass<ScriptVector3>::push(lua, vec, true);
+    return 1;
+}
+
 int Magic3D::ScriptObject::setRotation(lua_State *lua)
 {
     ScriptVector3* vector = ScriptClass<ScriptVector3>::check(lua, 1);
@@ -248,6 +259,14 @@ int Magic3D::ScriptObject::setQuaternion(lua_State *lua)
 int Magic3D::ScriptObject::getRotation(lua_State *lua)
 {
     ScriptVector3* vec = new ScriptVector3(object->getRotationEuler());
+
+    ScriptClass<ScriptVector3>::push(lua, vec, true);
+    return 1;
+}
+
+int Magic3D::ScriptObject::getRotationFromParent(lua_State *lua)
+{
+    ScriptVector3* vec = new ScriptVector3(Math::euler(object->getRotationFromParent()));
 
     ScriptClass<ScriptVector3>::push(lua, vec, true);
     return 1;
@@ -889,20 +908,42 @@ int Magic3D::ScriptObject::getAnimationFrameCount(lua_State *lua)
 
 int Magic3D::ScriptObject::setText(lua_State *lua)
 {
+    TextData* textData = NULL;
     if (object->getType() == eOBJECT_GUI_LABEL)
     {
-        GUILabel* label = static_cast<GUILabel*>(object);
-        label->setText(luaL_checkstring(lua, 1));
+        textData = static_cast<GUILabel*>(object)->getText();
+
+    }    
+    if (object->getType() == eOBJECT_TEXT)
+    {
+        textData = static_cast<Text*>(object)->getText();
+
+    }
+
+    if (textData)
+    {
+        textData->setText(luaL_checkstring(lua, 1));
+        object->update();
     }
     return 0;
 }
 
 int Magic3D::ScriptObject::getText(lua_State *lua)
 {
+    TextData* textData = NULL;
     if (object->getType() == eOBJECT_GUI_LABEL)
     {
-        GUILabel* label = static_cast<GUILabel*>(object);
-        lua_pushstring(lua, label->getText().c_str());
+        textData = static_cast<GUILabel*>(object)->getText();
+
+    }
+    if (object->getType() == eOBJECT_TEXT)
+    {
+        textData = static_cast<Text*>(object)->getText();
+
+    }
+    if (textData)
+    {
+        lua_pushstring(lua, textData->getText().c_str());
     }
     else
     {
@@ -913,20 +954,41 @@ int Magic3D::ScriptObject::getText(lua_State *lua)
 
 int Magic3D::ScriptObject::setTextSize(lua_State *lua)
 {
+    TextData* textData = NULL;
     if (object->getType() == eOBJECT_GUI_LABEL)
     {
-        GUILabel* label = static_cast<GUILabel*>(object);
-        label->setTextSize(luaL_checknumber(lua, 1));
+        textData = static_cast<GUILabel*>(object)->getText();
+
+    }
+    if (object->getType() == eOBJECT_TEXT)
+    {
+        textData = static_cast<Text*>(object)->getText();
+
+    }
+    if (textData)
+    {
+        textData->setTextSize(luaL_checknumber(lua, 1));
     }
     return 0;
 }
 
 int Magic3D::ScriptObject::getTextSize(lua_State *lua)
 {
+    TextData* textData = NULL;
     if (object->getType() == eOBJECT_GUI_LABEL)
     {
-        GUILabel* label = static_cast<GUILabel*>(object);
-        lua_pushnumber(lua, label->getTextSize());
+        textData = static_cast<GUILabel*>(object)->getText();
+
+    }
+    if (object->getType() == eOBJECT_TEXT)
+    {
+        textData = static_cast<Text*>(object)->getText();
+
+    }
+
+    if (textData)
+    {
+        lua_pushnumber(lua, textData->getTextSize());
     }
     else
     {

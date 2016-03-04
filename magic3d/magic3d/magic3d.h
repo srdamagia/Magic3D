@@ -38,6 +38,7 @@ subject to the following restrictions:
 #include <magic3d/script/script.h>
 #include <magic3d/tween/tweens.h>
 #include <magic3d/network.h>
+#include <magic3d/text.h>
 
 //PRECOMPILER MACROS*******************************
 //MAGIC3D_OES1

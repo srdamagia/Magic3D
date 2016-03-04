@@ -185,7 +185,10 @@ Magic3D::Sprite::Sprite(const Sprite& sprite, std::string name) : Object(sprite,
     this->playing = sprite.playing;
     this->loop = sprite.loop;
 
-    spriteMesh = getMeshes()->at(0);
+    if (getType() != eOBJECT_GUI_LABEL)
+    {
+        spriteMesh = getMeshes()->at(0);
+    }
 
     if (getType() == eOBJECT_SPRITE)
     {
@@ -229,20 +232,27 @@ void Magic3D::Sprite::init()
     setShapeRotation(Vector3(0.0f, 0.0f, 1.0f));
     setShapeTranslation(Vector3(1.0f, 1.0f, 0.0f));
 
-    spriteMesh = new Mesh(eMESH_TRIANGLES, SPRITE_MESH_NAME, true);
-    spriteMesh->setIlluminated(false);
-    spriteMesh->setFogged(false);
-    spriteMesh->setCastShadows(false);
-    spriteMesh->setReceiveShadows(false);
+    if (getType() == eOBJECT_GUI_LABEL)
+    {
+        spriteMesh = NULL;
+    }
+    else
+    {
+        spriteMesh = new Mesh(eMESH_TRIANGLES, SPRITE_MESH_NAME, true);
+        spriteMesh->setIlluminated(false);
+        spriteMesh->setFogged(false);
+        spriteMesh->setCastShadows(false);
+        spriteMesh->setReceiveShadows(false);
+
+        addMesh(spriteMesh);
+    }
 
     if (getType() == eOBJECT_SPRITE)
     {
         spriteMesh->getData()->addQuad(0.0f, 0.0f, 1.0f, 1.0f, eAXIS_Z, ColorRGBA(1.0f, 1.0f, 1.0f, 1.0f));
 
         spriteMesh->getData()->createVbo();
-    }
-
-    addMesh(spriteMesh);
+    }    
 
     needUpdate = true;
 }
@@ -320,7 +330,7 @@ bool Magic3D::Sprite::update()
 
     Object::update();
 
-    if (needUpdate)
+    if (needUpdate || getType() == eOBJECT_GUI_LABEL)
     {
         updateMeshes();
         needUpdate = false;

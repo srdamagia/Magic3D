@@ -34,6 +34,7 @@ class WindowInternal : public Window
 private:
     static WindowInternal* instance;
 
+    bool relative;
     bool create();
 
     WindowInternal();
@@ -44,10 +45,12 @@ public:
     virtual bool render();
 
     virtual void* getWindowHandle();
-    virtual void showCursor(bool show);        
+    virtual void showCursor(bool show);
     virtual void setClipboardText(const char* text);
     virtual const char* getClipboardText();
 
+    virtual void setRelativeMouseMode(bool relative);
+    virtual bool isRelativeMouseMode();
     virtual void grabInput(bool grabbed);
     virtual bool hasGrabbedInput();
     virtual bool hasInputFocus();

@@ -1591,9 +1591,18 @@ bool Magic3D::RendererOpenGL_Shaders::prepareMaterial(GLSLShader *shader, Materi
     {
         setUniform4fv(shader->uniforms[eUNIFORM_MATERIAL_AMBIENT],  1, (float*)&material->getColorAmbient());
         check_gl_error();
-        if (object && object->getType() == eOBJECT_GUI_LABEL)
-        {
-            setUniform4fv(shader->uniforms[eUNIFORM_MATERIAL_DIFFUSE],  1, (float*)&static_cast<GUILabel*>(object)->getTextColor());
+        if (object && (object->getType() == eOBJECT_GUI_LABEL || object->getType() == eOBJECT_TEXT))
+        {            
+            TextData* textData = NULL;
+            if (object->getType() == eOBJECT_GUI_LABEL)
+            {
+                textData = static_cast<GUILabel*>(object)->getText();
+            }
+            else if (object->getType() == eOBJECT_TEXT)
+            {
+                textData = static_cast<Text*>(object)->getText();
+            }
+            setUniform4fv(shader->uniforms[eUNIFORM_MATERIAL_DIFFUSE],  1, (float*)&textData->getTextColor());
             check_gl_error();
         }
         else
@@ -1771,9 +1780,14 @@ bool Magic3D::RendererOpenGL_Shaders::renderTextures(Object* object, Mesh* mesh,
     if (object && mesh && material)
     {
         Font* font = NULL;
-        if (object && object->getType() == eOBJECT_GUI_LABEL)
+
+        if (object && (object->getType() == eOBJECT_GUI_LABEL))
         {
-            font = static_cast<GUILabel*>(object)->getFont();
+            font = static_cast<GUILabel*>(object)->getText()->getFont();
+        }
+        if (object && (object->getType() == eOBJECT_TEXT))
+        {
+            font = static_cast<Text*>(object)->getText()->getFont();
         }
 
         Texture* texture0 = material->getTexture(0);

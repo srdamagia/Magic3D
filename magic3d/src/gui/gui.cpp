@@ -46,8 +46,7 @@ Magic3D::GUI::GUI(const GUI& gui, std::string name) : Sprite(gui, name)
 Magic3D::GUI::GUI(OBJECT type, std::string name) : Sprite(type, name)
 {
     switch (type)
-    {
-        case eOBJECT_GUI_LABEL: addMaterial(ResourceManager::getMaterials()->get(M3D_DEFAULT_MATERIAL_FONT)); break;
+    {        
         case eOBJECT_JOYSTICK: addMaterial(ResourceManager::getMaterials()->get(M3D_DEFAULT_MATERIAL_PARTICLES)); break;
         default: addMaterial(ResourceManager::getMaterials()->get(M3D_DEFAULT_MATERIAL_GUI)); break;
     }

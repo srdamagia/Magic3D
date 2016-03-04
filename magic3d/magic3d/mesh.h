@@ -69,7 +69,7 @@ struct RENDER_ID
 };
 
 class Object;
-class MeshData
+class MeshData : public Xml
 {
 private:
     std::vector<Vertex3D> vertices;
@@ -80,8 +80,7 @@ private:
     std::string name;
 
     btCollisionShape* shape;
-    btTriangleMesh* triangleMesh;
-    Box box;
+    btTriangleMesh* triangleMesh;    
     bool computedBox;
 
     RENDER_ID renderID;
@@ -90,12 +89,13 @@ private:
 
 protected:
     MESH type;
+    Box box;
 
     MeshData(const MeshData& meshData);
 public:
     MeshData(MESH type, std::string name);
     virtual ~MeshData();
-    virtual MeshData* spawn() const;
+    virtual void* spawn() const;
 
     virtual bool update(Object* object);
 
@@ -164,6 +164,9 @@ public:
     static void createPlaneStrip(std::vector<vindex>* indexes, std::vector<LineIndexes>* lines, int length, int width);
     static void updatePlaneStripNormals(float* vertices, int vcount, vindex* indexes, int icount);
     static void updateTangent(float* vertices, int vcount, vindex index0, vindex index1, vindex index2);
+
+    virtual XMLElement* save(XMLElement* root);
+    virtual XMLElement* load(XMLElement* root);
 };
 
 class Mesh : public Xml
@@ -183,14 +186,14 @@ private:
     bool reflective;
     bool glow;
 
-    void init(MeshData* data, bool doubleSide = false, MESH type = eMESH_TRIANGLES, std::string name = M3D_MESH_DATA);
+    void init(MeshData* data, bool owner = false, bool doubleSide = false, MESH type = eMESH_TRIANGLES, std::string name = M3D_MESH_DATA);
 
 protected:
     Mesh(const Mesh& mesh);
 
 public:
     Mesh(MESH type, std::string name, bool doubleSide = false);
-    Mesh(MeshData* data, bool doubleSide = false);
+    Mesh(MeshData* data, bool doubleSide = false, bool owner = false);
     virtual ~Mesh();
     virtual Mesh* spawn() const;
 

@@ -36,6 +36,7 @@ subject to the following restrictions:
 #include <magic3d/terrain.h>
 #include <magic3d/water.h>
 #include <magic3d/vegetation.h>
+#include <magic3d/text.h>
 
 #include <magic3d/resource/resources_object.h>
 #include <magic3d/resource/resources_model.h>
@@ -110,6 +111,7 @@ public:
     GUIWindow* addGUIWindow(std::string name, bool& created);
     GUIButton* addGUIButton(std::string name, bool& created);
     GUILabel* addGUILabel(std::string name, int size, bool& created);
+    Text* addText(std::string name, int size, bool& created);
     Joystick* addJoystick(std::string name, bool& created);
     Camera* addCamera(std::string name, bool& created);
     Model* addModel(std::string name, bool& created);

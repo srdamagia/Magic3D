@@ -46,6 +46,8 @@ private:
     SDL_Window* window;
     SDL_GLContext glcontext;
 
+    bool relative;
+
     bool create();
 
     WindowSDL();
@@ -60,6 +62,8 @@ public:
     virtual void setClipboardText(const char* text);
     virtual const char* getClipboardText();
 
+    virtual void setRelativeMouseMode(bool relative);
+    virtual bool isRelativeMouseMode();
     virtual void grabInput(bool grabbed);
     virtual bool hasGrabbedInput();
     virtual bool hasInputFocus();

@@ -25,6 +25,7 @@ subject to the following restrictions:
 
 #include <magic3d/object.h>
 #include <magic3d/gui/guilabel.h>
+#include <magic3d/text.h>
 
 Magic3D::TweenAlpha::TweenAlpha() : Tween(eTWEEN_ALPHA)
 {
@@ -59,15 +60,25 @@ float Magic3D::TweenAlpha::getAlpha()
 void Magic3D::TweenAlpha::tween(float factor)
 {
     if (getPhysicsObject()->getType() != eOBJECT_BONE)
-    {        
+    {
+        TextData* textData = NULL;
         if (getPhysicsObject()->getType() == eOBJECT_GUI_LABEL)
         {
-            GUILabel* label = static_cast<GUILabel*>(getPhysicsObject());
+            textData = static_cast<GUILabel*>(getPhysicsObject())->getText();
 
-            ColorRGBA color = label->getTextColor();
+        }
+        if (getPhysicsObject()->getType() == eOBJECT_TEXT)
+        {
+            textData = static_cast<Text*>(getPhysicsObject())->getText();
+
+        }
+
+        if (textData)
+        {
+            ColorRGBA color = textData->getTextColor();
             color.a = factor * alpha;
 
-            label->setTextColor(color);
+            textData->setTextColor(color);
         }
         else
         {
