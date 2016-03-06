@@ -47,7 +47,11 @@ NETWORK_KILL   byte               type
 NETWORK_OBJECT byte               type
                enet_uint32        clientID
                unsigned char[256] name
-               Matrix4            matrix
+               Vector4            position, animation id
+               Quaternion         rotation quaternion
+               Vector4            scale, frame id
+               Vector4            linear velocity
+               Vector4            angular velocity
 
 NETWORK_INPUT  byte               type
                enet_uint32        clientID

@@ -42,9 +42,9 @@ Magic3D::GUINetwork::GUINetwork()
 Magic3D::GUINetwork::~GUINetwork()
 {
     clearLog();
-    for (int i = 0; i < items.Size; i++)
+    for (int i = 0; i < history.Size; i++)
     {
-        ImGui::MemFree(history[i]);
+        free(history[i]);
     }
 }
 
@@ -73,7 +73,7 @@ int Magic3D::GUINetwork::strnicmp(const char* str1, const char* str2, int n)
 char* Magic3D::GUINetwork::strdup(const char *str)
 {
     size_t len = strlen(str) + 1;
-    void* buff = ImGui::MemAlloc(len);
+    void* buff = malloc(len);
     return (char*)memcpy(buff, (const void*)str, len);
 }
 
@@ -81,7 +81,7 @@ void Magic3D::GUINetwork::clearLog()
 {
     for (int i = 0; i < items.Size; i++)
     {
-        ImGui::MemFree(items[i]);
+        free(items[i]);
     }
     items.clear();
     scrollToBottom = true;
@@ -95,7 +95,7 @@ void Magic3D::GUINetwork::addLog(const char* fmt, ...)
     vsnprintf(buf, IM_ARRAYSIZE(buf), fmt, args);
     buf[IM_ARRAYSIZE(buf)-1] = 0;
     va_end(args);
-    items.push_back(strdup(buf));
+    items.push_back(strdup(buf));    
     scrollToBottom = true;
 }
 
@@ -292,7 +292,7 @@ void Magic3D::GUINetwork::execCommand(const char* command_line)
     {
         if (stricmp(history[i], command_line) == 0)
         {
-            ImGui::MemFree(history[i]);
+            free(history[i]);
             history.erase(history.begin() + i);
             break;
         }

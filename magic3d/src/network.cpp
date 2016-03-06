@@ -115,7 +115,7 @@ bool Magic3D::Network::initialize()
 bool Magic3D::Network::deinitialize()
 {
     disconnect(true);
-    if (peer)
+    if (peer && peer->connectID > 0)
     {
         enet_peer_reset(peer);
         peer = NULL;
@@ -262,6 +262,7 @@ void Magic3D::Network::disconnect(bool now)
         {
             enet_peer_disconnect(peer, 0);
         }
+        peer = NULL;
     }
 
     if (server)
@@ -301,7 +302,7 @@ void Magic3D::Network::update()
     if (Physics::getInstance()->isPlaying())
     {
         timeUpdate += Magic3D::getInstance()->getElapsedTime();
-        if (timeUpdate > 0.1f)
+        if (timeUpdate > 0.0666f)
         {
             timeUpdate = 0.0f;
         }
@@ -465,11 +466,11 @@ void Magic3D::Network::openPacket(ENetPacket* packet)
                             clients[peerID].nick = nick;
 
                             Script::getInstance()->call_network(NETWORK_COMMAND_SPAWN, name);
-                            log(eLOG_SUCCESS, "Object: %s spawned.", name);
+                            Log::logFormat(eLOG_SUCCESS, "Object: %s spawned.", name);
                         }
                         else if (peerID != getID())
                         {
-                            log(eLOG_RENDERER, "Object: %s already exists.", name);
+                            Log::logFormat(eLOG_RENDERER, "Object: %s already exists.", name);
                         }
                     }
 
@@ -514,16 +515,24 @@ void Magic3D::Network::openPacket(ENetPacket* packet)
                         Vector4 pos;
                         Quaternion rot;
                         Vector4 scale;
+                        Vector4 lvel;
+                        Vector4 avel;
                         int stride = 0;
                         memcpy(&pos[0], &packet->data[NETWORK_HEADER + NETWORK_TEXT_SIZE + stride], sizeof(Vector4));
                         stride += sizeof(Vector4);
                         memcpy(&rot[0], &packet->data[NETWORK_HEADER + NETWORK_TEXT_SIZE + stride], sizeof(Quaternion));
                         stride += sizeof(Quaternion);
                         memcpy(&scale[0], &packet->data[NETWORK_HEADER + NETWORK_TEXT_SIZE + stride], sizeof(Vector4));
+                        stride += sizeof(Vector4);
+                        memcpy(&lvel[0], &packet->data[NETWORK_HEADER + NETWORK_TEXT_SIZE + stride], sizeof(Vector4));
+                        stride += sizeof(Vector4);
+                        memcpy(&avel[0], &packet->data[NETWORK_HEADER + NETWORK_TEXT_SIZE + stride], sizeof(Vector4));
                         object->setPosition(pos.getXYZ());
                         object->setRotation(rot);
-                        object->setScale(scale.getXYZ());
+                        object->setScale(scale.getXYZ());                        
                         object->resetPhysics();
+                        object->setPhysicsLinearVelocity(lvel.getXYZ());
+                        object->setPhysicsAngularVelocity(avel.getXYZ());
 
                         if (object->getType() == eOBJECT_MODEL)
                         {
@@ -548,7 +557,7 @@ void Magic3D::Network::openPacket(ENetPacket* packet)
                     }
                     else
                     {
-                        log(eLOG_FAILURE, "Object: %s not found.", name);
+                        Log::logFormat(eLOG_FAILURE, "Object: %s not found.", name);
                     }
                     break;
                 }
@@ -625,7 +634,7 @@ void Magic3D::Network::openPacket(ENetPacket* packet)
             memcpy(&command[0], &packet->data[NETWORK_HEADER], NETWORK_TEXT_SIZE);
             memcpy(&value[0], &packet->data[NETWORK_HEADER + NETWORK_TEXT_SIZE], valueSize);
             Script::getInstance()->call_network(command, value);
-            log(eLOG_PLAINTEXT, "# %s: %s", command, value);
+            //log(eLOG_PLAINTEXT, "# %s: %s", command, value);
         }
 
         enet_packet_destroy(packet);
@@ -755,6 +764,8 @@ void Magic3D::Network::sendObject(Object* object, bool now)
             Vector4 pos = Vector4(object->getPosition(), 1.0f);            
             Quaternion rot = object->getRotation();
             Vector4 scale = Vector4(object->getScale(), 1.0f);
+            Vector4 lvel = Vector4(object->getPhysicsLinearVelocity(), 1.0f);
+            Vector4 avel = Vector4(object->getPhysicsAngularVelocity(), 1.0f);
 
             if (object->getType() == eOBJECT_MODEL)
             {
@@ -767,7 +778,7 @@ void Magic3D::Network::sendObject(Object* object, bool now)
                 }
             }
 
-            unsigned int size = NETWORK_HEADER + NETWORK_TEXT_SIZE + sizeof(Vector4) + sizeof(Quaternion) + sizeof(Vector4);
+            unsigned int size = NETWORK_HEADER + NETWORK_TEXT_SIZE + sizeof(Quaternion) + sizeof(Vector4) * 4;
             ENetPacket* packet = enet_packet_create(NULL, size, ENET_PACKET_FLAG_UNSEQUENCED);
             prepareHeader(eNETWORK_OBJECT, packet->data);
             memcpy(&packet->data[NETWORK_HEADER], object->getName().c_str(), object->getName().size() + 1);
@@ -777,6 +788,10 @@ void Magic3D::Network::sendObject(Object* object, bool now)
             memcpy(&packet->data[NETWORK_HEADER + NETWORK_TEXT_SIZE + stride], reinterpret_cast<float*>(&rot), sizeof(Quaternion));
             stride += sizeof(Quaternion);
             memcpy(&packet->data[NETWORK_HEADER + NETWORK_TEXT_SIZE + stride], reinterpret_cast<float*>(&scale), sizeof(Vector4));
+            stride += sizeof(Vector4);
+            memcpy(&packet->data[NETWORK_HEADER + NETWORK_TEXT_SIZE + stride], reinterpret_cast<float*>(&lvel), sizeof(Vector4));
+            stride += sizeof(Vector4);
+            memcpy(&packet->data[NETWORK_HEADER + NETWORK_TEXT_SIZE + stride], reinterpret_cast<float*>(&avel), sizeof(Vector4));
 
             sendPacket(packet);
         }
@@ -831,7 +846,7 @@ void Magic3D::Network::sendCommand(std::string command, std::string value)
             sendPacket(packet);
             if (isServer())
             {
-                log(eLOG_PLAINTEXT, "# %s: %s", command.c_str(), value.c_str());
+                //log(eLOG_PLAINTEXT, "# %s: %s", command.c_str(), value.c_str());
                 Script::getInstance()->call_network(command, value);
             }
         }

@@ -873,8 +873,46 @@ Magic3D::Box Magic3D::Object::getBoundingBoxAlignedAxis()
     Box b = getBoundingBox();
 
     Matrix4 matrix = getMatrixFromParent();
+
+    Vector3 vertices[8];
+    vertices[0] = b.corners[0];
+    vertices[1] = Vector3(b.corners[1].getX(), b.corners[0].getY(), b.corners[0].getZ());
+    vertices[2] = Vector3(b.corners[0].getX(), b.corners[0].getY(), b.corners[1].getZ());
+    vertices[3] = Vector3(b.corners[1].getX(), b.corners[0].getY(), b.corners[1].getZ());
+    vertices[4] = b.corners[1];
+    vertices[5] = Vector3(b.corners[0].getX(), b.corners[1].getY(), b.corners[1].getZ());
+    vertices[6] = Vector3(b.corners[1].getX(), b.corners[1].getY(), b.corners[0].getZ());
+    vertices[7] = Vector3(b.corners[0].getX(), b.corners[1].getY(), b.corners[0].getZ());
+
+    Vector3 min;
+    Vector3 max;
+    bool first = true;
+
+    for (int i = 0; i < 8; i++)
+    {
+        Vector4 vec = (matrix * Vector4(vertices[i], 1.0f));
+        if (first)
+        {
+            first = false;
+            min = vec.getXYZ();
+            max = vec.getXYZ();
+        }
+        else
+        {
+            min.setX(Math::min(min.getX(), vec.getX()));
+            min.setY(Math::min(min.getY(), vec.getY()));
+            min.setZ(Math::min(min.getZ(), vec.getZ()));
+
+            max.setX(Math::max(max.getX(), vec.getX()));
+            max.setY(Math::max(max.getY(), vec.getY()));
+            max.setZ(Math::max(max.getZ(), vec.getZ()));
+        }
+    }
+
+
+    /*Matrix4 matrix = getMatrixFromParent();
     Matrix3 dir = matrix.getUpper3x3();
-    Vector3 position = matrix.getTranslation();
+    Vector3 position = (matrix * Vector4(getShapePosition(), 1.0f)).getXYZ();
 
     Vector3 dimensions = Vector3(b.getWidth(), b.getHeight(), b.getDepth()) * 0.5f;
 
@@ -899,7 +937,7 @@ Magic3D::Box Magic3D::Object::getBoundingBoxAlignedAxis()
         max.setX(Math::max(max.getX(), corners[i].getX()));
         max.setY(Math::max(max.getY(), corners[i].getY()));
         max.setZ(Math::max(max.getZ(), corners[i].getZ()));
-    }
+    }*/
 
     b.corners[0] = min;
     b.corners[1] = max;
@@ -949,8 +987,8 @@ void Magic3D::Object::updateBoundingBox(bool updateMesh)
         }
     }
 
-    box.corners[0] = min;
-    box.corners[1] = max;
+    box.corners[0] = min + getShapePosition();
+    box.corners[1] = max + getShapePosition();
 }
 
 float Magic3D::Object::getMaxSizeFromParent()
