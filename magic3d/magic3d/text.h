@@ -87,8 +87,6 @@ public:
 
 class Text : public Object
 {
-private:
-    Mesh* textMesh;
 protected:
     Text(const Text& text, std::string name);
 public:

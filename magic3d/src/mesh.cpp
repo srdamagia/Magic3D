@@ -1187,7 +1187,7 @@ void Magic3D::Mesh::init(MeshData* data, bool owner, bool doubleSide, MESH type,
     }
     else
     {
-        owner = true;
+        this->owner = true;
         this->data = new MeshData(type, name);
     }
     this->doubleSide = doubleSide;

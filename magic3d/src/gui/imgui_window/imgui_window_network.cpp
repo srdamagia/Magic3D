@@ -123,7 +123,7 @@ void Magic3D::GUINetwork::draw(const char* title, bool* opened)
     if (Network::getInstance()->isConnected())
     {
         ImGui::SameLine();
-        ImGui::Text(ip);
+        ImGui::Text("%s", ip);
     }
     else
     {
@@ -151,7 +151,7 @@ void Magic3D::GUINetwork::draw(const char* title, bool* opened)
     if (Network::getInstance()->isConnected())
     {
         ImGui::SameLine();
-        ImGui::Text(nick);
+        ImGui::Text("%s", nick);
     }
     else
     {

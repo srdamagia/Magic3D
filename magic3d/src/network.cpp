@@ -302,7 +302,7 @@ void Magic3D::Network::update()
     if (Physics::getInstance()->isPlaying())
     {
         timeUpdate += Magic3D::getInstance()->getElapsedTime();
-        if (timeUpdate > 0.0666f)
+        if (timeUpdate > 0.25f)
         {
             timeUpdate = 0.0f;
         }
@@ -677,7 +677,7 @@ void Magic3D::Network::broadcastPacket(ENetPacket* packet)
         ENetPacket* newPacket;
         if (packet->data[0] == eNETWORK_OBJECT || packet->data[0] == eNETWORK_INPUT)
         {
-            newPacket = enet_packet_create(packet->data, packet->dataLength, ENET_PACKET_FLAG_UNSEQUENCED);
+            newPacket = enet_packet_create(packet->data, packet->dataLength, ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT | ENET_PACKET_FLAG_UNSEQUENCED);
         }
         else
         {
@@ -779,7 +779,7 @@ void Magic3D::Network::sendObject(Object* object, bool now)
             }
 
             unsigned int size = NETWORK_HEADER + NETWORK_TEXT_SIZE + sizeof(Quaternion) + sizeof(Vector4) * 4;
-            ENetPacket* packet = enet_packet_create(NULL, size, ENET_PACKET_FLAG_UNSEQUENCED);
+            ENetPacket* packet = enet_packet_create(NULL, size, ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT | ENET_PACKET_FLAG_UNSEQUENCED);
             prepareHeader(eNETWORK_OBJECT, packet->data);
             memcpy(&packet->data[NETWORK_HEADER], object->getName().c_str(), object->getName().size() + 1);
             int stride = 0;
@@ -803,7 +803,7 @@ void Magic3D::Network::sendInput(INPUT input, EVENT event, Vector4 params)
     if (isConnected())
     {
         unsigned int size = NETWORK_HEADER + sizeof(int) + sizeof(int) + sizeof(Vector4);
-        ENetPacket* packet = enet_packet_create(NULL, size, ENET_PACKET_FLAG_UNSEQUENCED);
+        ENetPacket* packet = enet_packet_create(NULL, size, ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT | ENET_PACKET_FLAG_UNSEQUENCED);
         prepareHeader(eNETWORK_TEXT, packet->data);
         memcpy(&packet->data[NETWORK_HEADER], reinterpret_cast<int*>(&input), sizeof(int));
         memcpy(&packet->data[NETWORK_HEADER + sizeof(int)], reinterpret_cast<int*>(&event), sizeof(int));
