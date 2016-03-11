@@ -1,5 +1,6 @@
 ![Magic3D Logo](http://www.magictech.com.br/images/magic3d.png)
 
+###Version 1.0.0
 Entirely built using standard C and C++ portable game engine with focus on mobile devices, but also including support for Windows, MacOS and Linux.
 
 ###Features:
@@ -46,6 +47,7 @@ Entirely built using standard C and C++ portable game engine with focus on mobil
 * Toon shading with border detection.
 * Blur.
 * Glow.
+* Terrain
 
 ####Assets:
 
@@ -71,6 +73,7 @@ Libraries
 * http://www.vorbis.com/
 * http://www.zlib.net/
 * http://www.libpng.org/
+* https://github.com/nmoinvaz/minizip
 * https://collada.org/
 * http://www.theora.org/
 * http://enet.bespin.org/
