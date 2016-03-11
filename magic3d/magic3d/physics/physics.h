@@ -1,11 +1,11 @@
 /******************************************************************************
- @Copyright    Copyright (C) 2008 - 2015 by MagicTech.
+ @Copyright    Copyright (C) 2008 - 2016 by MagicTech.
 
  @Platform     ANSI compatible
 ******************************************************************************/
 /*
 Magic3D Engine
-Copyright (c) 2008-2015
+Copyright (c) 2008-2016
 Thiago C. Moraes
 http://www.magictech.com.br
 

@@ -1,11 +1,11 @@
 /******************************************************************************
- @Copyright    Copyright (C) 2008 - 2015 by MagicTech.
+ @Copyright    Copyright (C) 2008 - 2016 by MagicTech.
 
  @Platform     ANSI compatible
 ******************************************************************************/
 /*
 Magic3D Engine
-Copyright (c) 2008-2015
+Copyright (c) 2008-2016
 Thiago C. Moraes
 http://www.magictech.com.br
 
@@ -54,7 +54,7 @@ subject to the following restrictions:
 namespace Magic3D
 {
 
-#define MAGIC3D_VERSION "0.9.0"
+#define MAGIC3D_VERSION "1.0.0"
 #define CONFIGURATION_FILE "config.xml"
 
 #define CFG_XML_SELECTED            "selected"
