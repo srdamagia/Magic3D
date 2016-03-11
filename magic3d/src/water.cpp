@@ -233,6 +233,8 @@ Magic3D::XMLElement* Magic3D::Water::load(XMLElement* root)
 
         needUpdate = true;
         needTransform = true;
+
+        generateWater();
     }
 
     return root;

@@ -302,7 +302,7 @@ void Magic3D::Network::update()
     if (Physics::getInstance()->isPlaying())
     {
         timeUpdate += Magic3D::getInstance()->getElapsedTime();
-        if (timeUpdate > 0.25f)
+        if (timeUpdate > 0.2f)
         {
             timeUpdate = 0.0f;
         }

@@ -22,7 +22,7 @@ const mat4 bias = mat4(0.5, 0.0, 0.0, 0.0,
 float fogLinear(float distanceToEye)
 {
 #ifdef UNDERWATER
-    if (matrixCamera[3].y <= 0.0)
+    if (matrixCamera[3].y <= UNDERWATER_Y)
     {
         return clamp((UNDERWATER_FOG - distanceToEye) / (UNDERWATER_FOG - 0.0), 0.0, 1.0);
     }

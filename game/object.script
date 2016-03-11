@@ -14,7 +14,7 @@ end;
 --]]
 
 ---[[
-function collide(object, selfPosition, objectPosition, objectNormal)
+function collide(object, selfPosition, objectPosition, objectNormal, objectBone)
     --Code here
 end;
 --]]

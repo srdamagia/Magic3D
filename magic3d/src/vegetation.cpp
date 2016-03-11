@@ -699,8 +699,16 @@ void Magic3D::Vegetation::createGrass(Vector3 position, float tileLength, float 
     MeshData* dataGrass = grassMesh->getData();
     std::vector<Vertex3D>* vertices = dataGrass->getVertices();
 
-    float grassSize = 1.0f;
-    Vector3 pos = position + Math::randomize(Vector3(-tileWidth * 0.5f, grassSize * 0.75f, -tileLength * 0.5f), Vector3(tileWidth * 0.5f, grassSize * 0.65f, tileLength * 0.5f));
+    float lpos = Branch::random(length(position));
+
+    float mult = 1.0f;
+    if (lpos > 0.5f)
+    {
+        mult = -1.0f;
+    }
+
+    float grassSize = 0.5f * lpos + 0.5f;
+    Vector3 pos = position + Vector3(tileWidth * 0.5f * lpos * mult, grassSize * 0.75f, tileLength * 0.5f * lpos * mult);
     for (int i = 0; i < 2; i++)
     {
         Vector3 n = normalize(Vector3(0.5f, 0.0f, 0.5f));
@@ -753,19 +761,20 @@ void Magic3D::Vegetation::createGrass(Vector3 position, float tileLength, float 
         float uvu = 1.0f / 2.0f;
         float uvv = 1.0f / 2.0f;
 
-        int ri = rand() % 100;
-        int tex = 0;
-        if (ri > 50)
-        {
-            tex = 1;
-        }
-        if (ri < 2)
+        float ri = Branch::random(pos.getX() + pos.getY() + pos.getZ());
+
+        int tex = 0;        
+        if (ri < 0.05f)
         {
             tex = 2;
         }
-        if (ri > 98)
+        else if (ri > 0.995f)
         {
             tex = 3;
+        }
+        else if (ri > 0.5f)
+        {
+            tex = 1;
         }
 
         int r = tex / 2;

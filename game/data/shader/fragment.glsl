@@ -53,7 +53,7 @@ vec4 calcFog(in vec4 fogColor, in vec4 color, in float factor)
 vec4 calcFog(in vec4 color)
 {    
 #ifdef UNDERWATER
-    if (matrixCamera[3].y <= 0.0)
+    if (matrixCamera[3].y <= UNDERWATER_Y)
     {
         return calcFog(UNDERWATER_COLOR, color, vertexLightColor.a);
     }

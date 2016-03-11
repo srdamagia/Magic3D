@@ -934,7 +934,16 @@ void Magic3D::Script::call_collision(PhysicsObject* object, PhysicsObject* colli
         vec = new ScriptVector3(objectNormal);
         ScriptClass<ScriptVector3>::push(lua, vec, true);
 
-        call(function_collide, 4, object->getAsObject()->getName());
+        if (collider->getType() == eOBJECT_BONE)
+        {
+            pushString(static_cast<Bone*>(collider)->getName());
+        }
+        else
+        {
+            pushNil();
+        }
+
+        call(function_collide, 5, object->getAsObject()->getName());
     }
     Scene::getInstance()->addScriptMS(Magic3D::getInstance()->getTimeSinceReference());
 }
@@ -944,9 +953,12 @@ void Magic3D::Script::call_network(std::string command, std::string value)
     std::string function_command("network_command");
     if (Script::getInstance()->on_keyboard_down && Script::getInstance()->startCall(function_command))
     {
-        Script::getInstance()->pushString(command);
+        /*Script::getInstance()->pushString(command);
         Script::getInstance()->pushString(value);
-        Script::getInstance()->call(function_command, 2);
+        Script::getInstance()->call(function_command, 2);*/
+        pushString(command);
+        pushString(value);
+        call(function_command, 2);
     }
 }
 

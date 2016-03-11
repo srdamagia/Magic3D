@@ -249,8 +249,8 @@ bool Magic3D::Physics::update()
                 const btCollisionObject* obA = contactManifold->getBody0();
                 const btCollisionObject* obB = contactManifold->getBody1();
 
-                Object* objectA = static_cast<Object*>(obA->getUserPointer());
-                Object* objectB = static_cast<Object*>(obB->getUserPointer());
+                PhysicsObject* objectA = static_cast<Object*>(obA->getUserPointer());
+                PhysicsObject* objectB = static_cast<Object*>(obB->getUserPointer());
                 int numContacts = contactManifold->getNumContacts();
 
                 for (int j=0;j<numContacts;j++)
@@ -266,7 +266,7 @@ bool Magic3D::Physics::update()
                     {
                         objectA->getPhysicsCollision()->collide(objectB, Vector3(ptA.x(), ptA.y(), ptA.z()), Vector3(ptB.x(), ptB.y(), ptB.z()), Vector3(normalOnB.x(), normalOnB.y(), normalOnB.z()));
                     }
-                    if (objectA->isScripted())
+                    if (objectA->getAsObject()->isScripted())
                     {
                         Script::getInstance()->call_collision(objectA, objectB, Vector3(ptA.x(), ptA.y(), ptA.z()), Vector3(ptB.x(), ptB.y(), ptB.z()), Vector3(normalOnB.x(), normalOnB.y(), normalOnB.z()));
                     }
@@ -275,7 +275,7 @@ bool Magic3D::Physics::update()
                     {
                         objectB->getPhysicsCollision()->collide(objectA, Vector3(ptB.x(), ptB.y(), ptB.z()), Vector3(ptA.x(), ptA.y(), ptA.z()), Vector3(normalOnA.x(), normalOnA.y(), normalOnA.z()));
                     }
-                    if (objectB->isScripted())
+                    if (objectB->getAsObject()->isScripted())
                     {
                         Script::getInstance()->call_collision(objectB, objectA, Vector3(ptB.x(), ptB.y(), ptB.z()), Vector3(ptA.x(), ptA.y(), ptA.z()), Vector3(normalOnA.x(), normalOnA.y(), normalOnA.z()));
                     }
