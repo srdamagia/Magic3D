@@ -47,7 +47,7 @@ Entirely built using standard C and C++ portable game engine with focus on mobil
 * Toon shading with border detection.
 * Blur.
 * Glow.
-* Terrain
+* Terrain.
 
 ####Assets:
 
