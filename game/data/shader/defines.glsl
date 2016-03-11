@@ -28,7 +28,7 @@
 #endif
 
 #define UNDERWATER
-#define UNDERWATER_Y 24.0
+#define UNDERWATER_Y 0.0
 #define UNDERWATER_COLOR vec4(0.333, 0.666, 1.0, 1.0)
 #define UNDERWATER_FOG 50.0
 
