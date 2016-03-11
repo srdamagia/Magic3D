@@ -1,4 +1,4 @@
-<?0.9.0?>
+<?1.0.0?>
 <Magic3D>
     <!-- Magic3D Configuration -->
     <TITLE>Magic3D</TITLE>
@@ -25,7 +25,7 @@
         <GLOW>1</GLOW>
         <STEREOSCOPY>0</STEREOSCOPY>
     </default>
-    <SERVER>0</SERVER>
+    <SERVER>1</SERVER>
     <ADDRESS>null</ADDRESS>
     <PORT>31234</PORT>
     <CLIENTS>64</CLIENTS>
