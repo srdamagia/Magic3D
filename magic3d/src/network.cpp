@@ -307,10 +307,12 @@ void Magic3D::Network::update()
             timeUpdate = 0.0f;
         }
 
+#ifndef _MGE_
         if (!showConsole)
         {
             connect(ip, port);
         }
+#endif
 
         ENetEvent event;        
         if (server && enet_host_service(server, &event, 0) > 0)
