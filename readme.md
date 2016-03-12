@@ -8,10 +8,12 @@ Entirely built using standard C and C++ portable game engine with focus on mobil
 
 * Native support for OpenGL and OpenGL ES, but you can implement your own renderer.
 * 2D and 3D Objects.
-* Texture Atlas
-* Materials
-* Shaders
-* Camera System
+* Texture Atlas.
+* Materials.
+* Shaders.
+* Camera System.
+* Octree.
+* Terrain.
 
 ####Platforms:
 
@@ -47,7 +49,6 @@ Entirely built using standard C and C++ portable game engine with focus on mobil
 * Toon shading with border detection.
 * Blur.
 * Glow.
-* Terrain.
 
 ####Assets:
 
