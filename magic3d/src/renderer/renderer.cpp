@@ -329,7 +329,9 @@ Magic3D::Window* Magic3D::Renderer::createWindow(bool internal)
         }
         else
         {
+#ifndef MAGIC3D_IOS
             window = WindowSDL::getInstance();
+#endif
         }
         if (window)
         {

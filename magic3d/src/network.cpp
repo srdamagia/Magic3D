@@ -92,7 +92,7 @@ bool Magic3D::Network::initialize()
     showConsole = false;
     nick = "MGE";
 #else
-    showConsole = true;
+    showConsole = Magic3D::getInstance()->getConfiguration().CONSOLE;
 #endif
 
     hosting = Magic3D::getInstance()->getConfiguration().SERVER;
@@ -371,7 +371,7 @@ void Magic3D::Network::update()
                         }
                         if (id != 0)
                         {
-                            clients.erase(it_c);
+                            clients.erase(id);
                         }
 
                         std::map<std::string, enet_uint32>::const_iterator it_o = spawned.begin();

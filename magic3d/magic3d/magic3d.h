@@ -79,6 +79,7 @@ namespace Magic3D
 #define CFG_XML_REFLECTIONS         "REFLECTIONS"
 #define CFG_XML_GLOW                "GLOW"
 #define CFG_XML_STEREOSCOPY         "STEREOSCOPY"
+#define CFG_XML_CONSOLE             "CONSOLE"
 #define CFG_XML_SERVER              "SERVER"
 #define CFG_XML_ADDRESS             "ADDRESS"
 #define CFG_XML_PORT                "PORT"
@@ -124,6 +125,7 @@ struct Magic3DConfiguration
     bool GLOW;
     bool STEREOSCOPY;
 
+    bool CONSOLE;
     bool SERVER;
     std::string ADDRESS;
     int PORT;

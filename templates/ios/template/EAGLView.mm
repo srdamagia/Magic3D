@@ -238,7 +238,7 @@
                 finger[t] = touch;
                 
                 Magic3D::Input::getInstance()->dispatchEvent(Magic3D::eINPUT_TOUCH, Magic3D::eEVENT_TOUCH_DOWN, (int)p.x, (int)p.y, t + 1);
-                Magic3D::Renderer::getInstance()->getWindow()->setCursorPosition((int)p.x, (int)p.y);
+                Magic3D::Renderer::getInstance()->getWindow()->updateCursorPosition((int)p.x, (int)p.y);
                 break;
             }
         }
@@ -260,7 +260,7 @@
             if (finger[t] == touch)
             {
                 Magic3D::Input::getInstance()->dispatchEvent(Magic3D::eINPUT_TOUCH, Magic3D::eEVENT_TOUCH_MOVE, (int)p.x, (int)p.y, t + 1);
-                Magic3D::Renderer::getInstance()->getWindow()->setCursorPosition((int)p.x, (int)p.y);
+                Magic3D::Renderer::getInstance()->getWindow()->updateCursorPosition((int)p.x, (int)p.y);
                 break;
             }
         }
@@ -284,7 +284,7 @@
                 finger[t] = NULL;
                 
                 Magic3D::Input::getInstance()->dispatchEvent(Magic3D::eINPUT_TOUCH, Magic3D::eEVENT_TOUCH_UP, (int)p.x, (int)p.y, t + 1);
-                Magic3D::Renderer::getInstance()->getWindow()->setCursorPosition((int)p.x, (int)p.y);
+                Magic3D::Renderer::getInstance()->getWindow()->updateCursorPosition((int)p.x, (int)p.y);
                 break;
             }
         }

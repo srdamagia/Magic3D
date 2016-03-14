@@ -43,13 +43,20 @@ void Magic3D::ImGui_GL_RenderDrawLists(ImDrawData* draw_data)
     GLint last_texture; glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
     GLint last_array_buffer; glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &last_array_buffer);
     GLint last_element_array_buffer; glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &last_element_array_buffer);
-#if defined(__APPLE__)
+#if defined(MAGIC3D_OES)
+    GLint last_vertex_array; glGetIntegerv(GL_VERTEX_ARRAY_BINDING_OES, &last_vertex_array);
+#elif defined(__APPLE__)
     GLint last_vertex_array; glGetIntegerv(GL_VERTEX_ARRAY_BINDING_APPLE, &last_vertex_array);
 #else
     GLint last_vertex_array; glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &last_vertex_array);
 #endif
+#if defined(MAGIC3D_OES)
+    GLint last_blend_src; glGetIntegerv(GL_BLEND_SRC_RGB, &last_blend_src);
+    GLint last_blend_dst; glGetIntegerv(GL_BLEND_DST_RGB, &last_blend_dst);
+#else
     GLint last_blend_src; glGetIntegerv(GL_BLEND_SRC, &last_blend_src);
     GLint last_blend_dst; glGetIntegerv(GL_BLEND_DST, &last_blend_dst);
+#endif
     GLint last_blend_equation_rgb; glGetIntegerv(GL_BLEND_EQUATION_RGB, &last_blend_equation_rgb);
     GLint last_blend_equation_alpha; glGetIntegerv(GL_BLEND_EQUATION_ALPHA, &last_blend_equation_alpha);
     GLint last_viewport[4]; glGetIntegerv(GL_VIEWPORT, last_viewport);
@@ -206,7 +213,9 @@ bool Magic3D::ImGui_GL_CreateDeviceObjects()
     GLint last_texture, last_array_buffer, last_vertex_array;
     glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
     glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &last_array_buffer);
-#if defined(__APPLE__)
+#if defined(MAGIC3D_OES)
+    glGetIntegerv(GL_VERTEX_ARRAY_BINDING_OES, &last_vertex_array);
+#elif defined(__APPLE__)
     glGetIntegerv(GL_VERTEX_ARRAY_BINDING_APPLE, &last_vertex_array);
 #else
     glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &last_vertex_array);

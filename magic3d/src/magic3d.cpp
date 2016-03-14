@@ -198,6 +198,7 @@ void Magic3D::Magic3D::loadConfiguration()
             configuration.CURSOR        = Xml::loadBool(cfg, CFG_XML_CURSOR);
             configuration.VSYNC         = Xml::loadBool(cfg, CFG_XML_VSYNC);
 
+            configuration.CONSOLE       = Xml::loadBool(cfg, CFG_XML_CONSOLE);
             configuration.SERVER        = Xml::loadBool(cfg, CFG_XML_SERVER);
             configuration.ADDRESS       = Xml::loadString(cfg, CFG_XML_ADDRESS);
             if (configuration.ADDRESS.compare(M3D_XML_NULL) == 0)
@@ -274,6 +275,7 @@ void Magic3D::Magic3D::loadConfiguration()
         configuration.GLOW         = false;
         configuration.STEREOSCOPY  = false;
 
+        configuration.CONSOLE  = false;
         configuration.SERVER   = false;
         configuration.ADDRESS  = "";
         configuration.PORT     = 31234;
