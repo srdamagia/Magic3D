@@ -25,6 +25,7 @@
         <GLOW>1</GLOW>
         <STEREOSCOPY>0</STEREOSCOPY>
     </default>
+    <CONSOLE>0</CONSOLE>
     <SERVER>1</SERVER>
     <ADDRESS>null</ADDRESS>
     <PORT>31234</PORT>
