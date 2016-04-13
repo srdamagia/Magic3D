@@ -135,8 +135,11 @@ Game::Game(std::string path, std::string pathUser, int width, int height)
     configuration.WINDOW_WIDTH  = 0;
     configuration.WINDOW_HEIGHT = 0;
     configuration.FULLSCREEN    = false;
+    configuration.CURSOR = false;
+    configuration.VSYNC = false;
     
     configuration.NAME                 = "iOS";
+    configuration.TITLE                = "Game";
     configuration.FBO_MAP_SIZE         = 512;
     configuration.SHADOW_MAP_SIZE      = 1024;
     configuration.REFLECTION_MAP_SIZE  = 512;
@@ -152,6 +155,12 @@ Game::Game(std::string path, std::string pathUser, int width, int height)
     configuration.REFLECTIONS  = false;
     configuration.GLOW         = true;
     configuration.STEREOSCOPY  = false;
+
+    configuration.CONSOLE = false;
+    configuration.SERVER  = true;
+    configuration.ADDRESS = "null";
+    configuration.PORT    = 31234;
+    configuration.CLIENTS = 64;
     
     if (width > 1500 || height > 1500)
     {

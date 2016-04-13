@@ -469,6 +469,7 @@ void Magic3D::Script::resetInputFunctions()
     on_mouse_move       = false;
     on_mouse_wheel      = false;
 
+    on_joystick_axis    = false;
     on_joystick_down    = false;
     on_joystick_pressed = false;
     on_joystick_up      = false;
@@ -528,6 +529,7 @@ bool Magic3D::Script::load(std::string script)
         on_mouse_move       = hasFunction(M3D_SCRIPT_MOUSE_MOVE);
         on_mouse_wheel      = hasFunction(M3D_SCRIPT_MOUSE_WHEEL);
 
+        on_joystick_axis    = hasFunction(M3D_SCRIPT_JOYSTICK_AXIS);
         on_joystick_down    = hasFunction(M3D_SCRIPT_JOYSTICK_DOWN);
         on_joystick_pressed = hasFunction(M3D_SCRIPT_JOYSTICK_PRESSED);
         on_joystick_up      = hasFunction(M3D_SCRIPT_JOYSTICK_UP);

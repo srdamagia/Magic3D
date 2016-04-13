@@ -27,8 +27,8 @@ subject to the following restrictions:
 
 Magic3D::GUILabel::GUILabel(const GUILabel& guiLabel, std::string name) : GUI(guiLabel, name)
 {
-    this->spriteMesh = guiLabel.spriteMesh->spawn();
-    this->addMesh(spriteMesh);
+    this->spriteMesh = getMeshes()->at(0);
+    //this->addMesh(spriteMesh);
     needUpdate = true;
 }
 

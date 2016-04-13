@@ -53,7 +53,7 @@ end;
 --]]
 
 --[[
-function on_mouse_move(x, x)
+function on_mouse_move(x, y)
     --Code here
 end;
 --]]
@@ -65,6 +65,12 @@ end;
 --]]
 
 --[[********************************************************************************
+function on_joystick_axis(axis, value)
+    --Code here
+end;
+--]]
+
+--[[
 function on_joystick_down(button)
     --Code here
 end;

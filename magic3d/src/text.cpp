@@ -107,7 +107,6 @@ Magic3D::HORIZONTAL_ALIGN Magic3D::TextData::getTextAlignment()
 void Magic3D::TextData::setTextColor(ColorRGBA color)
 {
     this->textColor = color;
-    changed = true;
 }
 
 const Magic3D::ColorRGBA& Magic3D::TextData::getTextColor()
@@ -116,15 +115,12 @@ const Magic3D::ColorRGBA& Magic3D::TextData::getTextColor()
 }
 
 void Magic3D::TextData::setText(std::string text)
-{
-    unsigned int size = this->text.length();
-    this->text = text;
-
-    if (this->text.length() != size)
+{       
+    if (this->text.compare(text) != 0)
     {
-        clear();
+        this->text = text;
+        changed = true;
     }
-    changed = true;
 }
 
 std::string Magic3D::TextData::getText()
@@ -138,6 +134,7 @@ bool Magic3D::TextData::update(Object* object)
     {
 
     }
+
     Renderer* renderer = Renderer::getInstance();
     Font* font = getFont();
     std::vector<float> lines;

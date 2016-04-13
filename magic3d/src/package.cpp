@@ -25,6 +25,8 @@ subject to the following restrictions:
 #include <magic3d/file.h>
 #include <magic3d/log.h>
 
+#include <SDL_rwops.h>
+
 Magic3D::Package::Package()
 {
     packageFile = NULL;
@@ -53,6 +55,8 @@ std::string Magic3D::Package::getPackage()
 
 void Magic3D::Package::open()
 {
+#ifdef MAGIC3D_ANDROID
+#else
     if (!package.empty())
     {
 #ifdef USEWIN32IOAPI
@@ -73,15 +77,22 @@ void Magic3D::Package::open()
     {
         Log::logFormat(eLOG_SUCCESS, "%s opened.", package.c_str());
     }
+#endif
 }
 
 bool Magic3D::Package::isOpen()
 {
+#ifdef MAGIC3D_ANDROID
+    return true;
+#else
     return packageFile != NULL;
+#endif
 }
 
 void Magic3D::Package::close()
 {
+#ifdef MAGIC3D_ANDROID
+#else
     if (packageFile != NULL)
     {
         unzClose(packageFile);
@@ -89,6 +100,7 @@ void Magic3D::Package::close()
 
         Log::logFormat(eLOG_SUCCESS, "%s closed.", package.c_str());
     }
+#endif
 }
 
 void Magic3D::Package::pack(std::string filesPath, void(*callBack)(std::string, bool))
@@ -272,6 +284,33 @@ void Magic3D::Package::pack(std::string filesPath, void(*callBack)(std::string, 
 bool Magic3D::Package::unpack(std::string fileName, DataBuffer* memory)
 {
     bool result = false;
+#ifdef MAGIC3D_ANDROID
+    SDL_RWops *rw = SDL_RWFromFile(fileName.c_str(), "rb");
+    if (rw != NULL)
+    {
+        Sint64 res_size = SDL_RWsize(rw);
+        Sint64 nb_read_total = 0;
+        Sint64 nb_read = 1;
+        void* buf = (void*)malloc(WRITEBUFFERSIZE);
+
+        while (nb_read_total < res_size && nb_read != 0)
+        {            
+            nb_read = SDL_RWread(rw, buf, 1, WRITEBUFFERSIZE);
+            nb_read_total += nb_read;
+
+            if (memory->write((const char*)buf, nb_read) == 0)
+            {
+                Log::logFormat(eLOG_FAILURE, "Error in writing extracted file.");
+                break;
+            }
+        }
+
+        free(buf);
+        SDL_RWclose(rw);
+
+        return true;
+    }
+#else
     if (isOpen())
     {
         if (unzLocateFile(packageFile, fileName.c_str(), 0) == UNZ_OK)
@@ -342,6 +381,7 @@ bool Magic3D::Package::unpack(std::string fileName, DataBuffer* memory)
             Log::logFormat(eLOG_FAILURE, "File %s not found in the package.", fileName.c_str());
         }
     }
+#endif
 
     return result;
 }

@@ -149,6 +149,9 @@ protected:
     Texture* lastTexture1;
     BLEND lastBlend;
 
+    PlaneVertex planeVertices[4];
+    vindex planeTriangles[4];
+
     int currentViewPort;
     int rendererObjects;
     int rendererTriangles;

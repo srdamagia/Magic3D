@@ -101,6 +101,7 @@ bool Magic3D::Magic3D::start(std::string applicationPath, Magic3DConfiguration* 
 
     if (instance)
     {
+        Log::logFormat(eLOG_PLAINTEXT, "%s %s", getPlatform().c_str(), isMobile() ? "(Mobile)" : "");
         Log::log(eLOG_SUCCESS, "Magic3D sucessfully started.");
 
         srand(time(NULL));
@@ -612,4 +613,36 @@ std::string Magic3D::Magic3D::getApplicationPath(std::string path)
     }
 #endif
     return applicationPath;
+}
+
+
+std::string Magic3D::Magic3D::getPlatform()
+{
+#if defined(__WIN32__)
+    return "WINDOWS";
+#endif
+#if defined(__linux__) && !defined(MAGIC3D_ANDROID)
+    return "LINUX";
+#endif
+#if defined(__APPLE__) && !defined(MAGIC3D_OES)
+    return "MACOS";
+#endif
+#if defined(__APPLE__) && defined(MAGIC3D_OES)
+    return "IOS";
+#endif
+#if defined(MAGIC3D_ANDROID)
+    return "ANDROID";
+#endif
+
+    return "UNKNOWN";
+}
+
+bool Magic3D::Magic3D::isMobile()
+{
+    bool result = false;
+#if defined(MAGIC3D_OES) && !defined(MAGIC3D_ABI_x86)
+    result = true;
+#endif
+
+    return result;
 }

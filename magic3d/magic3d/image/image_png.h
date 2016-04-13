@@ -39,10 +39,17 @@ private:
     static void user_read_data(png_structp png_ptr, png_bytep data, png_size_t length)
     {
         DataBuffer* file = (DataBuffer*)png_get_io_ptr(png_ptr);
-        if (file->read(data, length) != length) png_error(png_ptr, "Read Error");
+        size_t data_read = file->read(data, length);
+        if (data_read != length)
+        {
+            png_error(png_ptr, "Read Error");
+        }
     }
-    static void user_error_fn(png_structp png_ptr,png_const_charp error_msg)
+    static void user_error_fn(png_structp png_ptr, png_const_charp error_msg)
     {
+#ifdef DEBUG
+        Log::logFormat(eLOG_FAILURE, "png error: %s", error_msg);
+#endif
         strncpy((char*)png_get_error_ptr(png_ptr), error_msg, 255);
         longjmp(png_jmpbuf(png_ptr), 1);
     }

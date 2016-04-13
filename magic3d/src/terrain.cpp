@@ -193,7 +193,7 @@ float *createMandelbrotImage(int width, int height, float xS, float yS, float ra
 
             if (iteration < maxIteration) {
                 float modZ = sqrt(x*x + y*y);
-                float mu = iteration - (log(log(modZ))) / log(2);
+                float mu = iteration - (log(log(modZ))) / log(2.0f);
                 if (mu > maxMu) maxMu = mu;
                 if (mu < minMu) minMu = mu;
                 buffer[yPos * width + xPos] = mu;
@@ -246,9 +246,9 @@ void Magic3D::Terrain::generateTerrain()
                 Memory mem;
                 ResourceManager::getInstance()->unpack(fileName, &mem);
 
-                mem.seeki( 0, std::ios::end );
-                numVertices = mem.telli();
-                mem.seeki( 0, std::ios::beg );
+                mem.seek( 0, std::ios::end );
+                numVertices = mem.tell();
+                mem.seek( 0, std::ios::beg );
 
                 heightsRaw = new unsigned char[numVertices];
                 mem.read( (char *)heightsRaw, numVertices );
@@ -279,7 +279,7 @@ void Magic3D::Terrain::generateTerrain()
 
         if (heightsRaw)
         {
-            width = sqrtl(numVertices);
+            width = sqrt((double)numVertices);
             length = width;
         }
 

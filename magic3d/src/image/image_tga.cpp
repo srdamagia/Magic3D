@@ -73,7 +73,7 @@ bool Magic3D::TGA::decode(DataBuffer* file)
 
         if (header.idLength > 0)
         {
-            file->seeki(header.idLength, SEEK_CUR);
+            file->seek(header.idLength, SEEK_CUR);
         }
 
         create(header.width, header.height, header.bpp);

@@ -218,6 +218,7 @@ void Magic3D::Input::dispatchEvent(INPUT input, EVENT event, int value)
             case eEVENT_MOUSE_MOVE:       ((EventListener_Mouse*)listener)->move(0, 0); break;
             case eEVENT_MOUSE_WHEEL:      ((EventListener_Mouse*)listener)->wheel(0, 0, 0); break;
 
+            case eEVENT_JOYSTICK_AXIS:    ((EventListener_Joystick*)listener)->axis(value, 0.0f); break;
             case eEVENT_JOYSTICK_DOWN:    ((EventListener_Joystick*)listener)->down(value); break;
             case eEVENT_JOYSTICK_PRESSED: ((EventListener_Joystick*)listener)->pressed(value); break;
             case eEVENT_JOYSTICK_UP:      ((EventListener_Joystick*)listener)->up(value); break;
@@ -297,6 +298,7 @@ void Magic3D::Input::dispatchEvent(INPUT input, EVENT event, int x, int y, int v
             case eEVENT_MOUSE_MOVE:       ((EventListener_Mouse*)listener)->move(fx, fy); break;
             case eEVENT_MOUSE_WHEEL:      ((EventListener_Mouse*)listener)->wheel(fx, fy, value); break;
 
+            case eEVENT_JOYSTICK_AXIS:    ((EventListener_Joystick*)listener)->axis(x, value); break;
             case eEVENT_JOYSTICK_DOWN:    ((EventListener_Joystick*)listener)->down(value); break;
             case eEVENT_JOYSTICK_PRESSED: ((EventListener_Joystick*)listener)->pressed(value); break;
             case eEVENT_JOYSTICK_UP:      ((EventListener_Joystick*)listener)->up(value); break;
@@ -377,6 +379,7 @@ void Magic3D::Input::dispatchEvent(INPUT input, EVENT event, float x, float y, f
             case eEVENT_MOUSE_MOVE:       ((EventListener_Mouse*)listener)->move(fx, fy); break;
             case eEVENT_MOUSE_WHEEL:       ((EventListener_Mouse*)listener)->wheel(fx, fy, fz); break;
 
+            case eEVENT_JOYSTICK_AXIS:    ((EventListener_Joystick*)listener)->axis(fx, fz); break;
             case eEVENT_JOYSTICK_DOWN:    ((EventListener_Joystick*)listener)->down(fz); break;
             case eEVENT_JOYSTICK_PRESSED: ((EventListener_Joystick*)listener)->pressed(fz); break;
             case eEVENT_JOYSTICK_UP:      ((EventListener_Joystick*)listener)->up(fz); break;
@@ -457,6 +460,7 @@ void Magic3D::Input::dispatchEvent(INPUT input, EVENT event, float x, float y, f
             case eEVENT_MOUSE_MOVE:       ((EventListener_Mouse*)listener)->move(fx, fy); break;
             case eEVENT_MOUSE_WHEEL:       ((EventListener_Mouse*)listener)->wheel(fx, fy, fz); break;
 
+            case eEVENT_JOYSTICK_AXIS:    ((EventListener_Joystick*)listener)->axis(fx, fz); break;
             case eEVENT_JOYSTICK_DOWN:    ((EventListener_Joystick*)listener)->down(fz); break;
             case eEVENT_JOYSTICK_PRESSED: ((EventListener_Joystick*)listener)->pressed(fz); break;
             case eEVENT_JOYSTICK_UP:      ((EventListener_Joystick*)listener)->up(fz); break;

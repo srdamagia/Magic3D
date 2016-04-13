@@ -24,7 +24,7 @@ subject to the following restrictions:
 #ifndef MAGIC3D_RENDERER_WINDOW_WIN_H
 #define MAGIC3D_RENDERER_WINDOW_WIN_H
 
-#if !defined(MAGIC3D_OES2)
+#if !defined(MAGIC3D_OES)
 #if defined(__WIN32__)
 #include <windows.h>
 #include <magic3d/renderer/renderer.h>

@@ -1,0 +1,1 @@
+ndk-build.cmd NDK_PROJECT_PATH=. NDK_APPLICATION_MK=./Application.mk NDK_LIBS_OUT=./templates/android/Game/app/src/main/jniLibs

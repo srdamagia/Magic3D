@@ -183,6 +183,9 @@ public:
     static bool finish();
     static std::string getApplicationPath(std::string path);
 
+    static std::string getPlatform();
+    static bool isMobile();
+
     const Magic3DConfiguration& getConfiguration();
     void setConfiguration(std::string selected);
 

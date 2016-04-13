@@ -38,6 +38,9 @@ public:
     ScriptMagic3D(lua_State *lua);
     virtual ~ScriptMagic3D();
 
+    int getPlatform(lua_State *lua);
+    int isMobile(lua_State *lua);
+
     int getObject(lua_State *lua);
     int setCamera3D(lua_State *lua);
     int setCamera2D(lua_State *lua);

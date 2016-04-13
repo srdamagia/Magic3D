@@ -104,7 +104,7 @@ void Magic3D::RendererOpenGL_Shaders::initialize()
     glClearDepthf(1.0f);
     check_gl_error();
 #else
-    glClearDepth(1.0f);
+    glClearDepth(1.0);
     check_gl_error();
 #endif
     glEnable(GL_BLEND);
@@ -203,7 +203,7 @@ bool Magic3D::RendererOpenGL_Shaders::render(Scene* scene)
     //glLineWidth(screenEffects ? 3.0f : 1.0f);
     //check_gl_error();
 
-#if defined(MAGIC3D_OES)
+#if defined(MAGIC3D_IOS)
     const GLenum discards[]  = {GL_COLOR_ATTACHMENT0, GL_DEPTH_ATTACHMENT, GL_STENCIL_ATTACHMENT};
 #endif
 
@@ -370,7 +370,7 @@ bool Magic3D::RendererOpenGL_Shaders::render(Scene* scene)
             screenViewPort->setArea(0.0f, 0.0f, 1.0f, 1.0f);
         }
 
-#if defined(MAGIC3D_OES)
+#if defined(MAGIC3D_IOS)
         glBindFramebuffer(GL_FRAMEBUFFER, defaultFBO);
         check_gl_error();
         glDiscardFramebufferEXT(GL_FRAMEBUFFER, 3, discards);
@@ -398,7 +398,7 @@ bool Magic3D::RendererOpenGL_Shaders::render(Scene* scene)
         renderScreen(getViewPort(currentViewPort)->getPerspective());
     }
 
-#if defined(MAGIC3D_OES)
+#if defined(MAGIC3D_IOS)
     if (fbo_shadows)
     {
         glBindFramebuffer(GL_FRAMEBUFFER, fbo_shadows->getID());
@@ -654,8 +654,21 @@ void Magic3D::RendererOpenGL_Shaders::renderScreen(Camera* camera)
 
         if (extVBO)
         {
+#ifndef MAGIC3D_NO_VAO
             glBindVertexArray(renderIDScreen.id);
             check_gl_error();
+#else
+            glBindBuffer(GL_ARRAY_BUFFER, renderIDScreen.data); check_gl_error();
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, renderIDScreen.index); check_gl_error();
+
+            glEnableVertexAttribArray(eVERTEX_POSITION); check_gl_error();
+            glEnableVertexAttribArray(eVERTEX_UV0); check_gl_error();
+
+            int stride = 0;
+
+            glVertexAttribPointer(eVERTEX_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(PlaneVertex), reinterpret_cast<void*>(stride)); check_gl_error(); stride += sizeof(Vector3);
+            glVertexAttribPointer(eVERTEX_UV0, 2, GL_FLOAT, GL_FALSE, sizeof(PlaneVertex), reinterpret_cast<void*>(stride)); check_gl_error();
+#endif
 
             int size = renderIDScreen.indexSize / sizeof(vindex);
 
@@ -676,21 +689,24 @@ void Magic3D::RendererOpenGL_Shaders::renderScreen(Camera* camera)
 
             rendererTriangles += renderIDScreen.indexSize / sizeof(vindex) - 2;
 
+#ifndef MAGIC3D_NO_VAO
             glBindVertexArray(0);
             check_gl_error();
+#else
+            glBindBuffer(GL_ARRAY_BUFFER, 0); check_gl_error();
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); check_gl_error();
+
+            glDisableVertexAttribArray(eVERTEX_POSITION); check_gl_error();
+            glDisableVertexAttribArray(eVERTEX_UV0); check_gl_error();
+#endif
         }
         else
         {
-            glEnableVertexAttribArray(eVERTEX_POSITION);
-            check_gl_error();
-            glEnableVertexAttribArray(eVERTEX_UV0);
-            check_gl_error();
+            glEnableVertexAttribArray(eVERTEX_POSITION); check_gl_error();
+            glEnableVertexAttribArray(eVERTEX_UV0); check_gl_error();
 
-            glVertexAttribPointer(eVERTEX_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(PlaneVertex), &posteffectsVertices.front().vertex);
-            check_gl_error();
-
-            glVertexAttribPointer(eVERTEX_UV0, 2, GL_FLOAT, GL_FALSE, sizeof(PlaneVertex), &posteffectsVertices.front().uv);
-            check_gl_error();
+            glVertexAttribPointer(eVERTEX_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(PlaneVertex), &posteffectsVertices.front().vertex); check_gl_error();
+            glVertexAttribPointer(eVERTEX_UV0, 2, GL_FLOAT, GL_FALSE, sizeof(PlaneVertex), &posteffectsVertices.front().uv); check_gl_error();
 
             int size = posteffectsTriangles.size();
 
@@ -708,10 +724,8 @@ void Magic3D::RendererOpenGL_Shaders::renderScreen(Camera* camera)
 
             rendererTriangles += posteffectsTriangles.size() - 2;
 
-            glDisableVertexAttribArray(eVERTEX_POSITION);
-            check_gl_error();
-            glDisableVertexAttribArray(eVERTEX_UV0);
-            check_gl_error();
+            glDisableVertexAttribArray(eVERTEX_POSITION); check_gl_error();
+            glDisableVertexAttribArray(eVERTEX_UV0); check_gl_error();
         }
 
         rendererDrawCalls++;
@@ -1888,8 +1902,37 @@ bool Magic3D::RendererOpenGL_Shaders::renderMeshData(MeshData* data, GLSLShader*
 
     if (data->isVBO())
     {
+#ifndef MAGIC3D_NO_VAO
         glBindVertexArray(data->getRenderID().id);
         check_gl_error();
+#else
+        glBindBuffer(GL_ARRAY_BUFFER, data->getRenderID().data); check_gl_error();
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, data->getRenderID().index); check_gl_error();
+
+        glEnableVertexAttribArray(eVERTEX_POSITION); check_gl_error();
+        glEnableVertexAttribArray(eVERTEX_NORMAL); check_gl_error();
+        glEnableVertexAttribArray(eVERTEX_TANGENT); check_gl_error();
+        glEnableVertexAttribArray(eVERTEX_COLOR); check_gl_error();
+        glEnableVertexAttribArray(eVERTEX_UV0); check_gl_error();
+        glEnableVertexAttribArray(eVERTEX_UV1); check_gl_error();
+        glEnableVertexAttribArray(eVERTEX_WEIGHTS); check_gl_error();
+        glEnableVertexAttribArray(eVERTEX_BONES); check_gl_error();
+
+        int inc = sizeof(Vertex3D);
+        int incVec3 = sizeof(Vector3);
+        int incVec4 = sizeof(Vector4);
+        int incTex = sizeof(Texture2D);
+        int stride = 0;
+
+        glVertexAttribPointer(eVERTEX_POSITION, 3, GL_FLOAT, GL_FALSE, inc, reinterpret_cast<void*>(stride)); check_gl_error(); stride += incVec3;
+        glVertexAttribPointer (eVERTEX_NORMAL, 3, GL_FLOAT, GL_FALSE, inc, reinterpret_cast<void*>(stride)); check_gl_error(); stride += incVec3;
+        glVertexAttribPointer (eVERTEX_TANGENT, 3, GL_FLOAT, GL_FALSE, inc, reinterpret_cast<void*>(stride)); check_gl_error(); stride += incVec3;
+        glVertexAttribPointer(eVERTEX_COLOR, 4, GL_FLOAT, GL_FALSE, inc, reinterpret_cast<void*>(stride)); check_gl_error(); stride += incVec4;
+        glVertexAttribPointer(eVERTEX_UV0, 2, GL_FLOAT, GL_FALSE, inc, reinterpret_cast<void*>(stride)); check_gl_error(); stride += incTex;
+        glVertexAttribPointer(eVERTEX_UV1, 2, GL_FLOAT, GL_FALSE, inc, reinterpret_cast<void*>(stride)); check_gl_error(); stride += incTex;
+        glVertexAttribPointer(eVERTEX_WEIGHTS, 4, GL_FLOAT, GL_FALSE, inc, reinterpret_cast<void*>(stride)); check_gl_error(); stride += incVec4;
+        glVertexAttribPointer(eVERTEX_BONES, 4, GL_FLOAT, GL_FALSE, inc, reinterpret_cast<void*>(stride)); check_gl_error();
+#endif
 
         int size = data->getIndexesCount();
 
@@ -1925,59 +1968,56 @@ bool Magic3D::RendererOpenGL_Shaders::renderMeshData(MeshData* data, GLSLShader*
 #endif
         }
 
+#ifndef MAGIC3D_NO_VAO
         glBindVertexArray(0);
         check_gl_error();
+#else
+        glBindBuffer(GL_ARRAY_BUFFER, 0); check_gl_error();
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); check_gl_error();
+
+        glDisableVertexAttribArray(eVERTEX_POSITION); check_gl_error();
+        glDisableVertexAttribArray(eVERTEX_NORMAL); check_gl_error();
+        glDisableVertexAttribArray(eVERTEX_TANGENT); check_gl_error();
+        glDisableVertexAttribArray(eVERTEX_COLOR); check_gl_error();
+        glDisableVertexAttribArray(eVERTEX_UV0); check_gl_error();
+        glDisableVertexAttribArray(eVERTEX_UV1); check_gl_error();
+        glDisableVertexAttribArray(eVERTEX_WEIGHTS); check_gl_error();
+        glDisableVertexAttribArray(eVERTEX_BONES); check_gl_error();
+#endif
     }
     else if (data->getVertices()->size() > 0)
     {
-        glEnableVertexAttribArray(eVERTEX_POSITION);
-        check_gl_error();
-        glEnableVertexAttribArray(eVERTEX_NORMAL);
-        check_gl_error();
-        glEnableVertexAttribArray(eVERTEX_TANGENT);
-        check_gl_error();
-        glEnableVertexAttribArray(eVERTEX_COLOR);
-        check_gl_error();
-        glEnableVertexAttribArray(eVERTEX_UV0);
-        check_gl_error();
-        glEnableVertexAttribArray(eVERTEX_UV1);
-        check_gl_error();
+        glEnableVertexAttribArray(eVERTEX_POSITION); check_gl_error();
+        glEnableVertexAttribArray(eVERTEX_NORMAL); check_gl_error();
+        glEnableVertexAttribArray(eVERTEX_TANGENT); check_gl_error();
+        glEnableVertexAttribArray(eVERTEX_COLOR); check_gl_error();
+        glEnableVertexAttribArray(eVERTEX_UV0); check_gl_error();
+        glEnableVertexAttribArray(eVERTEX_UV1); check_gl_error();
 
         if (skin)
         {
-            glEnableVertexAttribArray(eVERTEX_WEIGHTS);
-            check_gl_error();
-            glEnableVertexAttribArray(eVERTEX_BONES);
-            check_gl_error();
+            glEnableVertexAttribArray(eVERTEX_WEIGHTS); check_gl_error();
+            glEnableVertexAttribArray(eVERTEX_BONES); check_gl_error();
         }
 
         int inc = sizeof(Vertex3D);
-        glVertexAttribPointer(eVERTEX_POSITION, 3, GL_FLOAT, GL_FALSE, inc, &data->getVertices()->front().position);
-        check_gl_error();
-        glVertexAttribPointer(eVERTEX_NORMAL, 3, GL_FLOAT, GL_TRUE, inc, &data->getVertices()->front().normal);
-        check_gl_error();
-        glVertexAttribPointer(eVERTEX_TANGENT, 3, GL_FLOAT, GL_TRUE, inc, &data->getVertices()->front().tangent);
-        check_gl_error();
-        glVertexAttribPointer(eVERTEX_COLOR, 4, GL_FLOAT, GL_FALSE, inc, &data->getVertices()->front().color);
-        check_gl_error();
-        glVertexAttribPointer(eVERTEX_UV0, 2, GL_FLOAT, GL_FALSE, inc, &data->getVertices()->front().uv[0]);
-        check_gl_error();
-        glVertexAttribPointer(eVERTEX_UV1, 2, GL_FLOAT, GL_FALSE, inc, &data->getVertices()->front().uv[1]);
-        check_gl_error();
+        glVertexAttribPointer(eVERTEX_POSITION, 3, GL_FLOAT, GL_FALSE, inc, &data->getVertices()->front().position); check_gl_error();
+        glVertexAttribPointer(eVERTEX_NORMAL, 3, GL_FLOAT, GL_TRUE, inc, &data->getVertices()->front().normal); check_gl_error();
+        glVertexAttribPointer(eVERTEX_TANGENT, 3, GL_FLOAT, GL_TRUE, inc, &data->getVertices()->front().tangent); check_gl_error();
+        glVertexAttribPointer(eVERTEX_COLOR, 4, GL_FLOAT, GL_FALSE, inc, &data->getVertices()->front().color); check_gl_error();
+        glVertexAttribPointer(eVERTEX_UV0, 2, GL_FLOAT, GL_FALSE, inc, &data->getVertices()->front().uv[0]); check_gl_error();
+        glVertexAttribPointer(eVERTEX_UV1, 2, GL_FLOAT, GL_FALSE, inc, &data->getVertices()->front().uv[1]); check_gl_error();
 
         if (skin)
         {
-            glVertexAttribPointer(eVERTEX_WEIGHTS, 4, GL_FLOAT, GL_FALSE, inc, &data->getVertices()->front().weights);
-            check_gl_error();
-            glVertexAttribPointer(eVERTEX_BONES, 4, GL_FLOAT, GL_FALSE, inc, &data->getVertices()->front().bones);
-            check_gl_error();
+            glVertexAttribPointer(eVERTEX_WEIGHTS, 4, GL_FLOAT, GL_FALSE, inc, &data->getVertices()->front().weights); check_gl_error();
+            glVertexAttribPointer(eVERTEX_BONES, 4, GL_FLOAT, GL_FALSE, inc, &data->getVertices()->front().bones); check_gl_error();
         }
 
         int size = data->getIndexesCount();
         if (getRenderMode() == eRENDER_MODE_WIREFRAME && !isProfileObject(object))
         {
-            glDrawElements(GL_LINES,   data->getLinesCount() * 2, GL_UINT, &data->getLines()->front());
-            check_gl_error();
+            glDrawElements(GL_LINES,   data->getLinesCount() * 2, GL_UINT, &data->getLines()->front()); check_gl_error();
         }
         else
         {
@@ -1997,25 +2037,17 @@ bool Magic3D::RendererOpenGL_Shaders::renderMeshData(MeshData* data, GLSLShader*
             check_gl_error();
         }
 
-        glDisableVertexAttribArray(eVERTEX_POSITION);
-        check_gl_error();
-        glDisableVertexAttribArray(eVERTEX_NORMAL);
-        check_gl_error();
-        glDisableVertexAttribArray(eVERTEX_TANGENT);
-        check_gl_error();
-        glDisableVertexAttribArray(eVERTEX_COLOR);
-        check_gl_error();
-        glDisableVertexAttribArray(eVERTEX_UV0);
-        check_gl_error();
-        glDisableVertexAttribArray(eVERTEX_UV1);
-        check_gl_error();
+        glDisableVertexAttribArray(eVERTEX_POSITION); check_gl_error();
+        glDisableVertexAttribArray(eVERTEX_NORMAL); check_gl_error();
+        glDisableVertexAttribArray(eVERTEX_TANGENT); check_gl_error();
+        glDisableVertexAttribArray(eVERTEX_COLOR); check_gl_error();
+        glDisableVertexAttribArray(eVERTEX_UV0); check_gl_error();
+        glDisableVertexAttribArray(eVERTEX_UV1); check_gl_error();
 
         if (skin)
         {
-            glDisableVertexAttribArray(eVERTEX_WEIGHTS);
-            check_gl_error();
-            glDisableVertexAttribArray(eVERTEX_BONES);
-            check_gl_error();
+            glDisableVertexAttribArray(eVERTEX_WEIGHTS); check_gl_error();
+            glDisableVertexAttribArray(eVERTEX_BONES); check_gl_error();
         }
     }
 
@@ -3253,7 +3285,7 @@ void Magic3D::RendererOpenGL_Shaders::deleteShader(unsigned int shader)
 bool Magic3D::RendererOpenGL_Shaders::compileShader(unsigned int& shader, SHADER_TYPE type, std::string file)
 {
     bool result = true;
-    GLint status;
+    GLint status = 1;
     const GLchar *source;
 
     source = (GLchar*)file.c_str();
@@ -3280,7 +3312,7 @@ bool Magic3D::RendererOpenGL_Shaders::compileShader(unsigned int& shader, SHADER
         glCompileShader(shader);
         check_gl_error();
 
-        GLint logLength;
+        GLint logLength = 0;
         glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logLength);
         check_gl_error();
         if (logLength > 1)
@@ -3309,11 +3341,11 @@ bool Magic3D::RendererOpenGL_Shaders::compileShader(unsigned int& shader, SHADER
 bool Magic3D::RendererOpenGL_Shaders::linkProgram(GLuint prog)
 {
     bool result = true;
-    GLint status;
+    GLint status = 1;
     glLinkProgram(prog);
     check_gl_error();
 
-    GLint logLength;
+    GLint logLength = 0;
     glGetProgramiv(prog, GL_INFO_LOG_LENGTH, &logLength);
     check_gl_error();
     if (logLength > 1)
@@ -3339,7 +3371,8 @@ bool Magic3D::RendererOpenGL_Shaders::linkProgram(GLuint prog)
 bool Magic3D::RendererOpenGL_Shaders::validateProgram(GLuint prog)
 {
     bool result = true;
-    GLint logLength, status;
+    GLint logLength = 0;
+    GLint status = 1;
 
     glValidateProgram(prog);
     check_gl_error();
@@ -3662,11 +3695,42 @@ void Magic3D::RendererOpenGL_Shaders::blurTexture(FBO* fbo, int amount, float st
         setUniform2f(glsl->uniforms[eUNIFORM_SIZE_TEXTURE_0], oglFBO->getWidth(), oglFBO->getHeight());
         check_gl_error();
 
-        glBindVertexArray(renderIDPlane.id);
-        check_gl_error();
+        if (extVBO)
+        {
+#ifndef MAGIC3D_NO_VAO
+            glBindVertexArray(renderIDPlane.id);
+            check_gl_error();
+#else
+            glBindBuffer(GL_ARRAY_BUFFER, renderIDPlane.data); check_gl_error();
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, renderIDPlane.index); check_gl_error();
+
+            glEnableVertexAttribArray(eVERTEX_POSITION); check_gl_error();
+            glEnableVertexAttribArray(eVERTEX_UV0); check_gl_error();
+
+            int stride = 0;
+
+            glVertexAttribPointer(eVERTEX_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(PlaneVertex), reinterpret_cast<void*>(stride)); check_gl_error(); stride += sizeof(Vector3);
+            glVertexAttribPointer(eVERTEX_UV0, 2, GL_FLOAT, GL_FALSE, sizeof(PlaneVertex), reinterpret_cast<void*>(stride)); check_gl_error();
+#endif
+        }
+        else
+        {
+            glEnableVertexAttribArray(eVERTEX_POSITION); check_gl_error();
+            glEnableVertexAttribArray(eVERTEX_UV0); check_gl_error();
+
+            glVertexAttribPointer(eVERTEX_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(PlaneVertex), &planeVertices[0].vertex); check_gl_error();
+            glVertexAttribPointer(eVERTEX_UV0, 2, GL_FLOAT, GL_FALSE, sizeof(PlaneVertex), &planeVertices[0].uv); check_gl_error();
+        }
 
         // Draw the quad
-        glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UINT, 0);
+        if (extVBO)
+        {
+            glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UINT, 0);
+        }
+        else
+        {
+            glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UINT, &planeTriangles);
+        }
         check_gl_error();
 
 
@@ -3695,11 +3759,34 @@ void Magic3D::RendererOpenGL_Shaders::blurTexture(FBO* fbo, int amount, float st
         check_gl_error();
 
         // Draw the quad
-        glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UINT, 0);
+        if (extVBO)
+        {
+            glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UINT, 0);
+        }
+        else
+        {
+            glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UINT, &planeTriangles);
+        }
         check_gl_error();
 
-        glBindVertexArray(0);
-        check_gl_error();
+        if (extVBO)
+        {
+#ifndef MAGIC3D_NO_VAO
+            glBindVertexArray(0);
+            check_gl_error();
+#else
+            glBindBuffer(GL_ARRAY_BUFFER, 0); check_gl_error();
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); check_gl_error();
+
+            glDisableVertexAttribArray(eVERTEX_POSITION); check_gl_error();
+            glDisableVertexAttribArray(eVERTEX_UV0); check_gl_error();
+#endif
+        }
+        else
+        {
+            glDisableVertexAttribArray(eVERTEX_POSITION); check_gl_error();
+            glDisableVertexAttribArray(eVERTEX_UV0); check_gl_error();
+        }
 
         if (lastShader)
         {

@@ -218,7 +218,7 @@ vec4 shadow(vec4 color)
             factor -= depthZ > comp + c ? SHADOW_INTENSITY * (1.0 - z) : 0.0;
         }
         #endif
-#endif
+
         float step = 2.5;
         float dist = mix(zNear + (step / 4.0) * (zFar - zNear), zNear * pow(zFar / zNear, step / 4.0), 0.8);
         float blend = abs(vertexPosition.z) / dist;
@@ -227,6 +227,9 @@ vec4 shadow(vec4 color)
         {            
             color.rgb *= clamp(smoothstep(0.25, 1.0, blend) + factor, 0.0, 1.0);
         }
+#else
+        color.rgb *= factor;
+#endif
     }
 
     return color;

@@ -256,7 +256,7 @@ void updateSimple()
 void scrollUVS(vec2 tile, vec2 scroll, vec2 speed)
 {
     vec2 finalTile = vec2(1.0, 1.0) / tile;
-    vec2 finalScroll = vec2(scroll.x * finalTile.x, (tile.y * finalTile.y - finalTile.y) - scroll.y * finalTile.y) + (time * speed);
+    vec2 finalScroll = vec2(scroll.x * finalTile.x, (tile.y * finalTile.y - finalTile.y) - scroll.y * finalTile.y) + fract(time * speed);
     uvs.xy = (uvs.xy * finalTile) + finalScroll;
     uvs.zw = (uvs.zw * finalTile) + finalScroll;
 }

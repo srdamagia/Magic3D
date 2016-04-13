@@ -54,7 +54,7 @@ Magic3D::MeshData::MeshData(const MeshData& meshData)
         Renderer* renderer = Renderer::getInstance();
         if (renderer)
         {
-            if (renderer->hasMapBuffer())
+            if (!renderer->hasMapBuffer())
             {
                 createVbo();
             }
@@ -418,7 +418,7 @@ int Magic3D::MeshData::getVerticesCount()
 {
     int result = 0;
 
-    if (isVBO())
+    if (Renderer::getInstance()->hasMapBuffer() && isVBO())
     {
         result = renderID.dataSize / sizeof(Vertex3D);
     }
@@ -434,7 +434,7 @@ int Magic3D::MeshData::getIndexesCount()
 {
     int result = 0;
 
-    if (isVBO())
+    if (Renderer::getInstance()->hasMapBuffer() && isVBO())
     {
         result = renderID.indexSize / sizeof(vindex);
     }
@@ -450,7 +450,7 @@ int Magic3D::MeshData::getTrianglesCount()
 {
     int result = 0;
 
-    if (isVBO())
+    if (Renderer::getInstance()->hasMapBuffer() && isVBO())
     {
         result = renderID.indexSize / sizeof(vindex);
     }

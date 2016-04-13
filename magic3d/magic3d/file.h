@@ -35,14 +35,12 @@ public:
     DataBuffer(){}
     virtual ~DataBuffer(){}
     virtual size_t read(void *buffer, size_t size) = 0;
+    virtual size_t readsome(void *buffer, size_t size) = 0;
     virtual size_t write(const void *buffer, size_t size) = 0;
 
-    virtual bool seeki(long offset, int origin) = 0;
-    virtual bool seeko(long offset, int origin) = 0;
-    virtual long telli() = 0;
-    virtual long tello() = 0;
-    virtual long sizei() = 0;
-    virtual long sizeo() = 0;
+    virtual bool seek(long offset, int origin) = 0;
+    virtual long tell() = 0;
+    virtual long size() = 0;
     virtual bool flush() = 0;
     virtual bool eof() = 0;
     virtual bool put(char c) = 0;
@@ -104,6 +102,11 @@ public:
         return result;
     }
 
+    virtual size_t readsome(void *buffer, size_t size)
+    {
+        return read(buffer, size);
+    }
+
     virtual size_t write(const void *buffer, size_t size)
     {
         size_t result = 0;
@@ -123,8 +126,6 @@ public:
         }
         return result;
     }
-    virtual bool seeki(long offset, int origin) {return seek(offset, origin);}
-    virtual bool seeko(long offset, int origin) {return seek(offset, origin);}
 
     virtual long tell()
     {
@@ -135,9 +136,6 @@ public:
         }
         return result;
     }
-    virtual long telli() {return tell();}
-    virtual long tello() {return tell();}
-
 
     virtual long size()
     {
@@ -152,8 +150,6 @@ public:
         }
         return result;
     }
-    virtual long sizei() {return size();}
-    virtual long sizeo() {return size();}
 
     virtual bool flush()
     {
@@ -233,53 +229,38 @@ public:
         return size;
     }
 
+    virtual size_t readsome(void *buffer, size_t size)
+    {
+        return this->buffer.readsome((char*)buffer, size);
+    }
+
     virtual size_t write(const void *buffer, size_t size)
     {
         this->buffer.write((const char*)buffer, size);
         return size;
     }
 
-    virtual bool seeki(long offset, int origin)
+    virtual bool seek(long offset, int origin)
     {
         this->buffer.seekg(offset, (std::ios_base::seekdir)origin);
-        return true;
+        //this->buffer.seekp(offset, (std::ios_base::seekdir)origin);
+        return !eof();
     }
 
-    virtual bool seeko(long offset, int origin)
-    {
-        this->buffer.seekp(offset, (std::ios_base::seekdir)origin);
-        return true;
-    }
-
-    virtual long telli()
+    virtual long tell()
     {
         return buffer.tellg();
+        //return buffer.tellp();
     }
 
-    virtual long tello()
-    {
-        return buffer.tellp();
-    }
-
-    virtual long sizei()
+    virtual long size()
     {
         long result = -1L;
         long pos;
-        pos = telli();
-        seeki(0, buffer.end);
-        result = telli();
-        seeki(pos, buffer.beg);
-        return result;
-    }
-
-    virtual long sizeo()
-    {
-        long result = -1L;
-        long pos;
-        pos = tello();
-        seeko(0, buffer.end);
-        result = tello();
-        seeko(pos, buffer.beg);
+        pos = tell();
+        seek(0, buffer.end);
+        result = tell();
+        seek(pos, buffer.beg);
         return result;
     }
 
@@ -305,7 +286,7 @@ public:
         return buffer.get();
     }
 
-    virtual  std::basic_stringbuf<std::stringstream::char_type, std::stringstream::traits_type, std::stringstream::allocator_type>* getBuffer()
+    virtual  std::basic_stringbuf<std::stringstream::char_type, std::stringstream::traits_type, std::allocator<char> >* getBuffer()
     {
         return buffer.rdbuf();
     }

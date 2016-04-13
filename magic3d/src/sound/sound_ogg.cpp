@@ -29,27 +29,10 @@ size_t vorbis_read(void* data_ptr, size_t byteSize, size_t sizeToRead, void* dat
     Magic3D::Memory* vorbisData = static_cast<Magic3D::Memory*>(data_src);
     if (vorbisData == NULL)
     {
-        return -1;
+        return 0;
     }
 
-    size_t actualSizeToRead = vorbisData->sizei() - vorbisData->telli();
-    size_t spaceToEOF       = actualSizeToRead;
-
-    if ((sizeToRead * byteSize) < spaceToEOF)
-    {
-        actualSizeToRead = (sizeToRead * byteSize);
-    }
-    else
-    {
-        actualSizeToRead = spaceToEOF;
-    }
-
-    if (actualSizeToRead)
-    {
-        vorbisData->read(data_ptr, actualSizeToRead);
-    }
-
-    return actualSizeToRead;
+    return vorbisData->readsome(data_ptr, sizeToRead * byteSize);
 }
 
 int vorbis_seek(void* data_src, ogg_int64_t offset, int origin)
@@ -60,9 +43,20 @@ int vorbis_seek(void* data_src, ogg_int64_t offset, int origin)
         return -1;
     }
 
-    vorbisData->seeki(offset, origin);
+    bool result = vorbisData->seek(offset, origin);
 
-    return 0;
+    return !result ? -1 : 0;
+}
+
+long vorbis_tell(void* data_src)
+{
+    Magic3D::Memory* vorbisData = static_cast<Magic3D::Memory*>(data_src);
+    if (vorbisData == NULL)
+    {
+        return -1;
+    }
+
+    return vorbisData->tell();
 }
 
 int vorbis_close(void* data_src)
@@ -76,17 +70,6 @@ int vorbis_close(void* data_src)
     }
 
     return EOF;
-}
-
-long vorbis_tell(void* data_src)
-{
-    Magic3D::Memory* vorbisData = static_cast<Magic3D::Memory*>(data_src);
-    if (vorbisData == NULL)
-    {
-        return -1;
-    }
-
-    return vorbisData->telli();
 }
 
 //************************************************************************************
@@ -182,7 +165,7 @@ void Magic3D::SoundOGG::load()
         oggCallbacks.seek_func = vorbis_seek;
         oggCallbacks.tell_func = vorbis_tell;
 
-        ov_ret = ov_open_callbacks(memoryFile, &sOggVorbisFile, NULL, 0, oggCallbacks);
+        ov_ret = ov_open_callbacks(memoryFile, &sOggVorbisFile, NULL, 0, oggCallbacks);        
     }
     else
     {
@@ -326,6 +309,8 @@ void Magic3D::SoundOGG::release()
     //if (pOggVorbisFile) {
     //    fclose(pOggVorbisFile);
     //}
+
+    memoryFile = NULL;
 }
 
 void Magic3D::SoundOGG::play()

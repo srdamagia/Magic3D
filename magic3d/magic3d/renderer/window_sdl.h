@@ -24,9 +24,9 @@ subject to the following restrictions:
 #ifndef MAGIC3D_RENDERER_WINDOW_SDL_H
 #define MAGIC3D_RENDERER_WINDOW_SDL_H
 
-#if !defined(MAGIC3D_OES2)
+#if !defined(MAGIC3D_IOS)
 #include <magic3d/renderer/renderer.h>
-#if defined(__linux__)
+#if defined(__linux__) && !defined(MAGIC3D_ANDROID)
 #include <SDL2/SDL.h>
 #else
 #include <SDL.h>
@@ -45,6 +45,10 @@ private:
 
     SDL_Window* window;
     SDL_GLContext glcontext;
+
+    SDL_GameController *pad;
+    SDL_Joystick* joy;
+    int joystick;
 
     bool relative;
 

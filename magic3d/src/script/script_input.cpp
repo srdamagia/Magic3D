@@ -116,6 +116,16 @@ void Magic3D::Script_Input_Mouse::wheel(int x, int y, int delta)
 }
 
 //********************************************************************************
+void Magic3D::Script_Input_Joystick::axis(int axis, float value)
+{
+    std::string function(M3D_SCRIPT_JOYSTICK_AXIS);
+    if (Script::getInstance()->on_joystick_axis && Script::getInstance()->startCall(function))
+    {
+        Script::getInstance()->pushInteger(axis);
+        Script::getInstance()->pushNumber(value);
+        Script::getInstance()->call(function, 2);
+    }
+}
 
 void Magic3D::Script_Input_Joystick::down(int button)
 {

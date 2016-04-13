@@ -229,6 +229,29 @@ Magic3D::Renderer::Renderer()
     }
 
     MeshData::createPlaneStrip(&posteffectsTriangles, &posteffectsLines, vcount, vcount);
+
+    PlaneVertex tmp;
+
+    tmp.vertex = Vector3(-1.0f, -1.0f, 0.0f);
+    tmp.uv = Texture2D(0.0f, 0.0f);
+    planeVertices[0] = tmp;
+
+    tmp.vertex = Vector3(1.0f, -1.0f, 0.0f);
+    tmp.uv = Texture2D(1.0f, 0.0f);
+    planeVertices[1] = tmp;
+
+    tmp.vertex = Vector3(-1.0f, 1.0f, 0.0f);
+    tmp.uv = Texture2D(0.0f, 1.0f);
+    planeVertices[2] = tmp;
+
+    tmp.vertex = Vector3(1.0f, 1.0f, 0.0f);
+    tmp.uv = Texture2D(1.0f, 1.0f);
+    planeVertices[3] = tmp;
+
+    for (int i = 0; i < 4; i++)
+    {
+        planeTriangles[i] = i;
+    }
 }
 
 Magic3D::Renderer::~Renderer()

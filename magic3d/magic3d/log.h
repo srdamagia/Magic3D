@@ -40,15 +40,22 @@ enum LOG
 
 class LogCallBack
 {
+private:
+    bool simple;
 public:
-    LogCallBack()
+    LogCallBack(bool simple)
     {
-
+        this->simple = simple;
     }
     virtual ~LogCallBack()
     {
 
     }
+    bool isSimple()
+    {
+        return simple;
+    }
+
     virtual void log(LOG type, const char* text) = 0;
 };
 

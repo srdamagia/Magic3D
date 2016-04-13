@@ -32,6 +32,9 @@ Magic3D::WindowSDL* Magic3D::WindowSDL::instance = NULL;
 Magic3D::WindowSDL::WindowSDL()
 {
     window = NULL;
+    pad = NULL;
+    joy = NULL;
+    joystick = -1;
     title  = Magic3D::getInstance()->getConfiguration().TITLE;
     width  = Magic3D::getInstance()->getConfiguration().WINDOW_WIDTH;
     height = Magic3D::getInstance()->getConfiguration().WINDOW_HEIGHT;
@@ -76,6 +79,10 @@ bool Magic3D::WindowSDL::finish()
 
     SDL_ShowCursor(true);
     ImGui_GL_Shutdown();
+
+    SDL_JoystickClose(joy);
+    SDL_GameControllerClose(pad);
+
     SDL_GL_DeleteContext(glcontext);
     SDL_DestroyWindow(window);
     SDL_Quit();
@@ -184,19 +191,78 @@ bool Magic3D::WindowSDL::render()
 
                 case SDL_FINGERMOTION:
                 {
-                    Input::getInstance()->dispatchEvent(eINPUT_TOUCH, eEVENT_TOUCH_MOVE, event.tfinger.x, event.tfinger.y, event.tfinger.fingerId);
+                    int x, y;
+                    SDL_GetMouseState(&x, &y);
+                    Input::getInstance()->dispatchEvent(eINPUT_TOUCH, eEVENT_TOUCH_MOVE, x, y, event.tfinger.fingerId + 1);
                     break;
                 }
 
                 case SDL_FINGERDOWN:
                 {
-                    Input::getInstance()->dispatchEvent(eINPUT_TOUCH, eEVENT_TOUCH_DOWN, event.tfinger.x, event.tfinger.y, event.tfinger.fingerId);
+                    int x, y;
+                    SDL_GetMouseState(&x, &y);
+                    Input::getInstance()->dispatchEvent(eINPUT_TOUCH, eEVENT_TOUCH_DOWN, x, y, event.tfinger.fingerId + 1);
                     break;
                 }
 
                 case SDL_FINGERUP:
                 {
-                    Input::getInstance()->dispatchEvent(eINPUT_TOUCH, eEVENT_TOUCH_UP, event.tfinger.x, event.tfinger.y, event.tfinger.fingerId);
+                    int x, y;
+                    SDL_GetMouseState(&x, &y);
+                    Input::getInstance()->dispatchEvent(eINPUT_TOUCH, eEVENT_TOUCH_UP, x, y, event.tfinger.fingerId + 1);
+                    break;
+                }
+
+                case SDL_JOYAXISMOTION:
+                {
+                    if (event.jaxis.value < -8000 || event.jaxis.value > 8000)
+                    {
+                        float value = (float)event.jaxis.value;
+                        if (value < 0.0f)
+                        {
+                             value = value / 32768.0f;
+                        }
+                        else
+                        {
+                            value = value /  32767.0f;
+                        }
+                        Input::getInstance()->dispatchEvent(eINPUT_JOYSTICK, eEVENT_JOYSTICK_AXIS, (float)event.jaxis.axis, 0.0f, value);
+                    }
+                    break;
+                }
+                case SDL_JOYBALLMOTION:
+                {
+                    Input::getInstance()->dispatchEvent(eINPUT_JOYSTICK, eEVENT_JOYSTICK_AXIS, event.jball.ball, event.jball.xrel, event.jball.yrel);
+                    break;
+                }
+                case SDL_JOYHATMOTION:
+                {
+                    Input::getInstance()->dispatchEvent(eINPUT_JOYSTICK, eEVENT_JOYSTICK_AXIS, event.jhat.hat, 2, event.jhat.value);
+                    break;
+                }
+                case SDL_JOYBUTTONDOWN:
+                {
+                    Input::getInstance()->dispatchEvent(eINPUT_JOYSTICK, eEVENT_JOYSTICK_DOWN, event.jbutton.button);
+                    break;
+                }
+                case SDL_JOYBUTTONUP:
+                {
+                    Input::getInstance()->dispatchEvent(eINPUT_JOYSTICK, eEVENT_JOYSTICK_UP, event.jbutton.button);
+                    break;
+                }
+                case SDL_CONTROLLERAXISMOTION:
+                {
+                    Input::getInstance()->dispatchEvent(eINPUT_JOYSTICK, eEVENT_JOYSTICK_AXIS, event.jaxis.axis, 0, event.jaxis.value);
+                    break;
+                }
+                case SDL_CONTROLLERBUTTONDOWN:
+                {
+                    Input::getInstance()->dispatchEvent(eINPUT_JOYSTICK, eEVENT_JOYSTICK_DOWN, event.cbutton.button);
+                    break;
+                }
+                case SDL_CONTROLLERBUTTONUP:
+                {
+                    Input::getInstance()->dispatchEvent(eINPUT_JOYSTICK, eEVENT_JOYSTICK_UP, event.cbutton.button);
                     break;
                 }
             }
@@ -236,7 +302,7 @@ bool Magic3D::WindowSDL::render()
                 }
             }
         }
-    }
+    }        
 
     if (isRelativeMouseMode())
     {
@@ -251,6 +317,7 @@ bool Magic3D::WindowSDL::render()
 
         ImGui::Render();
     }
+
     SDL_GL_SwapWindow(window);
 
     return true;
@@ -409,6 +476,36 @@ bool Magic3D::WindowSDL::create()
     if (SDL_GL_SetSwapInterval(Magic3D::getInstance()->getConfiguration().VSYNC ? 1 : 0))
     {
         Log::logFormat(eLOG_FAILURE, "Warning: Unable to set VSync! SDL Error: %s\n", SDL_GetError());
+    }
+
+    for (int i = 0; i < SDL_NumJoysticks(); ++i)
+    {
+        if (SDL_IsGameController(i))
+        {
+            pad = SDL_GameControllerOpen(i);
+            if (pad) {
+                joy = SDL_GameControllerGetJoystick(pad);
+                joystick = SDL_JoystickInstanceID(joy);
+                break;
+            }
+            else
+            {
+                Log::logFormat(eLOG_FAILURE, "Could not open gamecontroller %i: %s\n", i, SDL_GetError());
+            }
+        }
+        else
+        {
+            joy = SDL_JoystickOpen(i);
+            if (joy)
+            {
+                joystick = SDL_JoystickInstanceID(joy);
+            }
+            else
+            {
+                Log::logFormat(eLOG_FAILURE, "Could not open joystick %i: %s\n", i, SDL_GetError());
+            }
+            break;
+        }
     }
 
     // Setup ImGui binding

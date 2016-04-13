@@ -40,6 +40,7 @@ namespace Magic3D
 #define M3D_SCRIPT_MOUSE_MOVE       "on_mouse_move"
 #define M3D_SCRIPT_MOUSE_WHEEL      "on_mouse_wheel"
 
+#define M3D_SCRIPT_JOYSTICK_AXIS    "on_joystick_axis"
 #define M3D_SCRIPT_JOYSTICK_DOWN    "on_joystick_down"
 #define M3D_SCRIPT_JOYSTICK_PRESSED "on_joystick_pressed"
 #define M3D_SCRIPT_JOYSTICK_UP      "on_joystick_up"
@@ -70,6 +71,7 @@ public:
 
 class Script_Input_Joystick : public EventListener_Joystick {
 public:
+    virtual void axis(int axis, float value);
     virtual void down(int button);
     virtual void pressed(int button);
     virtual void up(int button);

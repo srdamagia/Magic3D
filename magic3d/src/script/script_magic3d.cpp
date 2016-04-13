@@ -28,6 +28,8 @@ const char Magic3D::ScriptMagic3D::className[] = "Magic3D";
 
 Magic3D::ScriptClass<Magic3D::ScriptMagic3D>::ScriptEnum Magic3D::ScriptMagic3D::enums[] = {{NULL, 0}};
 Magic3D::ScriptClass<Magic3D::ScriptMagic3D>::ScriptFunction Magic3D::ScriptMagic3D::functions[] = {
+    ScriptClassFunction(ScriptMagic3D, getPlatform, "string getPlatform()", "Return the current platform."),
+    ScriptClassFunction(ScriptMagic3D, isMobile, "bool isMobile()", "Return true if running in a mobile device."),
     ScriptClassFunction(ScriptMagic3D, getObject, "Object* getObject(string name)", "Get an object from scene by name."),
     ScriptClassFunction(ScriptMagic3D, setCamera3D, "void setCamera3D(string name)", "Set current perspective camera."),
     ScriptClassFunction(ScriptMagic3D, setCamera2D, "void setCamera2D(string name)", "Set current orthographic camera."),
@@ -119,6 +121,18 @@ Magic3D::ScriptMagic3D::ScriptMagic3D(lua_State *lua) : ScriptBasic(className)
 Magic3D::ScriptMagic3D::~ScriptMagic3D()
 {
 
+}
+
+int Magic3D::ScriptMagic3D::getPlatform(lua_State *lua)
+{
+    lua_pushstring(lua, Magic3D::getInstance()->getPlatform().c_str());
+    return 1;
+}
+
+int Magic3D::ScriptMagic3D::isMobile(lua_State *lua)
+{
+    lua_pushboolean(lua, Magic3D::getInstance()->isMobile());
+    return 1;
 }
 
 int Magic3D::ScriptMagic3D::getObject(lua_State *lua)

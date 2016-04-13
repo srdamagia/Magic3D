@@ -94,7 +94,14 @@ void Magic3D::ImGui_GL_RenderDrawLists(ImDrawData* draw_data)
     glUseProgram(g_ShaderHandle);
     glUniform1i(g_AttribLocationTex, 0);
     glUniformMatrix4fv(g_AttribLocationProjMtx, 1, GL_FALSE, &ortho_projection[0][0]);
+
+#ifndef MAGIC3D_NO_VAO
     glBindVertexArray(g_VaoHandle);
+#else
+    glEnableVertexAttribArray(g_AttribLocationPosition);
+    glEnableVertexAttribArray(g_AttribLocationUV);
+    glEnableVertexAttribArray(g_AttribLocationColor);
+#endif
 
     for (int n = 0; n < draw_data->CmdListsCount; n++)
     {
@@ -106,6 +113,15 @@ void Magic3D::ImGui_GL_RenderDrawLists(ImDrawData* draw_data)
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_ElementsHandle);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, (GLsizeiptr)cmd_list->IdxBuffer.size() * sizeof(ImDrawIdx), (GLvoid*)&cmd_list->IdxBuffer.front(), GL_STREAM_DRAW);
+
+#ifdef MAGIC3D_NO_VAO
+        #define OFFSETOF(TYPE, ELEMENT) ((size_t)&(((TYPE *)0)->ELEMENT))
+            glVertexAttribPointer(g_AttribLocationPosition, 2, GL_FLOAT, GL_FALSE, sizeof(ImDrawVert), (GLvoid*)OFFSETOF(ImDrawVert, pos));
+            glVertexAttribPointer(g_AttribLocationUV, 2, GL_FLOAT, GL_FALSE, sizeof(ImDrawVert), (GLvoid*)OFFSETOF(ImDrawVert, uv));
+            glVertexAttribPointer(g_AttribLocationColor, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(ImDrawVert), (GLvoid*)OFFSETOF(ImDrawVert, col));
+        #undef OFFSETOF
+#endif
+
 
         for (const ImDrawCmd* pcmd = cmd_list->CmdBuffer.begin(); pcmd != cmd_list->CmdBuffer.end(); pcmd++)
         {
@@ -126,7 +142,13 @@ void Magic3D::ImGui_GL_RenderDrawLists(ImDrawData* draw_data)
     // Restore modified GL state
     glUseProgram(last_program);
     glBindTexture(GL_TEXTURE_2D, last_texture);
+#ifndef MAGIC3D_NO_VAO
     glBindVertexArray(last_vertex_array);
+#else
+    glDisableVertexAttribArray(g_AttribLocationPosition);
+    glDisableVertexAttribArray(g_AttribLocationUV);
+    glDisableVertexAttribArray(g_AttribLocationColor);
+#endif
     glBindBuffer(GL_ARRAY_BUFFER, last_array_buffer);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, last_element_array_buffer);
     glBlendEquationSeparate(last_blend_equation_rgb, last_blend_equation_alpha);
@@ -264,8 +286,11 @@ bool Magic3D::ImGui_GL_CreateDeviceObjects()
     glGenBuffers(1, &g_VboHandle);
     glGenBuffers(1, &g_ElementsHandle);
 
+#ifndef MAGIC3D_NO_VAO
     glGenVertexArrays(1, &g_VaoHandle);
     glBindVertexArray(g_VaoHandle);
+#endif
+
     glBindBuffer(GL_ARRAY_BUFFER, g_VboHandle);
     glEnableVertexAttribArray(g_AttribLocationPosition);
     glEnableVertexAttribArray(g_AttribLocationUV);
@@ -282,14 +307,19 @@ bool Magic3D::ImGui_GL_CreateDeviceObjects()
     // Restore modified GL state
     glBindTexture(GL_TEXTURE_2D, last_texture);
     glBindBuffer(GL_ARRAY_BUFFER, last_array_buffer);
+
+#ifndef MAGIC3D_NO_VAO
     glBindVertexArray(last_vertex_array);
+#endif
 
     return true;
 }
 
 void Magic3D::ImGui_GL_InvalidateDeviceObjects()
 {
+#ifndef MAGIC3D_NO_VAO
     if (g_VaoHandle) glDeleteVertexArrays(1, &g_VaoHandle);
+#endif
     if (g_VboHandle) glDeleteBuffers(1, &g_VboHandle);
     if (g_ElementsHandle) glDeleteBuffers(1, &g_ElementsHandle);
     g_VaoHandle = g_VboHandle = g_ElementsHandle = 0;

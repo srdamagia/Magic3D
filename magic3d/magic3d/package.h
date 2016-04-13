@@ -61,7 +61,7 @@ extern "C" {
     #include "iowin32.h"
 #endif
 
-#if defined(__APPLE__)
+#if defined(__APPLE__) || defined(MAGIC3D_ANDROID)
     #define off64_t off_t
     #define fopen64 fopen
     #define fseeko64 fseeko

@@ -40,8 +40,13 @@ subject to the following restrictions:
     #if defined(__linux__)
         #define GL_GLEXT_PROTOTYPES 1
     #endif
-    #include <GL/gl.h>
-    #include <GL/glext.h>
+    #if defined(MAGIC3D_ANDROID)
+        #include <GLES2/gl2.h>
+        #include <GLES2/gl2ext.h>
+    #else
+        #include <GL/gl.h>
+        #include <GL/glext.h>
+    #endif
 #endif
 
 #if defined(__WIN32__)
@@ -144,17 +149,24 @@ extern PFNGLBLENDEQUATIONSEPARATEEXTPROC glBlendEquationSeparate;
 #endif
 #endif
 
+#if defined(MAGIC3D_ANDROID)
+#define MAGIC3D_NO_VAO
+#define GL_TEXTURE_MAX_LEVEL 0x813D
+#endif
 #if defined(__APPLE__)
-#if defined(MAGIC3D_OES1) || defined(MAGIC3D_OES2)
-#define glGenVertexArrays glGenVertexArraysOES
-#define glBindVertexArray glBindVertexArrayOES
-#define glDeleteVertexArrays glDeleteVertexArraysOES
+#if defined(MAGIC3D_OES)
 #define GL_TEXTURE_MAX_LEVEL GL_TEXTURE_MAX_LEVEL_APPLE
 #else
 #define glGenVertexArrays glGenVertexArraysAPPLE
 #define glBindVertexArray glBindVertexArrayAPPLE
 #define glDeleteVertexArrays glDeleteVertexArraysAPPLE
 #endif
+#endif
+
+#if defined(MAGIC3D_OES)
+#define glGenVertexArrays glGenVertexArraysOES
+#define glBindVertexArray glBindVertexArrayOES
+#define glDeleteVertexArrays glDeleteVertexArraysOES
 #endif
 
 #if defined(MAGIC3D_OES1)

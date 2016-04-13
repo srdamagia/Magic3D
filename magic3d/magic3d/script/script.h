@@ -363,6 +363,7 @@ public:
     bool on_mouse_move;
     bool on_mouse_wheel;
 
+    bool on_joystick_axis;
     bool on_joystick_down;
     bool on_joystick_pressed;
     bool on_joystick_up;

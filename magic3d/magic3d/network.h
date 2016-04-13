@@ -125,9 +125,7 @@ private:
     void sendPacket(ENetPacket* packet);
     void broadcastPacket(ENetPacket* packet);
 
-    Object* spawnObject(std::string name, enet_uint32 id);
-
-    void log(LOG type, const char* format, ...);
+    Object* spawnObject(std::string name, enet_uint32 id);    
 
 public:
     static bool start();
@@ -163,6 +161,8 @@ public:
     void sendText(std::string text);
     void sendCommand(std::string command, std::string value);
     void sendDisconnect(enet_uint32 id);
+
+    void log(LOG type, const char* format, ...);
 };
 
 }

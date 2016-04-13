@@ -96,7 +96,7 @@ bool Magic3D::Log::clear() {
     fprintf(pFile, "<HTML>\n<TITLE>%s</TITLE>\n"
             "<BODY BGCOLOR= \"#000000\">\n"
             "<FONT COLOR= \"#FFFFFF\">%s</FONT><BR><BR>\n"
-            "</BODY>\n</HTML>", cLogStart, cLogStart);
+            "</BODY>\n</HTML>", cLogStart, cLogStart);    
 
     fclose(pFile);
 #endif
@@ -115,22 +115,42 @@ void Magic3D::Log::write(LOG type, const char* text) {
     pCurTime = localtime(&ttime);
     strftime(szLogTime, 32, "<PRE>%H:%M:%S    ", pCurTime);
 
+    const char* color = getColor(type);
+    char format[40];
+    sprintf(format, "%s", "<FONT COLOR= \"%s\">%s %s</PRE></FONT>\n");
+
     pFile = fopen(logFile, "r+");
     if (pFile) {
-        fseek(pFile, -16, SEEK_END);
-        const char* color = getColor(type);
-        const char* format = "<FONT COLOR= \"%s\">%s %s</PRE></FONT>\n";
+        fseek(pFile, -16, SEEK_END);        
         fprintf( pFile, format, color, szLogTime, text);
         fprintf( pFile, "</BODY>\n</HTML>");
-        if (callback)
-        {
-            int size = strlen(format) + strlen(color) + strlen(szLogTime) + strlen(text);
-            char* logCallBack = new char[size + 1];
-            sprintf(logCallBack, format, color, szLogTime, text);
-            callback->log(type, logCallBack);
-            delete[] logCallBack;
-        }
         fclose( pFile );
+    }
+
+    if (callback)
+    {
+        int size = 0;
+        if (callback->isSimple())
+        {
+            strftime(szLogTime, 32, "%H:%M:%S    ", pCurTime);
+            sprintf(format, "%s", "%s %s\n");
+            size = strlen(format) + strlen(szLogTime) + strlen(text);
+        }
+        else
+        {
+            size = strlen(format) + strlen(color) + strlen(szLogTime) + strlen(text);
+        }
+        char* logCallBack = new char[size + 1];
+        if (callback->isSimple())
+        {
+            sprintf(logCallBack, format, szLogTime, text);
+        }
+        else
+        {
+            sprintf(logCallBack, format, color, szLogTime, text);
+        }
+        callback->log(type, logCallBack);
+        delete[] logCallBack;
     }
 #endif
 }
@@ -141,8 +161,8 @@ void Magic3D::Log::logFormat(LOG type, const char* text, ...)
     va_list va;
     va_start(va, text);    
     vsprintf(szParsedString, text, va);
-    getInstance()->write(type, szParsedString);
     va_end(va);
+    getInstance()->write(type, szParsedString);    
 }
 
 void Magic3D::Log::log(LOG type, const char* text)

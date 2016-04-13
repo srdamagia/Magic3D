@@ -68,6 +68,7 @@ public:
     EventListener_Joystick() : EventListener(eINPUT_JOYSTICK) {}
     virtual ~EventListener_Joystick() {}
 
+    virtual void axis(int axis, float value) {if (axis || value) {}}
     virtual void down(int button) {if (button) {}}
     virtual void pressed(int button) {if (button) {}}
     virtual void up(int button) {if (button) {}}

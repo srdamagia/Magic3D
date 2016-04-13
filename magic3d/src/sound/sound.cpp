@@ -87,7 +87,7 @@ void Magic3D::Sound::load()
     const int length = lower.length();
     for(int i=0; i!=length; ++i)
     {
-        lower[i] = std::tolower(lower[i]);
+        lower[i] = tolower(lower[i]);
     }
     std::string ending = ".ogg";
     if (lower.compare (lower.length() - ending.length(), ending.length(), ending) == 0)

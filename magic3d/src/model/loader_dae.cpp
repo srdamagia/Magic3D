@@ -855,7 +855,7 @@ void Magic3D::LoaderDAE::loadBoneNames(XMLElement* root)
                     if (param)
                     {
                         std::string arrayname = std::string(param->Attribute("type")) + "_array";
-                        arrayname[0] = std::toupper(arrayname[0]);
+                        arrayname[0] = toupper(arrayname[0]);
 
                         XMLElement* array = s->FirstChildElement(arrayname.c_str());
 

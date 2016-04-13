@@ -406,7 +406,7 @@ Magic3D::Renderer_OpenGL::~Renderer_OpenGL()
 }
 
 void Magic3D::Renderer_OpenGL::initialize()
-{
+{    
     char* ver = (char*)glGetString(GL_VERSION); // ver = "3.2.0"
     check_gl_error();
     version = ver[0] - '0';
@@ -431,7 +431,7 @@ void Magic3D::Renderer_OpenGL::initialize()
 
     std::sort(this->extensions.begin(), this->extensions.end());
 
-#if defined(MAGIC3D_OES1) || defined(MAGIC3D_OES2)
+#if defined(MAGIC3D_OES)
     this->extVBO          = true;
     this->extFBO          = true;
     this->extMapBuffer    = isExtensionSupported("GL_OES_mapbuffer");
@@ -596,6 +596,10 @@ void Magic3D::Renderer_OpenGL::initialize()
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     check_gl_error();
 #endif
+
+    int depthbits;
+    glGetIntegerv(GL_DEPTH_BITS, &depthbits);
+    Log::logFormat(eLOG_PLAINTEXT, "Depth Bits: %d", depthbits);
 
     createCheckTexture();
 
@@ -1009,8 +1013,11 @@ void Magic3D::Renderer_OpenGL::createScreenVBO()
 
         if (renderIDScreen.data > 0 || renderIDScreen.index > 0)
         {
-            posteffectsVertices.clear();
-            posteffectsTriangles.clear();
+            if (extVBO)
+            {
+                posteffectsVertices.clear();
+                posteffectsTriangles.clear();
+            }
             vboCreated++;
         }
     }
@@ -1020,27 +1027,6 @@ void Magic3D::Renderer_OpenGL::createPlaneVBO()
 {
     if (extVBO)
     {
-        PlaneVertex tmp;
-        PlaneVertex planeVertices[4];
-
-        tmp.vertex = Vector3(-1.0f, -1.0f, 0.0f);
-        tmp.uv = Texture2D(0.0f, 0.0f);
-        planeVertices[0] = tmp;
-
-        tmp.vertex = Vector3(1.0f, -1.0f, 0.0f);
-        tmp.uv = Texture2D(1.0f, 0.0f);
-        planeVertices[1] = tmp;
-
-        tmp.vertex = Vector3(-1.0f, 1.0f, 0.0f);
-        tmp.uv = Texture2D(0.0f, 1.0f);
-        planeVertices[2] = tmp;
-
-        tmp.vertex = Vector3(1.0f, 1.0f, 0.0f);
-        tmp.uv = Texture2D(1.0f, 1.0f);
-        planeVertices[3] = tmp;
-
-        vindex planeTriangles[4] = {0, 1, 2, 3};
-
         int vcount = sizeof(PlaneVertex) * 4;
         void* vertices = &planeVertices;
 
@@ -1064,10 +1050,12 @@ void Magic3D::Renderer_OpenGL::createPlaneVBO(RENDER_ID &id, int vcount, void* v
     id.index = 0;
     id.indexSize = 0;
 
+#ifndef MAGIC3D_NO_VAO
     glGenVertexArrays(1, &id.id);
     check_gl_error();
     glBindVertexArray(id.id);
     check_gl_error();
+#endif
 
     glGenBuffers(1, &id.data);
     check_gl_error();
@@ -1102,8 +1090,10 @@ void Magic3D::Renderer_OpenGL::createPlaneVBO(RENDER_ID &id, int vcount, void* v
     glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &id.indexSize);
     check_gl_error();
 
+#ifndef MAGIC3D_NO_VAO
     glBindVertexArray(0);
     check_gl_error();
+#endif
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     check_gl_error();
@@ -1249,10 +1239,12 @@ Magic3D::RENDER_ID Magic3D::Renderer_OpenGL::createVBO(void* vertices, int vcoun
 
     if (extVBO)
     {
+#ifndef MAGIC3D_NO_VAO
         glGenVertexArrays(1, &result.id);
         check_gl_error();
         glBindVertexArray(result.id);
         check_gl_error();
+#endif
 
         glGenBuffers(1, &result.data);
         check_gl_error();
@@ -1327,8 +1319,10 @@ Magic3D::RENDER_ID Magic3D::Renderer_OpenGL::createVBO(void* vertices, int vcoun
         glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &result.indexSize);
         check_gl_error();
 
+#ifndef MAGIC3D_NO_VAO
         glBindVertexArray(0);
         check_gl_error();
+#endif
 
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         check_gl_error();
@@ -1437,7 +1431,7 @@ Magic3D::RENDER_ID Magic3D::Renderer_OpenGL::copyVBO(const RENDER_ID& id)
     result.index = 0;
     result.indexSize = 0;
 
-    if (extVBO && id.data > 0 && id.index > 0)
+    if (hasMapBuffer() && extVBO && id.data > 0 && id.index > 0)
     {
         float* vertices = NULL;
         float* tmpVertices = mapVBO(id.data);
@@ -1548,8 +1542,10 @@ void Magic3D::Renderer_OpenGL::deleteVBO(RENDER_ID id)
 {
     if (extVBO && (id.data > 0 || id.indexSize > 0))
     {
+#ifndef MAGIC3D_NO_VAO
         glDeleteVertexArrays(1, &id.id);
         check_gl_error();
+#endif
 
 #if defined(MAGIC3D_OES1) || defined(MAGIC3D_OES2) || !defined(MAGIC3D_LEGACY)
         glDeleteBuffers(1, &id.data);

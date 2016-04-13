@@ -379,7 +379,7 @@ void Magic3D::Animation::addBone(float time, int bone, Matrix4 matrix)
         frame->bones.push_back(b);
     }
 
-    sort(frames.begin(), frames.end(), sortFrames);
+    std::sort(frames.begin(), frames.end(), sortFrames);
 }
 
 bool Magic3D::Animation::removeFrame(float time)
