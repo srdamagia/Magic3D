@@ -67,7 +67,9 @@ Libraries
 ------------
 * http://www.opengl.org
 * https://www.khronos.org/opengles/
+* https://www.libsdl.org/
 * http://www.openal.org
+* https://github.com/apportable/openal-soft
 * http://bulletphysics.org
 * http://www.lua.org
 * https://github.com/leethomason/tinyxml2
