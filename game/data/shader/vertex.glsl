@@ -7,7 +7,7 @@ attribute vec2 uv_1;
 attribute vec4 weights;
 attribute vec4 bones;
 
-uniform mat4 skin[50];
+uniform mat4 skin[32];
 uniform bool skeleton;
 
 vec3 vertexModelPosition;
@@ -123,43 +123,39 @@ void updateBones()
 #ifdef SKINNING
     if (skeleton)
     {
-        bool havebone = false;
+        bool haveBone = false;
+        int boneIndex = 0;
         float w = 0.0;
 
         vertexModelPosition = vec3(0.0, 0.0, 0.0);
         vertexModelNormal   = vec3(0.0, 0.0, 0.0);
-        #ifndef VERTEX_LIGHTS
         vertexModelTangent  = vec3(0.0, 0.0, 0.0);
-        #endif
 
-        for (int i = 0; i < 4; i++)
-        {
-            int boneIndex = int(bones[i]);
-            if (boneIndex == -1)
-            {
-                break;
-            }
-
-            w += weights[i];
-
-            vertexModelPosition += vec4(skin[boneIndex] * vec4(position, 1.0)).xyz * weights[i];
-            vertexModelNormal   += vec4(skin[boneIndex] * vec4(normal,   0.0)).xyz * weights[i];
-            #ifndef VERTEX_LIGHTS
-            vertexModelTangent  += vec4(skin[boneIndex] * vec4(tangent,  0.0)).xyz * weights[i];
-            #endif
-
-            havebone = true;
+        #define SKIN_BONE_INDEX(INDEX)                                        \
+        boneIndex = int(bones[INDEX]);                                        \
+        if (boneIndex >= 0)                                                   \
+        {                                                                     \
+            float wg = weights[INDEX];                                        \
+            mat4 ms = skin[boneIndex];                                        \
+            w += wg;                                                          \
+            vertexModelPosition += vec4(ms * vec4(position, 1.0)).xyz * wg;   \
+            vertexModelNormal   += vec4(ms * vec4(normal,   0.0)).xyz * wg;   \
+            vertexModelTangent  += vec4(ms * vec4(tangent,  0.0)).xyz * wg;   \
+            haveBone = true;                                                  \
         }
 
-        if (havebone)
+        SKIN_BONE_INDEX(0)
+        SKIN_BONE_INDEX(1)
+        SKIN_BONE_INDEX(2)
+        SKIN_BONE_INDEX(3)
+
+        if (haveBone)
         {
             w = 1.0 / (w != 0.0 ? w : 1.0);
 
             vertexModelPosition *= w;
             vertexModelNormal   *= w;
-            #ifndef VERTEX_LIGHTS
             vertexModelTangent  *= w;
-            #endif
         }
     }
 #endif

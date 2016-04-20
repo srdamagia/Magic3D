@@ -37,10 +37,11 @@
 precision mediump int;
 precision mediump float;
 #else
+#define mediump
 #define highp
 #endif
 
-uniform int renderMode;
+uniform mediump int renderMode;
 
 uniform mat4 matrixProjection;
 uniform mat4 matrixModelView;
@@ -62,7 +63,7 @@ uniform int random;
 
 uniform int useTexture_0;
 uniform int useTexture_1;
-uniform int useTexture_Shadows;
+uniform mediump int useTexture_Shadows;
 uniform int useTexture_Reflection;
 uniform int useTexture_Depth;
 
