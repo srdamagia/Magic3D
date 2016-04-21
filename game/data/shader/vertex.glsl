@@ -131,18 +131,7 @@ void updateBones()
         vertexModelNormal   = vec3(0.0, 0.0, 0.0);
         vertexModelTangent  = vec3(0.0, 0.0, 0.0);
 
-        #define SKIN_BONE_INDEX(INDEX)                                        \
-        boneIndex = int(bones[INDEX]);                                        \
-        if (boneIndex >= 0)                                                   \
-        {                                                                     \
-            float wg = weights[INDEX];                                        \
-            mat4 ms = skin[boneIndex];                                        \
-            w += wg;                                                          \
-            vertexModelPosition += vec4(ms * vec4(position, 1.0)).xyz * wg;   \
-            vertexModelNormal   += vec4(ms * vec4(normal,   0.0)).xyz * wg;   \
-            vertexModelTangent  += vec4(ms * vec4(tangent,  0.0)).xyz * wg;   \
-            haveBone = true;                                                  \
-        }
+        #define SKIN_BONE_INDEX(INDEX) boneIndex = int(bones[INDEX]); if (boneIndex >= 0) { float wg = weights[INDEX]; mat4 ms = skin[boneIndex]; w += wg; vertexModelPosition += vec4(ms * vec4(position, 1.0)).xyz * wg; vertexModelNormal   += vec4(ms * vec4(normal,   0.0)).xyz * wg; vertexModelTangent  += vec4(ms * vec4(tangent,  0.0)).xyz * wg; haveBone = true; }
 
         SKIN_BONE_INDEX(0)
         SKIN_BONE_INDEX(1)
