@@ -9,6 +9,8 @@ uniform float threshold_1;
 uniform float threshold_value;
 uniform bool stereoscopy;
 
+varying vec2 vertexUV;
+
 float threshold(in float thr1, in float thr2 , in float val) 
 {
     return val < thr1 ? 0.0 : val > thr2 ? 1.0 : val;
@@ -22,7 +24,7 @@ float avg_intensity(in vec4 pix)
 
 vec4 get_pixel(in vec2 coords, in float dx, in float dy) 
 {
-    return texture2D(texture_Depth, uvs.xy + vec2(dx, dy));
+    return texture2D(texture_Depth, vertexUV + vec2(dx, dy));
 }
 
 // returns pixel color
@@ -72,34 +74,34 @@ float EdgeDepth(in vec2 coords)
 
 void main()
 {
-    vec4 finalColor = texture2D(texture_0, uvs.xy);
+    vec4 finalColor = texture2D(texture_0, vertexUV);
 
 #ifndef GL_ES
     if (renderMode == 4)
     {
-        float color = linearDepth(uvs.xy);
+        float color = linearDepth(vertexUV);
         finalColor = vec4(color, color, color, 1.0);
     }
 #endif
 
 #ifdef DETECT_BORDER
-    float fXIndex = uvs.x * sizeTexture_0.x;
-    float fYIndex = uvs.y * sizeTexture_0.y;
+    float fXIndex = vertexUV.x * sizeTexture_0.x;
+    float fYIndex = vertexUV.y * sizeTexture_0.y;
 
     // image boundaries Top, Bottom, Left, Right pixels
     if(renderMode == 0 && !( fYIndex < 1.0 || fYIndex > sizeTexture_0.x - 1.0 || 
                              fXIndex < 1.0 || fXIndex > sizeTexture_0.y - 1.0 ))
     {
 #ifdef SOBEL
-        bool isEdge = EdgeSobel(uvs.xy) != 0.0;
+        bool isEdge = EdgeSobel(vertexUV) != 0.0;
 #else
-        bool isEdge = edgeTest <= EdgeDepth(uvs.xy);
+        bool isEdge = edgeTest <= EdgeDepth(vertexUV);
 #endif
     
         if (isEdge)
         {
-            //finalColor = useTexture_0 > 0 ? texture2D(texture_0, uvs.xy) : vec4(1.0, 1.0, 1.0, 1.0);        
-            finalColor = edgeColor;//mix(texture2D(texture_0, uvs.xy), edgeColor, 0.5); 
+            //finalColor = useTexture_0 > 0 ? texture2D(texture_0, vertexUV) : vec4(1.0, 1.0, 1.0, 1.0);        
+            finalColor = edgeColor;//mix(texture2D(texture_0, vertexUV), edgeColor, 0.5); 
         }
     }
 #endif
@@ -107,13 +109,13 @@ void main()
     if (stereoscopy)
     {
         vec2 eyeUV;
-        if (uvs.x > screenAspect.x * 0.5)
+        if (vertexUV.x > screenAspect.x * 0.5)
         {
-            eyeUV = uvs.xy * vec2(2.0 * screenAspect.z, screenAspect.w) - vec2(1.0, 0.0);
+            eyeUV = vertexUV * vec2(2.0 * screenAspect.z, screenAspect.w) - vec2(1.0, 0.0);
         }
         else
         {
-            eyeUV = uvs.xy * vec2(2.0 * screenAspect.z, screenAspect.w);
+            eyeUV = vertexUV * vec2(2.0 * screenAspect.z, screenAspect.w);
         }
 
         float r2 = (eyeUV.x - 0.5) * (eyeUV.x - 0.5) + (eyeUV.y - 0.5) * (eyeUV.y - 0.5);
@@ -127,7 +129,7 @@ void main()
         {
             //finalColor = texture2D(texture_0, realCoordOffs * vec2(screenAspect.x * 0.5, screenAspect.y));
             realCoordOffs *= vec2(screenAspect.x * 0.5, screenAspect.y);
-            if (uvs.x > screenAspect.x * 0.5)
+            if (vertexUV.x > screenAspect.x * 0.5)
             {
                 realCoordOffs += vec2(screenAspect.x * 0.5, 0.0);
             }
@@ -139,12 +141,12 @@ void main()
             finalColor = vec4(0.0, 0.0, 0.0, 1.0);
         }
     }
-
-    gl_FragColor.rgb = finalColor.rgb;
-    gl_FragColor.a = 1.0;
+    
 #ifdef GLOW
-    vec4 glow = useTexture_Depth > 0 ? texture2D(texture_1, uvs.xy) : vec4(0.0, 0.0, 0.0, 1.0);
+    vec4 glow = useTexture_Depth > 0 ? texture2D(texture_1, vertexUV) : vec4(0.0, 0.0, 0.0, 1.0);
     gl_FragColor = clamp((glow + finalColor) - (glow * finalColor), 0.0, 1.0);
     gl_FragColor.a = 1.0;
+#else
+    gl_FragColor = vec4(finalColor.rgb, 1.0);
 #endif
 }

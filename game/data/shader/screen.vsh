@@ -1,6 +1,8 @@
 uniform vec4 distortion[64];
 uniform int distortions;
 
+varying vec2 vertexUV;
+
 void main()
 {
     vec3 finalPos = position.xyz;
@@ -47,7 +49,7 @@ void main()
             }
         }
     }
+
+    vertexUV = uv_0;
     gl_Position = vec4(finalPos, 1.0);
-    uvs.xy = uv_0;
-    uvs.zw = uv_0;
 }
