@@ -470,12 +470,42 @@ bool Magic3D::RendererOpenGL_Shaders::renderFBO(OpenGL_FBO* fbo, ViewPort* view,
         {
             glBindFramebuffer(GL_FRAMEBUFFER, getDefaultFBO());
             check_gl_error();
-        }        
+        }
 
         if (fbo)
         {
-            fboViewPort->setWidth(fbo->getWidth());
-            fboViewPort->setHeight(fbo->getHeight());
+            float aspect = 0.0f;
+
+            if (getWindow()->getHeight() < getWindow()->getWidth())
+            {
+                aspect = (float)getWindow()->getHeight() / (float)getWindow()->getWidth();
+            }
+            else
+            {
+                aspect = (float)getWindow()->getWidth() / (float)getWindow()->getHeight();
+            }
+
+            if (isRenderingScreenEffects())
+            {
+                fboViewPort->setWidth(fbo->getWidth() * screenAspect.getX());
+                fboViewPort->setHeight(fbo->getHeight() * screenAspect.getY());
+            }
+            else
+            {
+                if (getWindow()->getHeight() < getWindow()->getWidth())
+                {
+                    fboViewPort->setWidth(fbo->getWidth());
+                    fboViewPort->setHeight(fbo->getHeight() * aspect);
+                }
+                else
+                {
+                    fboViewPort->setWidth(fbo->getWidth() * aspect);
+                    fboViewPort->setHeight(fbo->getHeight());
+                }
+            }
+
+            //fboViewPort->setWidth(fbo->getWidth());
+            //fboViewPort->setHeight(fbo->getHeight());
             fboViewPort->setPerspective(camera);
             view3D(fboViewPort);
         }
@@ -1306,6 +1336,7 @@ bool Magic3D::RendererOpenGL_Shaders::renderObject(Camera* camera, const RenderO
         return false;
     }
 
+#if !defined(MAGIC3D_OES)
     if (!shadows && !toTexture && camera->getProjectionType() == ePROJECTION_ORTHOGRAPHIC && finalObject->getType() == eOBJECT_LIGHT)
     {
         Light* light = static_cast<Light*>(finalObject);
@@ -1341,6 +1372,7 @@ bool Magic3D::RendererOpenGL_Shaders::renderObject(Camera* camera, const RenderO
             }
         }
     }
+#endif
 
     std::vector<Mesh*>* meshes = finalObject->getMeshes();
     std::vector<Mesh*>::const_iterator it_m = meshes->begin();
@@ -1509,7 +1541,14 @@ bool Magic3D::RendererOpenGL_Shaders::renderObject(Camera* camera, const RenderO
 
                 if (toTexture)
                 {
-                    setUniform4f(glsl->uniforms[eUNIFORM_WINDOW], fboViewPort->getWidth(), fboViewPort->getHeight(), fboViewPort->getArea().getZ(), fboViewPort->getArea().getW());
+                    if (isRenderingScreenEffects())
+                    {
+                        setUniform4f(glsl->uniforms[eUNIFORM_WINDOW], screenViewPort->getWidth(), screenViewPort->getHeight(), fboViewPort->getArea().getZ(), fboViewPort->getArea().getW());
+                    }
+                    else
+                    {
+                        setUniform4f(glsl->uniforms[eUNIFORM_WINDOW], fboViewPort->getWidth(), fboViewPort->getHeight(), fboViewPort->getArea().getZ(), fboViewPort->getArea().getW());
+                    }
                     check_gl_error();
                 }
                 else

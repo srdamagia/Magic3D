@@ -383,7 +383,7 @@ vec4 hemiToon(vec4 color)
 vec4 getTexturesMix(float factor, vec2 tile, vec2 scroll, vec2 speed)
 {
     vec2 finalTile = vec2(1.0, 1.0) / tile;
-    vec2 finalScroll = vec2(scroll.x * finalTile.x, (tile.y * finalTile.y - finalTile.y) - scroll.y * finalTile.y) + (time * speed);
+    vec2 finalScroll = vec2(scroll.x * finalTile.x, (tile.y * finalTile.y - finalTile.y) - scroll.y * finalTile.y) + fract(time * speed);
     vec2 finalUV0 = (uvs.xy * finalTile) + finalScroll;
     vec2 finalUV1 = (uvs.zw * finalTile) + finalScroll;
 
