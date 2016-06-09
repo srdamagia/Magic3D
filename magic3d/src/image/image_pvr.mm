@@ -49,9 +49,9 @@ Magic3D::Texture* Magic3D::PVR::getTexture(DataBuffer* file, TEXTURE type, std::
     if (file)
     {
         // Get the file size
-        file->seeki(0, SEEK_END);
-        dibSize = file->telli();
-        file->seeki(0, SEEK_SET);
+        file->seek(0, SEEK_END);
+        dibSize = file->tell();
+        file->seek(0, SEEK_SET);
 
         // read the data, append a 0 byte as the data might represent a string
         dib = new byte[dibSize + 1];

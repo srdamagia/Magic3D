@@ -25,7 +25,7 @@ subject to the following restrictions:
 #include <magic3d/file.h>
 #include <magic3d/log.h>
 
-#include <SDL_rwops.h>
+#include "SDL_rwops.h"
 
 Magic3D::Package::Package()
 {
