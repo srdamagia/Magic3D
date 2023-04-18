@@ -15,26 +15,26 @@ Entirely built using standard C and C++ portable game engine with focus on mobil
 * Octree.
 * Terrain.
 
-####Platforms:
+#### Platforms:
 
 * Native support for iOS, Android, Windows, MacOS and Linux, but you can port to other platforms.
 * Visual Editor for Windows, MacOS and Linux.
 * Multi-touch, Accelerometer and Gyroscope.
 * Stereoscopy.
 
-####Physics:
+#### Physics:
 
 * Integration and full access to the Bullet Physics API. http://bulletphysics.org
 
-####Scripting:
+#### Scripting:
 
 * Integration and full access to the Lua Programming Language. http://www.lua.org
 
-####Networking:
+#### Networking:
 
 * Integration and full access to the Enet library. http://enet.bespin.org
 
-####Shaders and Effects:
+#### Shaders and Effects:
 
 * Vertex and Pixel lightning system.
 * Dynamic Shadows(ESM) and Shadowmap.
@@ -50,7 +50,7 @@ Entirely built using standard C and C++ portable game engine with focus on mobil
 * Blur.
 * Glow.
 
-####Assets:
+#### Assets:
 
 * Models: Collada (.dae)
 * Textures: TGA, PNG and PVR (iOS Only)
