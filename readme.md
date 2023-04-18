@@ -1,10 +1,10 @@
 ![Magic3D Logo](http://www.magictech.com.br/images/magic3d.png)
 
-###Version 1.0.0
+### Version 1.0.0
 Entirely built using standard C and C++ portable game engine with focus on mobile devices, but also including support for Windows, MacOS and Linux.
 
-###Features:
-####Graphics:
+### Features:
+#### Graphics:
 
 * Native support for OpenGL and OpenGL ES, but you can implement your own renderer.
 * 2D and 3D Objects.
